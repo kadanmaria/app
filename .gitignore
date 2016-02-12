@@ -7,3 +7,6 @@ build/
 *.pbxuser
 *.perspective
 *.perspectivev3
+App.xcodeproj/project.pbxproj
+App.xcodeproj/project.xcworkspace/xcuserdata/admin.xcuserdatad/UserInterfaceState.xcuserstate
+App.xcodeproj/xcuserdata/admin.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist

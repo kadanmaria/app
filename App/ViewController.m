@@ -8,13 +8,12 @@
 
 #import "ViewController.h"
 #import "Cell.h"
-#import "Data.h"
+#import "ContentDownloader.h"
 
 
-@interface ViewController () <UITableViewDelegate, UITableViewDataSource, JSONDelegate> {
-    Data *currentData;
-}
+@interface ViewController () <UITableViewDelegate, UITableViewDataSource, ContentDownloaderDelegate>
 
+@property (strong, nonatomic) ContentDownloader *contentDownloader;
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
 @property (strong, nonatomic) NSArray *dataArray;
 
@@ -24,18 +23,19 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    currentData = [[Data alloc] init];
-    currentData.JSONDelegate = self;
-//    [currentData getData];
+    self.tableView.estimatedRowHeight = 140.0;
+    self.tableView.rowHeight = UITableViewAutomaticDimension;
+    self.contentDownloader = [[ContentDownloader alloc] init];
+    self.contentDownloader.delegate = self;
 }
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
 }
 
-#pragma mark - JSONDelegate
+#pragma mark - <ContentDownloaderDelegate>
 
-- (void)recievedArrayFromJSON:(NSArray *)array {
+- (void)data:(ContentDownloader *)data didDownloadContentToArray:(NSArray *)array {
     self.dataArray = array;
     [self.tableView reloadData];
 }
@@ -43,12 +43,10 @@
 #pragma mark - IBActions
 
 - (IBAction)refresh:(UIButton *)sender {
-    self.tableView.estimatedRowHeight = 140.0;
-    self.tableView.rowHeight = UITableViewAutomaticDimension;
-    [currentData getData];
+    [self.contentDownloader downloadContent];
 }
 
-#pragma mark - TableViewDataSource
+#pragma mark - <TableViewDataSource>
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(Cell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
     cell.cellIndex = (NSInteger *)indexPath.row;
@@ -67,7 +65,7 @@
     });
 }
 
-#pragma mark - TableViewDataSourse
+#pragma mark - <TableViewDataSourse>
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     return [self.dataArray count];
