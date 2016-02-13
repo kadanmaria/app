@@ -16,8 +16,10 @@
 
 @property (strong, nonatomic) ContentDownloader *contentDownloader;
 @property (strong, nonatomic) ImageDownloader *imageDownloader;
+@property (strong, nonatomic) NSMutableArray *images;
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
 @property (strong, nonatomic) NSArray *dataArray;
+@property (weak, nonatomic) UIImageView *tempImage;
 
 @end
 
@@ -31,8 +33,8 @@
     self.contentDownloader = [[ContentDownloader alloc] init];
     self.contentDownloader.delegate = self;
     
-    self.imageDownloader = [[ImageDownloader alloc] init];
-    self.imageDownloader.delegate = self;
+//    self.imageDownloader = [[ImageDownloader alloc] init];
+//    self.imageDownloader.delegate = self;
 }
 
 - (void)didReceiveMemoryWarning {
@@ -43,49 +45,34 @@
 
 - (void)contentDownloader:(ContentDownloader *)contentDownloader didDownloadContentToArray:(NSArray *)array {
     self.dataArray = array;
+    self.images = [[NSMutableArray alloc] init];
+    for (int i=0; i<self.dataArray.count; i++) {
+        ImageDownloader *image = [[ImageDownloader alloc] init];
+        image.delegate = self;
+        [self.images addObject:image];
+    }
     [self.tableView reloadData];
 }
 
 #pragma mark - <ImageDownloaderDelegate>
 
--(void)imageDownloader:(ImageDownloader *)imageDownloader didDownloadData:(NSData *)data forIndexPath:(NSIndexPath *)indexPath {
-    Cell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
+- (void)imageDownloader:(ImageDownloader *)imageDownloader didDownloadImage:(UIImage *)image withIndexPath:(NSIndexPath *)indexPath {
+    Cell *cell = (Cell *)[self.tableView cellForRowAtIndexPath:indexPath];
     if (cell) {
-        UIImage *image = [UIImage imageWithData:data];
-        if(image) {
-            cell.photoImageView.image = image;
-        }
-    } else {
-        NSLog(@"Cell at index path %@ is nil", indexPath);
+        cell.imageView.image = image;
+//        cell.imageView.contentMode = UIViewContentModeScaleAspectFit;
+        NSLog(@"Set image for indexPath %@", indexPath);
     }
-    
+    else {
+        NSLog(@"Cell with indexPath %@ is out of range", indexPath);
+    }
 }
 
 #pragma mark - IBActions
 
 - (IBAction)refresh:(UIButton *)sender {
     [self.contentDownloader downloadContent];
-    [self.imageDownloader do]
 }
-
-#pragma mark - <TableViewDataSource>
-
-//- (void)tableView:(UITableView *)tableView willDisplayCell:(Cell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
-//    cell.cellIndex = (NSInteger *)indexPath.row;
-//    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-//        NSData *imageData = [NSData dataWithContentsOfURL:[NSURL URLWithString:[self.dataArray[indexPath.row] objectForKey:@"image_name"]]];
-//        if(imageData) {
-//            UIImage *image = [UIImage imageWithData:imageData];
-//            if(image) {
-//                dispatch_async(dispatch_get_main_queue(), ^{
-//                    if(cell.cellIndex == (NSInteger *)indexPath.row) {
-//                        cell.photoImageView.image = image;
-//                    }
-//                });
-//            }
-//        }
-//    });
-//}
 
 #pragma mark - <TableViewDataSourse>
 
@@ -95,10 +82,10 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     Cell *cell = (Cell *)[tableView dequeueReusableCellWithIdentifier:@"Cell"];
-
+//    NSLog(@"INDEX PATH %@", indexPath);
     cell.titleLabel.text = [self.dataArray[indexPath.row] objectForKey:@"title"];
     cell.subTitleLabel.text = [self.dataArray[indexPath.row] objectForKey:@"subtitle"];
-    [self.imageDownloader downloadImageFromString:[self.dataArray[indexPath.row] objectForKey:@"image_name"] withIndexPath:indexPath];
+    [self.images[indexPath.row] downloadImageFromString:[self.dataArray[indexPath.row] objectForKey:@"image_name"] withIndexPath:indexPath];
     return cell;
 }
 

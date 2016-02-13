@@ -12,16 +12,15 @@
 
 @protocol ImageDownloaderDelegate
 
-//- (void)imageDownloader:(ImageDownloader *)imageDownloader didDownloadImage:(UIImage *)image withIndex:(NSInteger)index;
-- (void)imageDownloader:(ImageDownloader *)imageDownloader didDownloadData:(NSData *)data forIndexPath:(NSIndexPath *)indexPath;
+- (void)imageDownloader:(ImageDownloader *)imageDownloader didDownloadImage:(UIImage *)image withIndexPath:(NSIndexPath *)indexPath;
 
 @end
 
+//@interface ImageDownloader : UIImageView
 @interface ImageDownloader : NSObject
 
 @property (weak, nonatomic) id <ImageDownloaderDelegate> delegate;
 
 - (void)downloadImageFromString:(NSString *)imageString withIndexPath:(NSIndexPath *)indexPath;
-- (void)downloadImagesFromArray:(NSArray *)imagesArray;
 
 @end

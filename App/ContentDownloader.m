@@ -38,7 +38,8 @@ static NSString * const stringForURLRequest = @"https://api.backendless.com/v1/d
 }
 
 - (void)connection:(NSURLConnection*)connection didReceiveResponse:(NSURLResponse *)response {
-    [self.returnedData setLength:0];
+    self.returnedData = [[NSMutableData alloc] init];
+//    [self.returnedData setLength:0];
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {

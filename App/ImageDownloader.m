@@ -14,13 +14,13 @@
 @property (strong, nonatomic) NSMutableData *dataContainingImage;
 @property (strong, nonatomic) NSString *imageURL;
 @property (assign, nonatomic) NSIndexPath *indexPath;
+@property (strong, nonatomic) UIImage *image;
 
 @end
 
 @implementation ImageDownloader
 
 - (void)downloadImageFromString:(NSString *)imageString withIndexPath:(NSIndexPath *)indexPath {
-    self.imageURL = imageString;
     self.indexPath = indexPath;
     NSString *restCall = imageString;
     NSURL *restURL = [NSURL URLWithString:restCall];
@@ -32,22 +32,6 @@
     }
     self.currentConnection = [[NSURLConnection alloc] initWithRequest:restReqest delegate:self];
     self.dataContainingImage = [NSMutableData data];
-}
-
-- (void)downloadImagesFromArray:(NSArray *)imagesArray {
-    NSString *restCall = imageString;
-    NSURL *restURL = [NSURL URLWithString:restCall];
-    NSURLRequest *restReqest = [NSURLRequest requestWithURL:restURL];
-    if (self.currentConnection) {
-        [self.currentConnection cancel];
-        self.currentConnection = nil;
-        self.dataContainingImage = nil;
-    }
-    self.currentConnection = [[NSURLConnection alloc] initWithRequest:restReqest delegate:self];
-    self.dataContainingImage = [NSMutableData data];
-
-
-
 }
 
 - (void)connection:(NSURLConnection*)connection didReceiveResponse:(NSURLResponse *)response {
@@ -64,12 +48,15 @@
 }
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection {
-    NSData *data = [NSData dataWithContentsOfURL:[NSURL URLWithString:self.imageURL]];
-    if (!data) {
-        NSLog(@"Error Downloading Data");
-    } else {
-        [self.delegate imageDownloader:self didDownloadData:data forIndexPath:self.indexPath];
-    }
+    UIImage *image = [UIImage imageWithData:self.dataContainingImage];
+        if (!image) {
+            NSLog(@"Error Setting Image");
+        } else {
+            self.image = image;
+         //   self.contentMode = UIViewContentModeScaleAspectFit;
+            [self.delegate imageDownloader:self didDownloadImage:self.image withIndexPath:self.indexPath];
+            NSLog(@"Did download image for row %lu", self.indexPath.row);
+        }
     self.currentConnection = nil;
 }
 
