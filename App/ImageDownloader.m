@@ -12,7 +12,6 @@
 
 @property (strong, nonatomic) NSURLConnection *currentConnection;
 @property (strong, nonatomic) NSMutableData *dataContainingImage;
-@property (strong, nonatomic) NSString *imageURL;
 @property (assign, nonatomic) NSIndexPath *indexPath;
 @property (strong, nonatomic) UIImage *image;
 
@@ -20,7 +19,7 @@
 
 @implementation ImageDownloader
 
-- (void)downloadImageFromString:(NSString *)imageString withIndexPath:(NSIndexPath *)indexPath {
+- (void)downloadImageFromString:(NSString *)imageString forIndexPath:(NSIndexPath *)indexPath {
     self.indexPath = indexPath;
     NSString *restCall = imageString;
     NSURL *restURL = [NSURL URLWithString:restCall];
@@ -31,11 +30,12 @@
         self.dataContainingImage = nil;
     }
     self.currentConnection = [[NSURLConnection alloc] initWithRequest:restReqest delegate:self];
-    self.dataContainingImage = [NSMutableData data];
 }
 
+#pragma mark - <NSURLConnectionDelegate>
+
 - (void)connection:(NSURLConnection*)connection didReceiveResponse:(NSURLResponse *)response {
-    [self.dataContainingImage setLength:0];
+    self.dataContainingImage = [NSMutableData data];
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
@@ -53,8 +53,7 @@
             NSLog(@"Error Setting Image");
         } else {
             self.image = image;
-         //   self.contentMode = UIViewContentModeScaleAspectFit;
-            [self.delegate imageDownloader:self didDownloadImage:self.image withIndexPath:self.indexPath];
+            [self.delegate imageDownloader:self didDownloadImage:self.image forIndexPath:self.indexPath];
             NSLog(@"Did download image for row %lu", self.indexPath.row);
         }
     self.currentConnection = nil;

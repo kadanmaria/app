@@ -34,12 +34,12 @@ static NSString * const stringForURLRequest = @"https://api.backendless.com/v1/d
         self.returnedData = nil;
     }
     self.currentConnection = [[NSURLConnection alloc] initWithRequest:restReqest delegate:self];
-    self.returnedData = [NSMutableData data];
 }
 
+#pragma mark - <NSURLConnectionDelegate>
+
 - (void)connection:(NSURLConnection*)connection didReceiveResponse:(NSURLResponse *)response {
-    self.returnedData = [[NSMutableData alloc] init];
-//    [self.returnedData setLength:0];
+    self.returnedData = [NSMutableData data];
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
