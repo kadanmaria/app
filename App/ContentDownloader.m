@@ -56,7 +56,7 @@ static NSString * const stringForURLRequest = @"https://api.backendless.com/v1/d
     if (error) {
         NSLog(@"Error Parsing JSON %@", error);
     } else {
-        [self.delegate data:self didDownloadContentToArray:[parsedObject valueForKey:@"data"]];
+        [self.delegate contentDownloader:self didDownloadContentToArray:[parsedObject valueForKey:@"data"]];
     }
     self.currentConnection = nil;
 }

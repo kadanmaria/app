@@ -11,7 +11,7 @@
 
 @protocol ContentDownloaderDelegate
 
-- (void)data:(ContentDownloader *)data didDownloadContentToArray:(NSArray *)array;
+- (void)contentDownloader:(ContentDownloader *)contentDownloader didDownloadContentToArray:(NSArray *)array;
 
 @end
 
