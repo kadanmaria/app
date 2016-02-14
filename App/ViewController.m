@@ -18,7 +18,7 @@
 @property (strong, nonatomic) NSArray *dataArray;
 @property (strong, nonatomic) NSCache *imagesCache;
 @property (strong, nonatomic) ContentDownloader *contentDownloader;
-@property (strong, nonatomic) NSMutableDictionary *imagesDictionary;
+@property (strong, nonatomic) NSMutableSet *imagesSet;
 
 @end
 
@@ -30,7 +30,6 @@
     self.tableView.rowHeight = UITableViewAutomaticDimension;
     self.contentDownloader = [[ContentDownloader alloc] init];
     self.contentDownloader.delegate = self;
-    self.imagesDictionary = [[NSMutableDictionary alloc] init];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -60,6 +59,7 @@
 - (IBAction)refresh:(UIButton *)sender {
     NSLog(@"REFRESH");
     self.imagesCache = [[NSCache alloc] init];
+    self.imagesSet = [[NSMutableSet alloc] init];
     [self.contentDownloader downloadContent];
 }
 
@@ -73,13 +73,13 @@
     Cell *cell = (Cell *)[tableView dequeueReusableCellWithIdentifier:@"Cell"];
     cell.titleLabel.text = [self.dataArray[indexPath.row] objectForKey:@"title"];
     cell.subTitleLabel.text = [self.dataArray[indexPath.row] objectForKey:@"subtitle"];
-    UIImage *imageAlreadyCahed = [self.imagesCache objectForKey:indexPath];
-    if (imageAlreadyCahed) {
-        cell.photoImageView.image = imageAlreadyCahed;
-    } else if (![self.imagesDictionary objectForKey:indexPath]) {
+    UIImage *imageAlreadyCached = [self.imagesCache objectForKey:indexPath];
+    if (imageAlreadyCached) {
+        cell.photoImageView.image = imageAlreadyCached;
+    } else if (![self.imagesSet containsObject:indexPath]) {
         ImageDownloader *image = [[ImageDownloader alloc] init];
         image.delegate = self;
-        [self.imagesDictionary setObject:image forKey:indexPath];
+        [self.imagesSet addObject:indexPath];
         [image downloadImageFromString:[self.dataArray[indexPath.row] objectForKey:@"image_name"] forIndexPath:indexPath];
     }
     return cell;
