@@ -15,10 +15,10 @@
 @interface ViewController () <UITableViewDelegate, UITableViewDataSource, ContentDownloaderDelegate, ImageDownloaderDelegate>
 
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
-@property (strong, nonatomic) NSMutableArray *images;
 @property (strong, nonatomic) NSArray *dataArray;
 @property (strong, nonatomic) NSCache *imagesCache;
 @property (strong, nonatomic) ContentDownloader *contentDownloader;
+@property (strong, nonatomic) NSMutableDictionary *imagesDictionary;
 
 @end
 
@@ -30,6 +30,7 @@
     self.tableView.rowHeight = UITableViewAutomaticDimension;
     self.contentDownloader = [[ContentDownloader alloc] init];
     self.contentDownloader.delegate = self;
+    self.imagesDictionary = [[NSMutableDictionary alloc] init];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -40,13 +41,6 @@
 
 - (void)contentDownloader:(ContentDownloader *)contentDownloader didDownloadContentToArray:(NSArray *)array {
     self.dataArray = array;
-    
-    self.images = [[NSMutableArray alloc] init];
-    for (int i=0; i<self.dataArray.count; i++) {
-        ImageDownloader *image = [[ImageDownloader alloc] init];
-        image.delegate = self;
-        [self.images addObject:image];
-    }
     [self.tableView reloadData];
 }
 
@@ -56,15 +50,16 @@
     Cell *cell = (Cell *)[self.tableView cellForRowAtIndexPath:indexPath];
     if (cell) {
         cell.photoImageView.image = image;
-        [self.imagesCache setObject:image forKey:indexPath];
     }
+    [self.imagesCache setObject:image forKey:indexPath];
+    NSLog(@"Image is cashed for row %lu", indexPath.row);
 }
 
 #pragma mark - IBActions
 
 - (IBAction)refresh:(UIButton *)sender {
     NSLog(@"REFRESH");
-    self.imagesCache = [[NSCache alloc] init]; //MAY INCORRECT WORK AFTER BACKGROWND+ADDING NEW FEEDS
+    self.imagesCache = [[NSCache alloc] init];
     [self.contentDownloader downloadContent];
 }
 
@@ -81,8 +76,11 @@
     UIImage *imageAlreadyCahed = [self.imagesCache objectForKey:indexPath];
     if (imageAlreadyCahed) {
         cell.photoImageView.image = imageAlreadyCahed;
-    } else {
-        [self.images[indexPath.row] downloadImageFromString:[self.dataArray[indexPath.row] objectForKey:@"image_name"] forIndexPath:indexPath];
+    } else if (![self.imagesDictionary objectForKey:indexPath]) {
+        ImageDownloader *image = [[ImageDownloader alloc] init];
+        image.delegate = self;
+        [self.imagesDictionary setObject:image forKey:indexPath];
+        [image downloadImageFromString:[self.dataArray[indexPath.row] objectForKey:@"image_name"] forIndexPath:indexPath];
     }
     return cell;
 }

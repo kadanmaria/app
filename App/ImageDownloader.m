@@ -53,8 +53,9 @@
             NSLog(@"Error Setting Image");
         } else {
             self.image = image;
-            [self.delegate imageDownloader:self didDownloadImage:self.image forIndexPath:self.indexPath];
             NSLog(@"Did download image for row %lu", self.indexPath.row);
+            [self.delegate imageDownloader:self didDownloadImage:self.image forIndexPath:self.indexPath];
+            
         }
     self.currentConnection = nil;
 }
