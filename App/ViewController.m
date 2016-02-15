@@ -51,13 +51,13 @@
         cell.photoImageView.image = image;
     }
     [self.imagesCache setObject:image forKey:indexPath];
-    NSLog(@"Image is cashed for row %lu", indexPath.row);
+//    NSLog(@"Image is cashed for row %lu", indexPath.row);
 }
 
 #pragma mark - IBActions
 
 - (IBAction)refresh:(UIButton *)sender {
-    NSLog(@"REFRESH");
+//    NSLog(@"REFRESH");
     self.imagesCache = [[NSCache alloc] init];
     self.imagesSet = [[NSMutableSet alloc] init];
     [self.contentDownloader downloadContent];
