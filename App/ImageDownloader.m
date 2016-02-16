@@ -25,20 +25,23 @@
     
     NSURLSession *session = [NSURLSession sharedSession];
     NSURLSessionDataTask *imageData = [session dataTaskWithRequest:restReqest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-        if(!error) {
-        UIImage *image = [UIImage imageWithData:data];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if (!image) {
-                NSLog(@"Error Setting Image");
-            } else {
-                self.image = image;
-                [self.delegate imageDownloader:self didDownloadImage:self.image forIndexPath:self.indexPath];
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            if(!error) {
+            UIImage *image = [UIImage imageWithData:data];
                 
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if (!image) {
+                    NSLog(@"Error Setting Image");
+                } else {
+                    self.image = image;
+                    [self.delegate imageDownloader:self didDownloadImage:self.image forIndexPath:self.indexPath];
+                }
+            });
+                
+            } else {
+                NSLog(@"Error imageDataTask %@", error);
             }
         });
-        } else {
-            NSLog(@"Error imageDataTask %@", error);
-        }
     }];
     [imageData resume];
 }

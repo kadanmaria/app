@@ -51,15 +51,14 @@
         cell.photoImageView.image = image;
     }
     [self.imagesCache setObject:image forKey:indexPath];
-//    NSLog(@"Image is cashed for row %lu", indexPath.row);
 }
 
 #pragma mark - IBActions
 
 - (IBAction)refresh:(UIButton *)sender {
-//    NSLog(@"REFRESH");
     self.imagesCache = [[NSCache alloc] init];
     self.imagesSet = [[NSMutableSet alloc] init];
+    
     [self.contentDownloader downloadContent];
 }
 
@@ -73,7 +72,9 @@
     Cell *cell = (Cell *)[tableView dequeueReusableCellWithIdentifier:@"Cell"];
     cell.titleLabel.text = [self.dataArray[indexPath.row] objectForKey:@"title"];
     cell.subTitleLabel.text = [self.dataArray[indexPath.row] objectForKey:@"subtitle"];
+    
     UIImage *imageAlreadyCached = [self.imagesCache objectForKey:indexPath];
+    
     if (imageAlreadyCached) {
         cell.photoImageView.image = imageAlreadyCached;
     } else if (![self.imagesSet containsObject:indexPath]) {

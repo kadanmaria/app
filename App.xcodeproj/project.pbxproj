@@ -14,6 +14,7 @@
 		844AE9571C676361003ED708 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 844AE9551C676361003ED708 /* Main.storyboard */; };
 		846DE9E81C6C9E19005393D6 /* ContentDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = 846DE9E71C6C9E19005393D6 /* ContentDownloader.m */; settings = {ASSET_TAGS = (); }; };
 		84E118861C6EA6C20079BF06 /* ImageDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = 84E118851C6EA6C20079BF06 /* ImageDownloader.m */; settings = {ASSET_TAGS = (); }; };
+		84E46C001C73AC3000120ABE /* Feed.m in Sources */ = {isa = PBXBuildFile; fileRef = 84E46BFF1C73AC3000120ABE /* Feed.m */; settings = {ASSET_TAGS = (); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -31,6 +32,8 @@
 		846DE9E71C6C9E19005393D6 /* ContentDownloader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ContentDownloader.m; sourceTree = "<group>"; };
 		84E118841C6EA6C20079BF06 /* ImageDownloader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageDownloader.h; sourceTree = "<group>"; };
 		84E118851C6EA6C20079BF06 /* ImageDownloader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImageDownloader.m; sourceTree = "<group>"; };
+		84E46BFE1C73AC3000120ABE /* Feed.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Feed.h; sourceTree = "<group>"; };
+		84E46BFF1C73AC3000120ABE /* Feed.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Feed.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -67,6 +70,8 @@
 				844AE9501C676361003ED708 /* AppDelegate.m */,
 				844AE9521C676361003ED708 /* ViewController.h */,
 				844AE9531C676361003ED708 /* ViewController.m */,
+				84E46BFE1C73AC3000120ABE /* Feed.h */,
+				84E46BFF1C73AC3000120ABE /* Feed.m */,
 				8429640F1C676EF10044F610 /* Cell.h */,
 				842964101C676EF10044F610 /* Cell.m */,
 				846DE9E61C6C9E19005393D6 /* ContentDownloader.h */,
@@ -159,6 +164,7 @@
 			files = (
 				84E118861C6EA6C20079BF06 /* ImageDownloader.m in Sources */,
 				846DE9E81C6C9E19005393D6 /* ContentDownloader.m in Sources */,
+				84E46C001C73AC3000120ABE /* Feed.m in Sources */,
 				844AE9541C676361003ED708 /* ViewController.m in Sources */,
 				842964111C676EF10044F610 /* Cell.m in Sources */,
 				844AE9511C676361003ED708 /* AppDelegate.m in Sources */,

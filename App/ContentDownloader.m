@@ -24,19 +24,23 @@ static NSString * const stringForURLRequest = @"https://api.backendless.com/v1/d
 
     NSURLSession *session = [NSURLSession sharedSession];
     NSURLSessionDataTask *jsonData = [session dataTaskWithRequest:restReqest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-        if (!error) {
-            NSError *localError;
-            NSDictionary *parsedObject = [NSJSONSerialization JSONObjectWithData:data options:0 error:&localError];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                if (localError) {
-                    NSLog(@"Error Parsing JSON %@", localError);
-                } else {
-                    [self.delegate contentDownloader:self didDownloadContentToArray:[parsedObject valueForKey:@"data"]];
-                }
-            });
-        } else {
-            NSLog(@"jsonDataTask with error %@", error);
-        }
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            if (!error) {
+                NSError *localError;
+                NSDictionary *parsedObject = [NSJSONSerialization JSONObjectWithData:data options:0 error:&localError];
+                
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    if (localError) {
+                        NSLog(@"Error Parsing JSON %@", localError);
+                    } else {
+                        [self.delegate contentDownloader:self didDownloadContentToArray:[parsedObject valueForKey:@"data"]];
+                    }
+                });
+                
+            } else {
+                NSLog(@"jsonDataTask with error %@", error);
+            }
+        });
     }];
     
     [jsonData resume];
