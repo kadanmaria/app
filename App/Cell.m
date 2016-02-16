@@ -15,7 +15,6 @@
     self.titleLabel.text = nil;
     self.subTitleLabel.text = nil;
     self.photoImageView.image = nil;
-    self.cellIndex = nil;
 }
 
 @end
