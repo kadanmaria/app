@@ -15,6 +15,8 @@
 		846DE9E81C6C9E19005393D6 /* ContentDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = 846DE9E71C6C9E19005393D6 /* ContentDownloader.m */; settings = {ASSET_TAGS = (); }; };
 		84E118861C6EA6C20079BF06 /* ImageDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = 84E118851C6EA6C20079BF06 /* ImageDownloader.m */; settings = {ASSET_TAGS = (); }; };
 		84E46C001C73AC3000120ABE /* Feed.m in Sources */ = {isa = PBXBuildFile; fileRef = 84E46BFF1C73AC3000120ABE /* Feed.m */; settings = {ASSET_TAGS = (); }; };
+		84E46C021C73B92B00120ABE /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84E46C011C73B92B00120ABE /* CoreData.framework */; };
+		84E46C051C73B98B00120ABE /* FeedModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 84E46C031C73B98B00120ABE /* FeedModel.xcdatamodeld */; settings = {ASSET_TAGS = (); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -34,6 +36,8 @@
 		84E118851C6EA6C20079BF06 /* ImageDownloader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImageDownloader.m; sourceTree = "<group>"; };
 		84E46BFE1C73AC3000120ABE /* Feed.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Feed.h; sourceTree = "<group>"; };
 		84E46BFF1C73AC3000120ABE /* Feed.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Feed.m; sourceTree = "<group>"; };
+		84E46C011C73B92B00120ABE /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		84E46C041C73B98B00120ABE /* FeedModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = FeedModel.xcdatamodel; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -41,6 +45,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				84E46C021C73B92B00120ABE /* CoreData.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -50,6 +55,8 @@
 		844AE9401C676361003ED708 = {
 			isa = PBXGroup;
 			children = (
+				84E46C031C73B98B00120ABE /* FeedModel.xcdatamodeld */,
+				84E46C011C73B92B00120ABE /* CoreData.framework */,
 				844AE94B1C676361003ED708 /* App */,
 				844AE94A1C676361003ED708 /* Products */,
 			);
@@ -165,6 +172,7 @@
 				84E118861C6EA6C20079BF06 /* ImageDownloader.m in Sources */,
 				846DE9E81C6C9E19005393D6 /* ContentDownloader.m in Sources */,
 				84E46C001C73AC3000120ABE /* Feed.m in Sources */,
+				84E46C051C73B98B00120ABE /* FeedModel.xcdatamodeld in Sources */,
 				844AE9541C676361003ED708 /* ViewController.m in Sources */,
 				842964111C676EF10044F610 /* Cell.m in Sources */,
 				844AE9511C676361003ED708 /* AppDelegate.m in Sources */,
@@ -308,6 +316,19 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		84E46C031C73B98B00120ABE /* FeedModel.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				84E46C041C73B98B00120ABE /* FeedModel.xcdatamodel */,
+			);
+			currentVersion = 84E46C041C73B98B00120ABE /* FeedModel.xcdatamodel */;
+			path = FeedModel.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = 844AE9411C676361003ED708 /* Project object */;
 }
