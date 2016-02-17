@@ -18,7 +18,7 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     
     NSManagedObjectContext *context = [self managedObjectContext];
-    NSFetchRequest *request = [NSFetchRequest new];
+    NSFetchRequest *request = [[NSFetchRequest alloc] init];
     NSEntityDescription *entity = [NSEntityDescription entityForName:@"Feed" inManagedObjectContext:context];
     [request setEntity:entity];
     NSArray *results = [context executeFetchRequest:request error:nil];
@@ -31,8 +31,9 @@
     [object setValue:launchTitle forKey:@"title"];
     [self saveContext];
     NSLog(@"Added %@", launchTitle);
-    
+
     // Override point for customization after application launch.
+    
     return YES;
 }
 
@@ -56,6 +57,8 @@
 
 - (void)applicationWillTerminate:(UIApplication *)application {
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+    [self saveContext];
+    
 }
 
 #pragma mark - Core Data stack

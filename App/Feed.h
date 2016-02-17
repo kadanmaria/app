@@ -2,16 +2,18 @@
 //  Feed.h
 //  App
 //
-//  Created by Admin on 16.02.16.
+//  Created by Admin on 17.02.16.
 //  Copyright © 2016 OrgName. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
+#import <CoreData/CoreData.h>
 
-@interface Feed : NSObject
+@interface Feed : NSManagedObject
 
-@property (strong, nonatomic) NSString *title;
-@property (strong, nonatomic) NSString *subTitle;
-@property (strong, nonatomic) NSString *image_name;
+@property (nullable, nonatomic, retain) NSString *subtitle;
+@property (nullable, nonatomic, retain) NSString *title;
 
 @end
+
+
