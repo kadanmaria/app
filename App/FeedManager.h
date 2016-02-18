@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
 
-@interface FeedController : NSObject
+@interface FeedManager : NSObject
 
 @property (strong, nonatomic) NSManagedObjectContext *managedObjectContext;
 

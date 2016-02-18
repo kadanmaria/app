@@ -13,7 +13,7 @@
 #import "ContentDownloader.h"
 #import "ImageDownloader.h"
 #import "Feed.h"
-#import "AppDelegate.h"
+#import "FeedManager.h"
 
 
 @interface ViewController () <UITableViewDelegate, UITableViewDataSource, ContentDownloaderDelegate, ImageDownloaderDelegate, NSFetchedResultsControllerDelegate>
@@ -24,7 +24,7 @@
 @property (strong, nonatomic) NSMutableSet *imagesSet;
 
 @property (strong, nonatomic) NSFetchedResultsController *fetchedResultsController;
-@property (strong, nonatomic) FeedController *feedController;
+@property (strong, nonatomic) FeedManager *feedController;
 
 @end
 
@@ -37,7 +37,7 @@
     self.contentDownloader = [[ContentDownloader alloc] init];
     self.contentDownloader.delegate = self;
     
-    id feedController = [(AppDelegate *)[[UIApplication sharedApplication] delegate] feedController];
+    FeedManager *feedController = [[FeedManager alloc] init];
     self.feedController = feedController;
 
     NSError *error;
@@ -75,9 +75,6 @@
 - (void)contentDownloader:(ContentDownloader *)contentDownloader didDownloadContentToArray:(NSArray *)array {
     
     [self.feedController manageObjects:array];
-//    for (NSDictionary *object in array) {
-//        [self.feedController insertNewOrUpdateObject:object];
-//    }
 
     NSError *error = nil;
     if (![self.feedController.managedObjectContext save:&error]) {
@@ -115,6 +112,10 @@
     Feed *feed = [self.fetchedResultsController objectAtIndexPath:indexPath];
     cell.titleLabel.text = feed.title;
     cell.subTitleLabel.text = feed.subtitle;
+    ImageDownloader *image = [[ImageDownloader alloc] init];
+    image.delegate = self;
+   //         [self.imagesSet addObject:indexPath];
+    [image downloadImageFromString:feed.image_name forIndexPath:indexPath];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -122,9 +123,7 @@
     
     [self configureCell:cell atIndexPath:indexPath];
     
-//    cell.titleLabel.text = [self.dataArray[indexPath.row] objectForKey:@"title"];
-//    cell.subTitleLabel.text = [self.dataArray[indexPath.row] objectForKey:@"subtitle"];
-//    
+   
 //    UIImage *imageAlreadyCached = [self.imagesCache objectForKey:indexPath];
 //    
 //    if (imageAlreadyCached) {

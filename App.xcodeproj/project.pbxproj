@@ -16,7 +16,7 @@
 		84E118861C6EA6C20079BF06 /* ImageDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = 84E118851C6EA6C20079BF06 /* ImageDownloader.m */; settings = {ASSET_TAGS = (); }; };
 		84E46C021C73B92B00120ABE /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84E46C011C73B92B00120ABE /* CoreData.framework */; };
 		84E46C1A1C73EADC00120ABE /* FeedModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 84E46C181C73EADC00120ABE /* FeedModel.xcdatamodeld */; settings = {ASSET_TAGS = (); }; };
-		84E46C201C7537B900120ABE /* FeedController.m in Sources */ = {isa = PBXBuildFile; fileRef = 84E46C1F1C7537B900120ABE /* FeedController.m */; settings = {ASSET_TAGS = (); }; };
+		84E46C201C7537B900120ABE /* FeedManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 84E46C1F1C7537B900120ABE /* FeedManager.m */; settings = {ASSET_TAGS = (); }; };
 		84E46C251C754C6A00120ABE /* Feed+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 84E46C221C754C6A00120ABE /* Feed+CoreDataProperties.m */; settings = {ASSET_TAGS = (); }; };
 		84E46C261C754C6A00120ABE /* Feed.m in Sources */ = {isa = PBXBuildFile; fileRef = 84E46C241C754C6A00120ABE /* Feed.m */; settings = {ASSET_TAGS = (); }; };
 /* End PBXBuildFile section */
@@ -38,8 +38,8 @@
 		84E118851C6EA6C20079BF06 /* ImageDownloader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImageDownloader.m; sourceTree = "<group>"; };
 		84E46C011C73B92B00120ABE /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		84E46C191C73EADC00120ABE /* FeedModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = FeedModel.xcdatamodel; sourceTree = "<group>"; };
-		84E46C1E1C7537B900120ABE /* FeedController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FeedController.h; sourceTree = "<group>"; };
-		84E46C1F1C7537B900120ABE /* FeedController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FeedController.m; sourceTree = "<group>"; };
+		84E46C1E1C7537B900120ABE /* FeedManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FeedManager.h; sourceTree = "<group>"; };
+		84E46C1F1C7537B900120ABE /* FeedManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FeedManager.m; sourceTree = "<group>"; };
 		84E46C211C754C6A00120ABE /* Feed+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Feed+CoreDataProperties.h"; sourceTree = "<group>"; };
 		84E46C221C754C6A00120ABE /* Feed+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "Feed+CoreDataProperties.m"; sourceTree = "<group>"; };
 		84E46C231C754C6A00120ABE /* Feed.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Feed.h; sourceTree = "<group>"; };
@@ -111,8 +111,8 @@
 				84E46C221C754C6A00120ABE /* Feed+CoreDataProperties.m */,
 				84E46C231C754C6A00120ABE /* Feed.h */,
 				84E46C241C754C6A00120ABE /* Feed.m */,
-				84E46C1E1C7537B900120ABE /* FeedController.h */,
-				84E46C1F1C7537B900120ABE /* FeedController.m */,
+				84E46C1E1C7537B900120ABE /* FeedManager.h */,
+				84E46C1F1C7537B900120ABE /* FeedManager.m */,
 				84E46C181C73EADC00120ABE /* FeedModel.xcdatamodeld */,
 			);
 			name = CoreData;
@@ -191,7 +191,7 @@
 				846DE9E81C6C9E19005393D6 /* ContentDownloader.m in Sources */,
 				84E46C251C754C6A00120ABE /* Feed+CoreDataProperties.m in Sources */,
 				844AE9541C676361003ED708 /* ViewController.m in Sources */,
-				84E46C201C7537B900120ABE /* FeedController.m in Sources */,
+				84E46C201C7537B900120ABE /* FeedManager.m in Sources */,
 				84E46C261C754C6A00120ABE /* Feed.m in Sources */,
 				84E46C1A1C73EADC00120ABE /* FeedModel.xcdatamodeld in Sources */,
 				842964111C676EF10044F610 /* Cell.m in Sources */,
