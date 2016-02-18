@@ -2,18 +2,21 @@
 //  Feed.h
 //  App
 //
-//  Created by Admin on 17.02.16.
+//  Created by Admin on 18.02.16.
 //  Copyright © 2016 OrgName. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface Feed : NSManagedObject
 
-@property (nullable, nonatomic, retain) NSString *subtitle;
-@property (nullable, nonatomic, retain) NSString *title;
+// Insert code here to declare functionality of your managed object subclass
 
 @end
 
+NS_ASSUME_NONNULL_END
 
+#import "Feed+CoreDataProperties.h"

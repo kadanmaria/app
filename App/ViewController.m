@@ -6,25 +6,25 @@
 //  Copyright © 2016 OrgName. All rights reserved.
 //
 
+#import <CoreData/CoreData.h>
+
 #import "ViewController.h"
 #import "Cell.h"
 #import "ContentDownloader.h"
 #import "ImageDownloader.h"
-#import <CoreData/CoreData.h>
 #import "Feed.h"
+#import "AppDelegate.h"
 
 
 @interface ViewController () <UITableViewDelegate, UITableViewDataSource, ContentDownloaderDelegate, ImageDownloaderDelegate, NSFetchedResultsControllerDelegate>
 
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
-@property (strong, nonatomic) NSArray *dataArray;
 @property (strong, nonatomic) NSCache *imagesCache;
 @property (strong, nonatomic) ContentDownloader *contentDownloader;
 @property (strong, nonatomic) NSMutableSet *imagesSet;
 
-@property (strong, nonatomic) NSArray *dataCoreArray;
-@property (strong, nonatomic) NSManagedObjectContext *managedObjectContext;
 @property (strong, nonatomic) NSFetchedResultsController *fetchedResultsController;
+@property (strong, nonatomic) FeedController *feedController;
 
 @end
 
@@ -37,14 +37,12 @@
     self.contentDownloader = [[ContentDownloader alloc] init];
     self.contentDownloader.delegate = self;
     
-    
-    id delegate = [[UIApplication sharedApplication] delegate];
-    self.managedObjectContext = [delegate managedObjectContext];
+    id feedController = [(AppDelegate *)[[UIApplication sharedApplication] delegate] feedController];
+    self.feedController = feedController;
 
     NSError *error;
     if (![[self fetchedResultsController] performFetch:&error]) {
         NSLog(@"Error %@, %@", error, [error userInfo]);
-        exit(-1);
     }
 }
 
@@ -58,46 +56,31 @@
     if (_fetchedResultsController != nil) {
         return _fetchedResultsController;
     }
-    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-    NSEntityDescription *entity = [NSEntityDescription entityForName:@"Feed" inManagedObjectContext:self.managedObjectContext];
-    [fetchRequest setEntity:entity];
+    NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"Feed"];
     
-    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"title" ascending:NO];
-    [fetchRequest setSortDescriptors:[NSArray arrayWithObject:sortDescriptor]];
+    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"objectId" ascending:NO];
+    [fetchRequest setSortDescriptors:@[sortDescriptor]];
     
     [fetchRequest setFetchBatchSize:10];
     
-    NSFetchedResultsController *fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:self.managedObjectContext sectionNameKeyPath:nil cacheName:nil]; //CACHE
+    NSFetchedResultsController *fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:self.feedController.managedObjectContext sectionNameKeyPath:nil cacheName:nil]; //CACHE
     self.fetchedResultsController = fetchedResultsController;
     _fetchedResultsController.delegate = self;
     
     return _fetchedResultsController;
 }
 
-- (void)insertNewObject:(id)sender {
-    NSManagedObjectContext *context = [self.fetchedResultsController managedObjectContext];
-    NSEntityDescription *entity = [[self.fetchedResultsController fetchRequest] entity];
-    Feed *newFeed = [NSEntityDescription insertNewObjectForEntityForName:[entity name] inManagedObjectContext:context];
-    
-    [newFeed setValue:[sender valueForKey:@"title"] forKey:@"title"];
-    [newFeed setValue:[sender valueForKey:@"subtitle"] forKey:@"subtitle"];
-   
-    NSError *error = nil;
-    if (![context save:&error]) {
-        NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
-        abort();
-    }
-}
-
 #pragma mark - <ContentDownloaderDelegate>
 
 - (void)contentDownloader:(ContentDownloader *)contentDownloader didDownloadContentToArray:(NSArray *)array {
-    self.dataArray = array;
-    for (NSObject *object in array) {
-        [self insertNewObject:object];
+    for (NSDictionary *object in array) {
+        [self.feedController insertNewOrUpdateObject:object];
     }
-    NSLog(@"CONTENT DOWNLOADED");
-//    [self.tableView reloadData];
+
+    NSError *error = nil;
+    if (![self.feedController.managedObjectContext save:&error]) {
+        NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
+    }
 }
 
 #pragma mark - <ImageDownloaderDelegate>
@@ -122,12 +105,12 @@
 #pragma mark - <TableViewDataSourse>
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    id sectionInfo = [[_fetchedResultsController sections] objectAtIndex:section];
+    id sectionInfo = [[self.fetchedResultsController sections] objectAtIndex:section];
     return [sectionInfo numberOfObjects];
 }
 
 - (void)configureCell:(Cell *)cell atIndexPath:(NSIndexPath *)indexPath {
-    Feed *feed = [_fetchedResultsController objectAtIndexPath:indexPath];
+    Feed *feed = [self.fetchedResultsController objectAtIndexPath:indexPath];
     cell.titleLabel.text = feed.title;
     cell.subTitleLabel.text = feed.subtitle;
 }
@@ -136,7 +119,6 @@
     Cell *cell = (Cell *)[tableView dequeueReusableCellWithIdentifier:@"Cell"];
     
     [self configureCell:cell atIndexPath:indexPath];
-    
     
 //    cell.titleLabel.text = [self.dataArray[indexPath.row] objectForKey:@"title"];
 //    cell.subTitleLabel.text = [self.dataArray[indexPath.row] objectForKey:@"subtitle"];
@@ -151,13 +133,6 @@
 //        [self.imagesSet addObject:indexPath];
 //        [image downloadImageFromString:[self.dataArray[indexPath.row] objectForKey:@"image_name"] forIndexPath:indexPath];
 //    }
-    
-    
-    
-//    Feed *feed = [self.dataCoreArray objectAtIndex:indexPath.row];
-//    cell.titleLabel.text = feed.title;
-//    cell.subTitleLabel.text = feed.subtitle;
-    
     return cell;
 }
 

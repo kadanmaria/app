@@ -2,7 +2,7 @@
 //  Feed.m
 //  App
 //
-//  Created by Admin on 17.02.16.
+//  Created by Admin on 18.02.16.
 //  Copyright © 2016 OrgName. All rights reserved.
 //
 
@@ -10,7 +10,6 @@
 
 @implementation Feed
 
-@dynamic subtitle;
-@dynamic title;
+// Insert code here to add functionality to your managed object subclass
 
 @end

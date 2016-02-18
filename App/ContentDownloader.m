@@ -33,7 +33,7 @@ static NSString * const stringForURLRequest = @"https://api.backendless.com/v1/d
                     if (localError) {
                         NSLog(@"Error Parsing JSON %@", localError);
                     } else {
-                        NSLog(@"I DID IT");
+                       // NSLog(@"I DID IT");
                         [self.delegate contentDownloader:self didDownloadContentToArray:[parsedObject valueForKey:@"data"]];
                     }
                 });
