@@ -73,9 +73,11 @@
 #pragma mark - <ContentDownloaderDelegate>
 
 - (void)contentDownloader:(ContentDownloader *)contentDownloader didDownloadContentToArray:(NSArray *)array {
-    for (NSDictionary *object in array) {
-        [self.feedController insertNewOrUpdateObject:object];
-    }
+    
+    [self.feedController manageObjects:array];
+//    for (NSDictionary *object in array) {
+//        [self.feedController insertNewOrUpdateObject:object];
+//    }
 
     NSError *error = nil;
     if (![self.feedController.managedObjectContext save:&error]) {

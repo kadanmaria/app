@@ -15,5 +15,6 @@
 
 - (void)initializeCoreData;
 - (void)insertNewOrUpdateObject:(NSDictionary *)object;
+- (void)manageObjects:(NSArray *)objects;
 
 @end

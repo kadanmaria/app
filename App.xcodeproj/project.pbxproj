@@ -78,16 +78,11 @@
 		844AE94B1C676361003ED708 /* App */ = {
 			isa = PBXGroup;
 			children = (
-				84E46C211C754C6A00120ABE /* Feed+CoreDataProperties.h */,
-				84E46C221C754C6A00120ABE /* Feed+CoreDataProperties.m */,
-				84E46C231C754C6A00120ABE /* Feed.h */,
-				84E46C241C754C6A00120ABE /* Feed.m */,
+				84E46C271C7555F800120ABE /* CoreData */,
 				844AE94F1C676361003ED708 /* AppDelegate.h */,
 				844AE9501C676361003ED708 /* AppDelegate.m */,
 				844AE9521C676361003ED708 /* ViewController.h */,
 				844AE9531C676361003ED708 /* ViewController.m */,
-				84E46C1E1C7537B900120ABE /* FeedController.h */,
-				84E46C1F1C7537B900120ABE /* FeedController.m */,
 				8429640F1C676EF10044F610 /* Cell.h */,
 				842964101C676EF10044F610 /* Cell.m */,
 				846DE9E61C6C9E19005393D6 /* ContentDownloader.h */,
@@ -96,7 +91,6 @@
 				84E118851C6EA6C20079BF06 /* ImageDownloader.m */,
 				844AE95D1C676361003ED708 /* Info.plist */,
 				844AE9551C676361003ED708 /* Main.storyboard */,
-				84E46C181C73EADC00120ABE /* FeedModel.xcdatamodeld */,
 				844AE94C1C676361003ED708 /* Supporting Files */,
 			);
 			path = App;
@@ -108,6 +102,20 @@
 				844AE94D1C676361003ED708 /* main.m */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		84E46C271C7555F800120ABE /* CoreData */ = {
+			isa = PBXGroup;
+			children = (
+				84E46C211C754C6A00120ABE /* Feed+CoreDataProperties.h */,
+				84E46C221C754C6A00120ABE /* Feed+CoreDataProperties.m */,
+				84E46C231C754C6A00120ABE /* Feed.h */,
+				84E46C241C754C6A00120ABE /* Feed.m */,
+				84E46C1E1C7537B900120ABE /* FeedController.h */,
+				84E46C1F1C7537B900120ABE /* FeedController.m */,
+				84E46C181C73EADC00120ABE /* FeedModel.xcdatamodeld */,
+			);
+			name = CoreData;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
