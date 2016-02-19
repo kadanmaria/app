@@ -26,6 +26,14 @@
     return instance;
 }
 
+- (instancetype)init {
+    if (self = [super init]) {
+        NSMutableDictionary *tasks = [[NSMutableDictionary alloc] init];
+        self.tasks = tasks;
+    }
+    return self;
+}
+
 - (NSURLSessionDataTask *)imageDownloaderTaskforKey:(NSString *)key {
     return [self.tasks objectForKey:key];
 }
@@ -51,7 +59,7 @@
     [self setSharedCacheForImages];
 }
 
-+ (void)downloadImageFromString:(NSString *)imageString forIndexPath:(NSIndexPath *)indexPath completion:(void (^)(UIImage *image, NSIndexPath *indexPath))completion {
++ (void)downloadImageFromString:(NSString *)imageString forIndexPath:(NSIndexPath *)indexPath completion:(void (^)(UIImage *image))completion {
     if ([[ImageDownloaderTasks sharedInstance] imageDownloaderTaskforKey:imageString]) {
         [[[ImageDownloaderTasks sharedInstance] imageDownloaderTaskforKey:imageString] cancel];
     }
@@ -67,15 +75,15 @@
             UIImage *image = [UIImage imageWithData:cachedResponse.data];
             
             dispatch_async(dispatch_get_main_queue(), ^{
-                completion(image, indexPath);
+                completion(image);
             });
             
         });
         
     } else {
+        
         NSURLSession *session = [NSURLSession sharedSession];
         NSURLSessionDataTask *imageDataTask = [session dataTaskWithRequest:imageReqest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-            [[ImageDownloaderTasks sharedInstance] setImageDownloaderTasks:imageDataTask forKey:imageString];
             
             dispatch_async(dispatch_get_global_queue(0, 0), ^{
                 if(!error) {
@@ -85,8 +93,7 @@
                         if (!image) {
                             NSLog(@"Error Setting Image");
                         } else {
-                             NSLog(@"HAS DOWNLOADED IN CACHE FOE INDEX PATH %ld", (long)indexPath.row);
-                            completion (image, indexPath);
+                            completion (image);
                         }
                     });
                     
@@ -95,53 +102,10 @@
                 }
             });
         }];
+        [[ImageDownloaderTasks sharedInstance] setImageDownloaderTasks:imageDataTask forKey:imageString];
         [imageDataTask resume];
     }
-
 }
-
-//- (void)downloadImageFromString:(NSString *)imageString forIndexPath:(NSIndexPath *)indexPath {
-//    self.indexPath = indexPath;
-//    [self setSharedCacheForImages];
-//    
-//    NSURL *imageURL = [NSURL URLWithString:imageString];
-//    NSURLRequest *imageReqest = [NSURLRequest requestWithURL:imageURL];
-//    NSURLSession *session = [NSURLSession sharedSession];
-//    
-//    NSCachedURLResponse *cachedResponse = [[NSURLCache sharedURLCache] cachedResponseForRequest:imageReqest];
-//    if (cachedResponse.data) {
-//        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-//            UIImage *image = [UIImage imageWithData:cachedResponse.data];
-//            
-//            dispatch_async(dispatch_get_main_queue(), ^{
-//                self.image = image;
-//                [self.delegate imageDownloader:self didDownloadImage:self.image forIndexPath:self.indexPath];
-//            });
-//        });
-//    } else {
-//        
-//        NSURLSessionDataTask *imageData = [session dataTaskWithRequest:imageReqest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-//            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-//                if(!error) {
-//                    UIImage *image = [UIImage imageWithData:data];
-//                    
-//                    dispatch_async(dispatch_get_main_queue(), ^{
-//                        if (!image) {
-//                            NSLog(@"Error Setting Image");
-//                        } else {
-//                            self.image = image;
-//                            [self.delegate imageDownloader:self didDownloadImage:self.image forIndexPath:self.indexPath];
-//                        }
-//                    });
-//                
-//                } else {
-//                    NSLog(@"Error imageDataTask %@", error);
-//                }
-//            });
-//        }];
-//        [imageData resume];
-//    }
-//}
 
 + (void)setSharedCacheForImages {
     NSUInteger cacheSize = 500 * 1024 * 1024;

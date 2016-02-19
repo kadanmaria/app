@@ -80,8 +80,6 @@
     return [sectionInfo numberOfObjects];
 }
 
-
-
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     Cell *cell = (Cell *)[tableView dequeueReusableCellWithIdentifier:@"Cell"];
     [self configureCell:cell atIndexPath:indexPath];
@@ -94,15 +92,11 @@
     cell.titleLabel.text = feed.title;
     cell.subTitleLabel.text = feed.subtitle;
     
-//    __weak Cell *weakSelf = cell;
-    [ImageDownloader downloadImageFromString:feed.image_name forIndexPath:indexPath completion:^(UIImage *image, NSIndexPath *indexPath) {
-        Cell *cell = (Cell *)[self.tableView cellForRowAtIndexPath:indexPath];
-//        __strong Cell *strongSelf = weakSelf;
-//         strongSelf.photoImageView.image = image;
-        if (cell) {
-            cell.photoImageView.image = image;
-        } else {
-            NSLog(@"Cell is out of range");
+    __weak Cell *weakSelf = cell;
+    [ImageDownloader downloadImageFromString:feed.image_name forIndexPath:indexPath completion:^(UIImage *image) {
+        __strong Cell *strongSelf = weakSelf;
+        if (strongSelf) {
+            strongSelf.photoImageView.image = image;
         }
     }];
 }

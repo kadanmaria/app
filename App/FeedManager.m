@@ -11,6 +11,8 @@
 
 @interface FeedManager ()
 
+@property (strong, nonatomic) NSManagedObjectContext *backgroundContext;
+
 @end
 
 @implementation FeedManager
@@ -40,7 +42,6 @@
     NSFetchedResultsController *fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:self.managedObjectContext
                                                                                                  sectionNameKeyPath:nil cacheName:nil];
     self.fetchedResultsController = fetchedResultsController;
-//    _fetchedResultsController.delegate = self;
     
     return _fetchedResultsController;
 }
@@ -59,8 +60,14 @@
     
     NSManagedObjectContext *managedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
     if (!managedObjectContext) {
-        NSLog(@"Error initializing Context");
+        NSLog(@"Error initializing MainContext");
     }
+    NSManagedObjectContext *backgroundContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+    backgroundContext.parentContext = managedObjectContext;
+    if (!backgroundContext) {
+        NSLog(@"Error initializing BackgroundContext");
+    }
+    self.backgroundContext = backgroundContext;
     
     [managedObjectContext setPersistentStoreCoordinator:persistentStoreCoordinator];
     [self setManagedObjectContext:managedObjectContext];
@@ -77,13 +84,15 @@
 
 - (void)manageObjects:(NSArray *)objects {
 
-    NSManagedObjectContext *context = [self managedObjectContext];
-    NSEntityDescription *entity = [NSEntityDescription entityForName:@"Feed" inManagedObjectContext:context];
+    NSManagedObjectContext *mainContext = [self managedObjectContext];
+    NSManagedObjectContext *backgroundContext = [self backgroundContext];
+    
+    NSEntityDescription *entity = [NSEntityDescription entityForName:@"Feed" inManagedObjectContext:mainContext];
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
     [fetchRequest setEntity:entity];
 
     NSError *error;
-    NSArray *objectsFromCoreData = [context executeFetchRequest:fetchRequest error:&error];
+    NSArray *objectsFromCoreData = [mainContext executeFetchRequest:fetchRequest error:&error];
 
     NSMutableSet *setOfCoreDataObjects = [NSMutableSet set];
     for (Feed *feed in objectsFromCoreData) {
@@ -94,61 +103,69 @@
     for (NSDictionary *object in objects) {
         [setOfObjects addObject:[object valueForKey:@"objectId"]];
     }
+    
+    [backgroundContext performBlock:^{
+    
+        NSMutableSet *objectsTobeDeleted = [NSMutableSet setWithSet:setOfCoreDataObjects];
+        [objectsTobeDeleted minusSet:setOfObjects];
         
-    NSMutableSet *objectsTobeDeleted = [NSMutableSet setWithSet:setOfCoreDataObjects];
-    [objectsTobeDeleted minusSet:setOfObjects];
-    
-    if (objectsTobeDeleted.count > 0) {
-        NSMutableArray *arrayOfObjectsToBeDeleted = [[NSMutableArray alloc] init];
-        for (Feed *object in objectsFromCoreData) {
-            if ( [objectsTobeDeleted containsObject:object.objectId]) {
-                    [arrayOfObjectsToBeDeleted addObject:object];
+        if (objectsTobeDeleted.count > 0) {
+            NSMutableArray *arrayOfObjectsToBeDeleted = [[NSMutableArray alloc] init];
+            for (Feed *object in objectsFromCoreData) {
+                if ( [objectsTobeDeleted containsObject:object.objectId]) {
+                        [arrayOfObjectsToBeDeleted addObject:object];
+                    }
+            }
+            [self deleteObjects:arrayOfObjectsToBeDeleted];
+        }
+        
+        NSMutableSet *objectsToBeInserted = [NSMutableSet setWithSet:setOfObjects];
+        [objectsToBeInserted minusSet:setOfCoreDataObjects];
+        
+        if (objectsToBeInserted.count > 0) {
+            NSMutableArray *arrayOfObjectsToBeInserted = [[NSMutableArray alloc] init];
+            for (NSDictionary *object in objects) {
+                if ( [objectsToBeInserted containsObject:[object valueForKey:@"objectId"]]) {
+                    [arrayOfObjectsToBeInserted addObject:object];
                 }
-        }
-        [self deleteObjects:arrayOfObjectsToBeDeleted];
-    }
-    
-    NSMutableSet *objectsToBeInserted = [NSMutableSet setWithSet:setOfObjects];
-    [objectsToBeInserted minusSet:setOfCoreDataObjects];
-    
-    if (objectsToBeInserted.count > 0) {
-        NSMutableArray *arrayOfObjectsToBeInserted = [[NSMutableArray alloc] init];
-        for (NSDictionary *object in objects) {
-            if ( [objectsToBeInserted containsObject:[object valueForKey:@"objectId"]]) {
-                [arrayOfObjectsToBeInserted addObject:object];
             }
-        }
-        [self insertObjects:arrayOfObjectsToBeInserted];
-  }
-    
-    NSMutableSet *objectsToBeUpdated = setOfCoreDataObjects;
-    [objectsToBeUpdated minusSet:objectsTobeDeleted];
-    
-    if (objectsToBeUpdated.count > 0) {
-        NSMutableArray *arrayOfObjectsToBeUpdated = [[NSMutableArray alloc] init];
-        for (Feed *object in objectsFromCoreData) {
-            if ([objectsToBeUpdated containsObject:object.objectId]) {
-                [arrayOfObjectsToBeUpdated addObject:object];
+            [self insertObjects:arrayOfObjectsToBeInserted];
+      }
+        
+        NSMutableSet *objectsToBeUpdated = setOfCoreDataObjects;
+        [objectsToBeUpdated minusSet:objectsTobeDeleted];
+        
+        if (objectsToBeUpdated.count > 0) {
+            NSMutableArray *arrayOfObjectsToBeUpdated = [[NSMutableArray alloc] init];
+            for (Feed *object in objectsFromCoreData) {
+                if ([objectsToBeUpdated containsObject:object.objectId]) {
+                    [arrayOfObjectsToBeUpdated addObject:object];
+                }
             }
+            [self updateObjects:arrayOfObjectsToBeUpdated accordingToRecievedArray:objects];
         }
-        [self updateObjects:arrayOfObjectsToBeUpdated accordingToRecievedArray:objects];
-    }
+        
+        NSError *savingBackgroundContextError = nil;
+        if (![self.backgroundContext save:&savingBackgroundContextError]) {
+            NSLog(@"Unresolved error %@, %@", savingBackgroundContextError, [savingBackgroundContextError userInfo]);
+        }
+    }];
     
-    NSError *savingError = nil;
-    if (![self.managedObjectContext save:&savingError]) {
-        NSLog(@"Unresolved error %@, %@", savingError, [savingError userInfo]);
+    NSError *savingMainContextError = nil;
+    if (![self.managedObjectContext save:&savingMainContextError]) {
+        NSLog(@"Unresolved error %@, %@", savingMainContextError, [savingMainContextError userInfo]);
     }
 }
 
 - (void)deleteObjects:(NSMutableArray *)objects {
     for (NSManagedObject *object in objects) {
-        [[self managedObjectContext] deleteObject:object];
+        [[self backgroundContext] deleteObject:object];
     }
 }
 
 - (void)insertObjects:(NSMutableArray *)objects {
     for (NSDictionary *object in objects) {
-        Feed *feed = [NSEntityDescription insertNewObjectForEntityForName:@"Feed" inManagedObjectContext:[self managedObjectContext]];
+        Feed *feed = [NSEntityDescription insertNewObjectForEntityForName:@"Feed" inManagedObjectContext:[self backgroundContext]];
         
         [feed setValue:[object valueForKey:@"objectId"] forKey:@"objectId"];
         [feed setValue:[object valueForKey:@"title"] forKey:@"title"];
