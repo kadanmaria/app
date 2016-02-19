@@ -14,7 +14,6 @@
 @property (strong, nonatomic) NSManagedObjectContext *managedObjectContext;
 
 - (void)initializeCoreData;
-- (void)insertNewOrUpdateObject:(NSDictionary *)object;
 - (void)manageObjects:(NSArray *)objects;
 
 @end

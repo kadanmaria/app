@@ -22,28 +22,47 @@
     NSString *restCall = imageString;
     NSURL *restURL = [NSURL URLWithString:restCall];
     NSURLRequest *restReqest = [NSURLRequest requestWithURL:restURL];
-    
     NSURLSession *session = [NSURLSession sharedSession];
-    NSURLSessionDataTask *imageData = [session dataTaskWithRequest:restReqest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            if(!error) {
-            UIImage *image = [UIImage imageWithData:data];
+    
+    NSCachedURLResponse *cachedResponse = [[NSURLCache sharedURLCache] cachedResponseForRequest:restReqest];
+    if (cachedResponse.data) {
+        UIImage *image = [UIImage imageWithData:cachedResponse.data];
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.image = image;
+            [self.delegate imageDownloader:self didDownloadImage:self.image forIndexPath:self.indexPath];
+        });
+        
+    } else {
+        
+        NSURLSessionDataTask *imageData = [session dataTaskWithRequest:restReqest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                if(!error) {
+                    UIImage *image = [UIImage imageWithData:data];
+                    
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        if (!image) {
+                            NSLog(@"Error Setting Image");
+                        } else {
+                            self.image = image;
+                            [self.delegate imageDownloader:self didDownloadImage:self.image forIndexPath:self.indexPath];
+                        }
+                    });
                 
-            dispatch_async(dispatch_get_main_queue(), ^{
-                if (!image) {
-                    NSLog(@"Error Setting Image");
                 } else {
-                    self.image = image;
-                    [self.delegate imageDownloader:self didDownloadImage:self.image forIndexPath:self.indexPath];
+                    NSLog(@"Error imageDataTask %@", error);
                 }
             });
-                
-            } else {
-                NSLog(@"Error imageDataTask %@", error);
-            }
-        });
-    }];
-    [imageData resume];
+        }];
+        [imageData resume];
+    }
+}
+
+- (void)setSharedCacheForImages {
+    NSUInteger cacheSize = 500 * 1024 * 1024;
+    NSUInteger cacheDiskSize = 500 * 1024 * 1024;
+    NSURLCache *imageCache = [[NSURLCache alloc] initWithMemoryCapacity:cacheSize diskCapacity:cacheDiskSize diskPath:@"imagesCache"];
+    [NSURLCache setSharedURLCache:imageCache];
 }
 
 @end
