@@ -2,6 +2,7 @@
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="8191" systemVersion="14F27" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="BYZ-38-t0r">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="8154"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
         <!--View Controller-->
@@ -73,17 +74,23 @@
                                 </connections>
                             </tableView>
                             <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="200" verticalHuggingPriority="200" horizontalCompressionResistancePriority="200" verticalCompressionResistancePriority="200" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="t91-L2-odI">
-                                <rect key="frame" x="517" y="541" width="63" height="34"/>
-                                <state key="normal" title="Refresh">
+                                <rect key="frame" x="545" y="540" width="35" height="35"/>
+                                <state key="normal" image="Synch">
                                     <color key="titleColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                 </state>
                                 <connections>
                                     <action selector="refresh:" destination="BYZ-38-t0r" eventType="touchUpInside" id="ZmU-ib-dkh"/>
                                 </connections>
                             </button>
+                            <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="gna-pp-iMw">
+                                <rect key="frame" x="543" y="538" width="37" height="37"/>
+                                <color key="color" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                            </activityIndicatorView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="gna-pp-iMw" secondAttribute="bottom" constant="25" id="04r-xr-Kgo"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="gna-pp-iMw" secondAttribute="trailing" id="0g4-2i-Wjq"/>
                             <constraint firstItem="QlJ-Vr-Wh3" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="8W2-Kd-AnC"/>
                             <constraint firstAttribute="trailing" secondItem="t91-L2-odI" secondAttribute="trailing" constant="20" id="OK4-ag-9wK"/>
                             <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="QlJ-Vr-Wh3" secondAttribute="bottom" id="S5W-bz-yl2"/>
@@ -93,6 +100,8 @@
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="activityIndicator" destination="gna-pp-iMw" id="7Ed-Aq-axE"/>
+                        <outlet property="synchronizeButton" destination="t91-L2-odI" id="G5Q-ih-r70"/>
                         <outlet property="tableView" destination="QlJ-Vr-Wh3" id="PSm-zX-wuM"/>
                     </connections>
                 </viewController>
@@ -101,4 +110,7 @@
             <point key="canvasLocation" x="259" y="695"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="Synch" width="35" height="35"/>
+    </resources>
 </document>

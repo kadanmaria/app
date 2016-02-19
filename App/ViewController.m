@@ -18,6 +18,8 @@
 
 @interface ViewController () <UITableViewDelegate, UITableViewDataSource, ContentDownloaderDelegate, ImageDownloaderDelegate, NSFetchedResultsControllerDelegate>
 
+@property (weak, nonatomic) IBOutlet UIActivityIndicatorView *activityIndicator;
+@property (weak, nonatomic) IBOutlet UIButton *synchronizeButton;
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
 
 @property (strong, nonatomic) NSFetchedResultsController *fetchedResultsController;
@@ -53,6 +55,9 @@
 - (void)contentDownloader:(ContentDownloader *)contentDownloader didDownloadContentToArray:(NSArray *)array {
     [self.feedManager manageObjects:array];
 
+    [self.activityIndicator stopAnimating];
+    self.synchronizeButton.alpha = 1;
+    
     NSError *error = nil;
     if (![self.feedManager.managedObjectContext save:&error]) {
         NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
@@ -71,6 +76,11 @@
 #pragma mark - IBActions
 
 - (IBAction)refresh:(UIButton *)sender {
+
+    [self.activityIndicator startAnimating];
+    self.synchronizeButton.alpha = 0;
+    [self.tableView addSubview:self.activityIndicator];
+    
     [self.contentDownloader downloadContent];
 }
 
@@ -152,9 +162,10 @@
 }
 
 - (void)controller:(NSFetchedResultsController *)controller didChangeSection:(id <NSFetchedResultsSectionInfo>)sectionInfo
-           atIndex:(NSUInteger)sectionIndex forChangeType:(NSFetchedResultsChangeType)type
-{
+           atIndex:(NSUInteger)sectionIndex forChangeType:(NSFetchedResultsChangeType)type {
+    
     switch (type) {
+
         case NSFetchedResultsChangeInsert:
             [self.tableView insertSections:[NSIndexSet indexSetWithIndex:sectionIndex] withRowAnimation:UITableViewRowAnimationFade];
             break;

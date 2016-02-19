@@ -19,12 +19,13 @@
 
 - (void)downloadImageFromString:(NSString *)imageString forIndexPath:(NSIndexPath *)indexPath {
     self.indexPath = indexPath;
-    NSString *restCall = imageString;
-    NSURL *restURL = [NSURL URLWithString:restCall];
-    NSURLRequest *restReqest = [NSURLRequest requestWithURL:restURL];
+    [self setSharedCacheForImages];
+    
+    NSURL *imageURL = [NSURL URLWithString:imageString];
+    NSURLRequest *imageReqest = [NSURLRequest requestWithURL:imageURL];
     NSURLSession *session = [NSURLSession sharedSession];
     
-    NSCachedURLResponse *cachedResponse = [[NSURLCache sharedURLCache] cachedResponseForRequest:restReqest];
+    NSCachedURLResponse *cachedResponse = [[NSURLCache sharedURLCache] cachedResponseForRequest:imageReqest];
     if (cachedResponse.data) {
         UIImage *image = [UIImage imageWithData:cachedResponse.data];
         
@@ -35,7 +36,7 @@
         
     } else {
         
-        NSURLSessionDataTask *imageData = [session dataTaskWithRequest:restReqest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+        NSURLSessionDataTask *imageData = [session dataTaskWithRequest:imageReqest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                 if(!error) {
                     UIImage *image = [UIImage imageWithData:data];

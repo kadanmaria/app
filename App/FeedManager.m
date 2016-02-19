@@ -81,7 +81,6 @@
                 }
         }
         [self deleteObjects:arrayOfObjectsToBeDeleted];
-         NSLog(@"objectsToBeDeleted count %lu", [arrayOfObjectsToBeDeleted count]);
     }
     
     NSMutableSet *objectsToBeInserted = [NSMutableSet setWithSet:setOfObjects];
@@ -95,7 +94,6 @@
             }
         }
         [self insertObjects:arrayOfObjectsToBeInserted];
-        NSLog(@"objectsToBeInserted count %lu", [arrayOfObjectsToBeInserted count]);
     }
     
     NSMutableSet *objectsToBeUpdated = setOfCoreDataObjects;
@@ -109,7 +107,6 @@
             }
         }
         [self updateObjects:arrayOfObjectsToBeUpdated accordingToRecievedArray:objects];
-        NSLog(@"objectsToBeUpdated count %lu", [arrayOfObjectsToBeUpdated count]);
     }
 }
 
