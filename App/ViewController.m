@@ -25,6 +25,7 @@
 @property (strong, nonatomic) NSFetchedResultsController *fetchedResultsController;
 @property (strong, nonatomic) ContentDownloader *contentDownloader;
 @property (strong, nonatomic) FeedManager *feedManager;
+@property (strong, nonatomic) ImageDownloader *imageDownloader;
 
 @end
 
@@ -39,7 +40,7 @@
     
     FeedManager *feedManager = [[FeedManager alloc] init];
     self.feedManager = feedManager;
-
+    
     NSError *error;
     if (![[self fetchedResultsController] performFetch:&error]) {
         NSLog(@"Error %@, %@", error, [error userInfo]);
@@ -97,9 +98,10 @@
     cell.titleLabel.text = feed.title;
     cell.subTitleLabel.text = feed.subtitle;
     
-    ImageDownloader *image = [[ImageDownloader alloc] init];
-    image.delegate = self;
-    [image downloadImageFromString:feed.image_name forIndexPath:indexPath];
+    ImageDownloader *imageDownloader = [[ImageDownloader alloc] init];
+    imageDownloader.delegate = self;
+    self.imageDownloader = imageDownloader;
+    [self.imageDownloader downloadImageFromString:feed.image_name forIndexPath:indexPath];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {

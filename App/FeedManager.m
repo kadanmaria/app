@@ -30,14 +30,17 @@
     if (!managedObjectModel) {
         NSLog(@"Error initializing Model");
     }
+    
     NSPersistentStoreCoordinator *persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:managedObjectModel];
     if (!persistentStoreCoordinator) {
         NSLog(@"Error initializing Coordinator");
     }
+    
     NSManagedObjectContext *managedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
     if (!managedObjectContext) {
         NSLog(@"Error initializing Context");
     }
+    
     [managedObjectContext setPersistentStoreCoordinator:persistentStoreCoordinator];
     [self setManagedObjectContext:managedObjectContext];
     
@@ -51,15 +54,16 @@
     }
 }
 
-
 - (void)manageObjects:(NSArray *)objects {
+
     NSManagedObjectContext *context = [self managedObjectContext];
     NSEntityDescription *entity = [NSEntityDescription entityForName:@"Feed" inManagedObjectContext:context];
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
     [fetchRequest setEntity:entity];
+
     NSError *error;
     NSArray *objectsFromCoreData = [context executeFetchRequest:fetchRequest error:&error];
-    
+
     NSMutableSet *setOfCoreDataObjects = [NSMutableSet set];
     for (Feed *feed in objectsFromCoreData) {
         [setOfCoreDataObjects addObject:feed.objectId];
@@ -94,7 +98,7 @@
             }
         }
         [self insertObjects:arrayOfObjectsToBeInserted];
-    }
+  }
     
     NSMutableSet *objectsToBeUpdated = setOfCoreDataObjects;
     [objectsToBeUpdated minusSet:objectsTobeDeleted];
@@ -134,13 +138,13 @@
             if ([[feed valueForKey:@"objectId"] isEqualToString:[object valueForKey:@"objectId"]]) {
                 
                 if (![[feed valueForKey:@"title"] isEqualToString:[object valueForKey:@"title"]]) {
-                    feed.title = [object valueForKey:@"title"];
+                     [feed setValue:[object valueForKey:@"title"] forKey:@"title"];
                 }
                 if (![[feed valueForKey:@"subtitle"] isEqualToString:[object valueForKey:@"subtitle"]]) {
-                    feed.subtitle = [object valueForKey:@"subtitle"];
+                    [feed setValue:[object valueForKey:@"subtitle"] forKey:@"subtitle"];
                 }
                 if (![[feed valueForKey:@"image_name"] isEqualToString:[object valueForKey:@"image_name"]]) {
-                    feed.image_name = [object valueForKey:@"image_name"];
+                   [feed setValue:[object valueForKey:@"image_name"] forKey:@"image_name"];
                 }
                 
             }

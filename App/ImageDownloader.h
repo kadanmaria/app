@@ -21,5 +21,6 @@
 @property (weak, nonatomic) id <ImageDownloaderDelegate> delegate;
 
 - (void)downloadImageFromString:(NSString *)imageString forIndexPath:(NSIndexPath *)indexPath;
+//+ (id)sharedImageDownloader;
 
 @end
