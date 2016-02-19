@@ -24,6 +24,27 @@
     return self;
 }
 
+#pragma mark - FetchedResultsController
+
+- (NSFetchedResultsController *)fetchedResultsController {
+    if (_fetchedResultsController != nil) {
+        return _fetchedResultsController;
+    }
+    NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"Feed"];
+    
+    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"objectId" ascending:NO];
+    [fetchRequest setSortDescriptors:@[sortDescriptor]];
+    
+    [fetchRequest setFetchBatchSize:10];
+    
+    NSFetchedResultsController *fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:self.managedObjectContext
+                                                                                                 sectionNameKeyPath:nil cacheName:nil];
+    self.fetchedResultsController = fetchedResultsController;
+//    _fetchedResultsController.delegate = self;
+    
+    return _fetchedResultsController;
+}
+
 - (void)initializeCoreData {
     NSURL *modelURL = [[NSBundle mainBundle] URLForResource:@"FeedModel" withExtension:@"momd"];
     NSManagedObjectModel *managedObjectModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
@@ -111,6 +132,11 @@
             }
         }
         [self updateObjects:arrayOfObjectsToBeUpdated accordingToRecievedArray:objects];
+    }
+    
+    NSError *savingError = nil;
+    if (![self.managedObjectContext save:&savingError]) {
+        NSLog(@"Unresolved error %@, %@", savingError, [savingError userInfo]);
     }
 }
 

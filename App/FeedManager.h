@@ -12,6 +12,7 @@
 @interface FeedManager : NSObject
 
 @property (strong, nonatomic) NSManagedObjectContext *managedObjectContext;
+@property (strong, nonatomic) NSFetchedResultsController *fetchedResultsController;
 
 - (void)initializeCoreData;
 - (void)manageObjects:(NSArray *)objects;

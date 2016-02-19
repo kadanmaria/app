@@ -16,7 +16,7 @@
 #import "FeedManager.h"
 
 
-@interface ViewController () <UITableViewDelegate, UITableViewDataSource, ContentDownloaderDelegate, ImageDownloaderDelegate, NSFetchedResultsControllerDelegate>
+@interface ViewController () <UITableViewDelegate, UITableViewDataSource, ContentDownloaderDelegate, NSFetchedResultsControllerDelegate>
 
 @property (weak, nonatomic) IBOutlet UIActivityIndicatorView *activityIndicator;
 @property (weak, nonatomic) IBOutlet UIButton *synchronizeButton;
@@ -25,7 +25,6 @@
 @property (strong, nonatomic) NSFetchedResultsController *fetchedResultsController;
 @property (strong, nonatomic) ContentDownloader *contentDownloader;
 @property (strong, nonatomic) FeedManager *feedManager;
-@property (strong, nonatomic) ImageDownloader *imageDownloader;
 
 @end
 
@@ -41,8 +40,12 @@
     FeedManager *feedManager = [[FeedManager alloc] init];
     self.feedManager = feedManager;
     
+    NSFetchedResultsController *fetchedResultsController = self.feedManager.fetchedResultsController;
+    fetchedResultsController.delegate = self;
+    self.fetchedResultsController = fetchedResultsController;
+    
     NSError *error;
-    if (![[self fetchedResultsController] performFetch:&error]) {
+    if (![self.fetchedResultsController performFetch:&error]) {
         NSLog(@"Error %@, %@", error, [error userInfo]);
     }
 }
@@ -57,29 +60,14 @@
     [self.feedManager manageObjects:array];
 
     [self.activityIndicator stopAnimating];
-    self.synchronizeButton.alpha = 1;
-    
-    NSError *error = nil;
-    if (![self.feedManager.managedObjectContext save:&error]) {
-        NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
-    }
-}
-
-#pragma mark - <ImageDownloaderDelegate>
-
-- (void)imageDownloader:(ImageDownloader *)imageDownloader didDownloadImage:(UIImage *)image forIndexPath:(NSIndexPath *)indexPath {
-    Cell *cell = (Cell *)[self.tableView cellForRowAtIndexPath:indexPath];
-    if (cell) {
-        cell.photoImageView.image = image;
-    }
+    self.synchronizeButton.hidden = NO;
 }
 
 #pragma mark - IBActions
 
 - (IBAction)refresh:(UIButton *)sender {
-
     [self.activityIndicator startAnimating];
-    self.synchronizeButton.alpha = 0;
+    self.synchronizeButton.hidden = YES;
     [self.tableView addSubview:self.activityIndicator];
     
     [self.contentDownloader downloadContent];
@@ -92,17 +80,7 @@
     return [sectionInfo numberOfObjects];
 }
 
-- (void)configureCell:(Cell *)cell atIndexPath:(NSIndexPath *)indexPath {
-    Feed *feed = [self.fetchedResultsController objectAtIndexPath:indexPath];
-    
-    cell.titleLabel.text = feed.title;
-    cell.subTitleLabel.text = feed.subtitle;
-    
-    ImageDownloader *imageDownloader = [[ImageDownloader alloc] init];
-    imageDownloader.delegate = self;
-    self.imageDownloader = imageDownloader;
-    [self.imageDownloader downloadImageFromString:feed.image_name forIndexPath:indexPath];
-}
+
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     Cell *cell = (Cell *)[tableView dequeueReusableCellWithIdentifier:@"Cell"];
@@ -110,25 +88,23 @@
     return cell;
 }
 
-#pragma mark - FetchedResultsController
-
-- (NSFetchedResultsController *)fetchedResultsController {
-    if (_fetchedResultsController != nil) {
-        return _fetchedResultsController;
-    }
-    NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"Feed"];
+- (void)configureCell:(Cell *)cell atIndexPath:(NSIndexPath *)indexPath {
+    Feed *feed = [self.fetchedResultsController objectAtIndexPath:indexPath];
     
-    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"objectId" ascending:NO];
-    [fetchRequest setSortDescriptors:@[sortDescriptor]];
+    cell.titleLabel.text = feed.title;
+    cell.subTitleLabel.text = feed.subtitle;
     
-    [fetchRequest setFetchBatchSize:10];
-    
-    NSFetchedResultsController *fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:self.feedManager.managedObjectContext
-                                                                                                 sectionNameKeyPath:nil cacheName:nil];
-    self.fetchedResultsController = fetchedResultsController;
-    _fetchedResultsController.delegate = self;
-    
-    return _fetchedResultsController;
+//    __weak Cell *weakSelf = cell;
+    [ImageDownloader downloadImageFromString:feed.image_name forIndexPath:indexPath completion:^(UIImage *image, NSIndexPath *indexPath) {
+        Cell *cell = (Cell *)[self.tableView cellForRowAtIndexPath:indexPath];
+//        __strong Cell *strongSelf = weakSelf;
+//         strongSelf.photoImageView.image = image;
+        if (cell) {
+            cell.photoImageView.image = image;
+        } else {
+            NSLog(@"Cell is out of range");
+        }
+    }];
 }
 
 #pragma mark - <NSFetchedResultsControllerDelegate>
