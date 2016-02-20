@@ -34,12 +34,13 @@
     }
     NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"Feed"];
     
-    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"objectId" ascending:NO];
+    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"title" ascending:YES];
     [fetchRequest setSortDescriptors:@[sortDescriptor]];
     
     [fetchRequest setFetchBatchSize:10];
     
-    NSFetchedResultsController *fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:self.managedObjectContext
+    NSFetchedResultsController *fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest
+                                                                                               managedObjectContext:self.managedObjectContext
                                                                                                  sectionNameKeyPath:nil cacheName:nil];
     self.fetchedResultsController = fetchedResultsController;
     
@@ -146,15 +147,20 @@
         }
         
         NSError *savingBackgroundContextError = nil;
-        if (![self.backgroundContext save:&savingBackgroundContextError]) {
+        if (![backgroundContext save:&savingBackgroundContextError]) {
             NSLog(@"Unresolved error %@, %@", savingBackgroundContextError, [savingBackgroundContextError userInfo]);
         }
+        
+        [mainContext performBlock:^{
+            NSError *savingMainContextError = nil;
+            if (![mainContext save:&savingMainContextError]) {
+                NSLog(@"Unresolved error %@, %@", savingMainContextError, [savingMainContextError userInfo]);
+            }
+        }];
+        
     }];
     
-    NSError *savingMainContextError = nil;
-    if (![self.managedObjectContext save:&savingMainContextError]) {
-        NSLog(@"Unresolved error %@, %@", savingMainContextError, [savingMainContextError userInfo]);
-    }
+  
 }
 
 - (void)deleteObjects:(NSMutableArray *)objects {

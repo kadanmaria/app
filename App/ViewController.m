@@ -68,7 +68,6 @@
 - (IBAction)refresh:(UIButton *)sender {
     [self.activityIndicator startAnimating];
     self.synchronizeButton.hidden = YES;
-    [self.tableView addSubview:self.activityIndicator];
     
     [self.contentDownloader downloadContent];
 }
