@@ -91,12 +91,16 @@
     cell.titleLabel.text = feed.title;
     cell.subTitleLabel.text = feed.subtitle;
     
-    __weak Cell *weakSelf = cell;
-    [ImageDownloader downloadImageFromString:feed.image_name forIndexPath:indexPath completion:^(UIImage *image) {
-        __strong Cell *strongSelf = weakSelf;
-        if (strongSelf) {
-            strongSelf.photoImageView.image = image;
+//    __weak Cell *weakSelf = cell;
+    [ImageDownloader downloadImageFromString:feed.imageName forIndexPath:indexPath completion:^(UIImage *image, NSIndexPath *indexPath) {
+//        __strong Cell *strongSelf = weakSelf;
+//        if (strongSelf) {
+//            strongSelf.photoImageView.image = image;
+        Cell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
+        if (cell) {
+            cell.photoImageView.image = image;
         }
+        
     }];
 }
 

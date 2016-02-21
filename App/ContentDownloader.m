@@ -11,7 +11,7 @@
 
 static NSString * const applicatonId = @"8D2F3524-3D1D-88BC-FF2C-536BF2717200";
 static NSString * const restId = @"A8A7BD7A-0B83-C7DC-FFA0-52D384DA6B00";
-static NSString * const stringForURLRequest = @"https://api.backendless.com/v1/data/Data";
+static NSString * const stringForURLRequest = @"https://api.backendless.com/v1/data/Data?pageSize=100";
 
 @implementation ContentDownloader
 

@@ -2,7 +2,7 @@
 //  Feed+CoreDataProperties.m
 //  App
 //
-//  Created by Admin on 18.02.16.
+//  Created by Admin on 22.02.16.
 //  Copyright © 2016 OrgName. All rights reserved.
 //
 //  Choose "Create NSManagedObject Subclass…" from the Core Data editor menu
@@ -13,9 +13,9 @@
 
 @implementation Feed (CoreDataProperties)
 
+@dynamic imageName;
+@dynamic objectId;
 @dynamic subtitle;
 @dynamic title;
-@dynamic objectId;
-@dynamic image_name;
 
 @end

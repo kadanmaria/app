@@ -41,7 +41,7 @@
     
     NSFetchedResultsController *fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest
                                                                                                managedObjectContext:self.managedObjectContext
-                                                                                                 sectionNameKeyPath:nil cacheName:nil];
+                                                                                                 sectionNameKeyPath:nil cacheName:@"Cache"];
     self.fetchedResultsController = fetchedResultsController;
     
     return _fetchedResultsController;
@@ -88,25 +88,28 @@
     NSManagedObjectContext *mainContext = [self managedObjectContext];
     NSManagedObjectContext *backgroundContext = [self backgroundContext];
     
-    NSEntityDescription *entity = [NSEntityDescription entityForName:@"Feed" inManagedObjectContext:mainContext];
-    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-    [fetchRequest setEntity:entity];
-
-    NSError *error;
-    NSArray *objectsFromCoreData = [mainContext executeFetchRequest:fetchRequest error:&error];
-
-    NSMutableSet *setOfCoreDataObjects = [NSMutableSet set];
-    for (Feed *feed in objectsFromCoreData) {
-        [setOfCoreDataObjects addObject:feed.objectId];
-    }
-    
-    NSMutableSet *setOfObjects = [[NSMutableSet alloc] init];
-    for (NSDictionary *object in objects) {
-        [setOfObjects addObject:[object valueForKey:@"objectId"]];
-    }
-    
     [backgroundContext performBlock:^{
-    
+
+        NSEntityDescription *entity = [NSEntityDescription entityForName:@"Feed" inManagedObjectContext:backgroundContext];
+        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+        [fetchRequest setEntity:entity];
+
+        NSError *error;
+        NSArray *objectsFromCoreData = [backgroundContext executeFetchRequest:fetchRequest error:&error];
+        if (error) {
+            NSLog(@"Error fetching data %@, %@", error, [error userInfo]);
+        }
+        
+        NSMutableSet *setOfCoreDataObjects = [NSMutableSet set];
+        for (Feed *feed in objectsFromCoreData) {
+            [setOfCoreDataObjects addObject:feed.objectId];
+        }
+        
+        NSMutableSet *setOfObjects = [[NSMutableSet alloc] init];
+        for (NSDictionary *object in objects) {
+            [setOfObjects addObject:[object valueForKey:@"objectId"]];
+        }
+      
         NSMutableSet *objectsTobeDeleted = [NSMutableSet setWithSet:setOfCoreDataObjects];
         [objectsTobeDeleted minusSet:setOfObjects];
         
@@ -159,8 +162,6 @@
         }];
         
     }];
-    
-  
 }
 
 - (void)deleteObjects:(NSMutableArray *)objects {
@@ -172,11 +173,12 @@
 - (void)insertObjects:(NSMutableArray *)objects {
     for (NSDictionary *object in objects) {
         Feed *feed = [NSEntityDescription insertNewObjectForEntityForName:@"Feed" inManagedObjectContext:[self backgroundContext]];
-        
+
         [feed setValue:[object valueForKey:@"objectId"] forKey:@"objectId"];
-        [feed setValue:[object valueForKey:@"title"] forKey:@"title"];
         [feed setValue:[object valueForKey:@"subtitle"] forKey:@"subtitle"];
-        [feed setValue:[object valueForKey:@"image_name"] forKey:@"image_name"];
+        [feed setValue:[object valueForKey:@"title"] forKey:@"title"];
+        [feed setValue:[object valueForKey:@"imageName"] forKey:@"imageName"];
+        
     }
 }
 
@@ -192,8 +194,8 @@
                 if (![[feed valueForKey:@"subtitle"] isEqualToString:[object valueForKey:@"subtitle"]]) {
                     [feed setValue:[object valueForKey:@"subtitle"] forKey:@"subtitle"];
                 }
-                if (![[feed valueForKey:@"image_name"] isEqualToString:[object valueForKey:@"image_name"]]) {
-                   [feed setValue:[object valueForKey:@"image_name"] forKey:@"image_name"];
+                if (![[feed valueForKey:@"imageName"] isEqualToString:[object valueForKey:@"imageName"]]) {
+                   [feed setValue:[object valueForKey:@"imageName"] forKey:@"imageName"];
                 }
                 
             }

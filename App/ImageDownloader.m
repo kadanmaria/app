@@ -49,6 +49,7 @@
 
 @property (assign, nonatomic) NSIndexPath *indexPath;
 @property (strong, nonatomic) ImageDownloaderTasks *imageDownloaderTasks;
+@property (strong, nonatomic) NSURLSession *session;
 
 @end
 
@@ -59,7 +60,7 @@
     [self setSharedCacheForImages];
 }
 
-+ (void)downloadImageFromString:(NSString *)imageString forIndexPath:(NSIndexPath *)indexPath completion:(void (^)(UIImage *image))completion {
++ (void)downloadImageFromString:(NSString *)imageString forIndexPath:(NSIndexPath *)indexPath completion:(void (^)(UIImage *image, NSIndexPath *indexPath))completion {
     if ([[ImageDownloaderTasks sharedInstance] imageDownloaderTaskforKey:imageString]) {
         [[[ImageDownloaderTasks sharedInstance] imageDownloaderTaskforKey:imageString] cancel];
     }
@@ -75,15 +76,14 @@
             UIImage *image = [UIImage imageWithData:cachedResponse.data];
             
             dispatch_async(dispatch_get_main_queue(), ^{
-                completion(image);
+                completion(image, indexPath);
             });
             
         });
         
     } else {
         
-        NSURLSession *session = [NSURLSession sharedSession];
-        NSURLSessionDataTask *imageDataTask = [session dataTaskWithRequest:imageReqest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+        NSURLSessionDataTask *imageDataTask = [[NSURLSession sharedSession] dataTaskWithRequest:imageReqest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
             
             dispatch_async(dispatch_get_global_queue(0, 0), ^{
                 if(!error) {
@@ -93,7 +93,8 @@
                         if (!image) {
                             NSLog(@"Error Setting Image");
                         } else {
-                            completion (image);
+                            [[ImageDownloaderTasks sharedInstance] setImageDownloaderTasks:imageDataTask forKey:imageString];
+                            completion (image, indexPath);
                         }
                     });
                     
@@ -102,7 +103,6 @@
                 }
             });
         }];
-        [[ImageDownloaderTasks sharedInstance] setImageDownloaderTasks:imageDataTask forKey:imageString];
         [imageDataTask resume];
     }
 }
@@ -110,7 +110,7 @@
 + (void)setSharedCacheForImages {
     NSUInteger cacheSize = 500 * 1024 * 1024;
     NSUInteger cacheDiskSize = 500 * 1024 * 1024;
-    NSURLCache *imageCache = [[NSURLCache alloc] initWithMemoryCapacity:cacheSize diskCapacity:cacheDiskSize diskPath:nil];
+    NSURLCache *imageCache = [[NSURLCache alloc] initWithMemoryCapacity:cacheSize diskCapacity:cacheDiskSize diskPath:@"AppImagesCache"];
     [NSURLCache setSharedURLCache:imageCache];
 }
 

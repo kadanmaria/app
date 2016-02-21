@@ -13,6 +13,6 @@
 
 + (void)downloadImageFromString:(NSString *)imageString
                    forIndexPath:(NSIndexPath *)indexPath
-                     completion:(void (^)(UIImage *image))completion;
+                     completion:(void (^)(UIImage *image, NSIndexPath *indexPath))completion;
 
 @end
