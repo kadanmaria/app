@@ -13,7 +13,7 @@
 #import "ContentDownloader.h"
 #import "ImageDownloader.h"
 #import "Feed.h"
-#import "FeedManager.h"
+#import "AppDelegate.h"
 
 
 @interface ViewController () <UITableViewDelegate, UITableViewDataSource, ContentDownloaderDelegate, NSFetchedResultsControllerDelegate>
@@ -37,7 +37,7 @@
     self.contentDownloader = [[ContentDownloader alloc] init];
     self.contentDownloader.delegate = self;
     
-    FeedManager *feedManager = [[FeedManager alloc] init];
+    id feedManager = [(AppDelegate *)[[UIApplication sharedApplication] delegate] feedManager] ;
     self.feedManager = feedManager;
     
     NSFetchedResultsController *fetchedResultsController = self.feedManager.fetchedResultsController;

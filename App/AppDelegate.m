@@ -16,7 +16,9 @@
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    // Override point for customization after application launch.   
+    FeedManager *feedManager = [[FeedManager alloc] init];
+    self.feedManager = feedManager;
+    
     return YES;
 }
 
