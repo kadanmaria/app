@@ -8,18 +8,11 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-@class ImageDownloader;
-
-@protocol ImageDownloaderDelegate
-
-- (void)imageDownloader:(ImageDownloader *)imageDownloader didDownloadImage:(UIImage *)image forIndexPath:(NSIndexPath *)indexPath;
-
-@end
 
 @interface ImageDownloader : NSObject
 
-@property (weak, nonatomic) id <ImageDownloaderDelegate> delegate;
-
-- (void)downloadImageFromString:(NSString *)imageString forIndexPath:(NSIndexPath *)indexPath;
++ (void)downloadImageFromString:(NSString *)imageString
+                   forIndexPath:(NSIndexPath *)indexPath
+                     completion:(void (^)(UIImage *image, NSIndexPath *indexPath))completion;
 
 @end

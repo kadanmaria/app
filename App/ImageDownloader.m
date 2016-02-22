@@ -8,56 +8,110 @@
 
 #import "ImageDownloader.h"
 
-@interface ImageDownloader () <NSURLConnectionDelegate>
 
-@property (strong, nonatomic) NSURLConnection *currentConnection;
-@property (strong, nonatomic) NSMutableData *dataContainingImage;
+@interface ImageDownloaderTasks : NSObject
+
+@property (strong, nonatomic) NSMutableDictionary *tasks;
+
+@end
+
+@implementation ImageDownloaderTasks
+
++ (instancetype)sharedInstance {
+    static ImageDownloaderTasks *instance = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        instance = [[self alloc] init];
+    });
+    return instance;
+}
+
+- (instancetype)init {
+    if (self = [super init]) {
+        NSMutableDictionary *tasks = [[NSMutableDictionary alloc] init];
+        self.tasks = tasks;
+    }
+    return self;
+}
+
+- (NSURLSessionDataTask *)imageDownloaderTaskforKey:(NSString *)key {
+    return [self.tasks objectForKey:key];
+}
+
+- (void)setImageDownloaderTasks:(NSURLSessionDataTask *)task forKey:(NSString *)key {
+    [self.tasks setValue:task forKey:key];
+}
+
+@end
+
+
+@interface ImageDownloader ()
+
 @property (assign, nonatomic) NSIndexPath *indexPath;
-@property (strong, nonatomic) UIImage *image;
+@property (strong, nonatomic) ImageDownloaderTasks *imageDownloaderTasks;
+@property (strong, nonatomic) NSURLSession *session;
 
 @end
 
 @implementation ImageDownloader
 
-- (void)downloadImageFromString:(NSString *)imageString forIndexPath:(NSIndexPath *)indexPath {
-    self.indexPath = indexPath;
-    NSString *restCall = imageString;
-    NSURL *restURL = [NSURL URLWithString:restCall];
-    NSURLRequest *restReqest = [NSURLRequest requestWithURL:restURL];
-    if (self.currentConnection) {
-        [self.currentConnection cancel];
-        self.currentConnection = nil;
-        self.dataContainingImage = nil;
++ (void)load {
+    [super load];
+    [self setSharedCacheForImages];
+}
+
++ (void)downloadImageFromString:(NSString *)imageString forIndexPath:(NSIndexPath *)indexPath completion:(void (^)(UIImage *image, NSIndexPath *indexPath))completion {
+    if ([[ImageDownloaderTasks sharedInstance] imageDownloaderTaskforKey:imageString]) {
+        [[[ImageDownloaderTasks sharedInstance] imageDownloaderTaskforKey:imageString] cancel];
     }
-    self.currentConnection = [[NSURLConnection alloc] initWithRequest:restReqest delegate:self];
-}
-
-#pragma mark - <NSURLConnectionDelegate>
-
-- (void)connection:(NSURLConnection*)connection didReceiveResponse:(NSURLResponse *)response {
-    self.dataContainingImage = [NSMutableData data];
-}
-
-- (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
-    [self.dataContainingImage appendData:data];
-}
-
-- (void)connection:(NSURLConnection*)connection didFailWithError:(NSError*)error {
-    NSLog(@"URL Connection Failed With Error %@!", error);
-    self.currentConnection = nil;
-}
-
-- (void)connectionDidFinishLoading:(NSURLConnection *)connection {
-    UIImage *image = [UIImage imageWithData:self.dataContainingImage];
-        if (!image) {
-            NSLog(@"Error Setting Image");
-        } else {
-            self.image = image;
-//            NSLog(@"Did download image for row %lu", self.indexPath.row);
-            [self.delegate imageDownloader:self didDownloadImage:self.image forIndexPath:self.indexPath];
+    
+    NSURL *imageURL = [NSURL URLWithString:imageString];
+    NSURLRequest *imageReqest = [NSURLRequest requestWithURL:imageURL];
+    
+    NSCachedURLResponse *cachedResponse = [[NSURLCache sharedURLCache] cachedResponseForRequest:imageReqest];
+    
+    if (cachedResponse.data) {
+        
+        dispatch_async(dispatch_get_global_queue(0, 0), ^{
+            UIImage *image = [UIImage imageWithData:cachedResponse.data];
             
-        }
-    self.currentConnection = nil;
+            dispatch_async(dispatch_get_main_queue(), ^{
+                completion(image, indexPath);
+            });
+            
+        });
+        
+    } else {
+        
+        NSURLSessionDataTask *imageDataTask = [[NSURLSession sharedSession] dataTaskWithRequest:imageReqest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+            
+            dispatch_async(dispatch_get_global_queue(0, 0), ^{
+                if(!error) {
+                    UIImage *image = [UIImage imageWithData:data];
+                    
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        if (!image) {
+                            NSLog(@"Error Setting Image");
+                        } else {
+                            [[ImageDownloaderTasks sharedInstance] setImageDownloaderTasks:imageDataTask forKey:imageString];
+                            completion (image, indexPath);
+                        }
+                    });
+                    
+                } else {
+                    NSLog(@"Error imageDataTask %@", error);
+                }
+            });
+        }];
+        [imageDataTask resume];
+    }
+}
+
++ (void)setSharedCacheForImages {
+    NSUInteger cacheSize = 500 * 1024 * 1024;
+    NSUInteger cacheDiskSize = 500 * 1024 * 1024;
+    NSURLCache *imageCache = [[NSURLCache alloc] initWithMemoryCapacity:cacheSize diskCapacity:cacheDiskSize diskPath:@"AppImagesCache"];
+    [NSURLCache setSharedURLCache:imageCache];
 }
 
 @end
