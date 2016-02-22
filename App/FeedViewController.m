@@ -8,17 +8,18 @@
 
 #import <CoreData/CoreData.h>
 
-#import "ViewController.h"
-#import "Cell.h"
+#import "FeedViewController.h"
+#import "FeedCell.h"
 #import "ContentDownloader.h"
 #import "ImageDownloader.h"
 #import "Feed.h"
 #import "AppDelegate.h"
+#import "DetailFeedViewController.h"
 
 
-@interface ViewController () <UITableViewDelegate, UITableViewDataSource, ContentDownloaderDelegate, NSFetchedResultsControllerDelegate>
+@interface FeedViewController () <UITableViewDelegate, UITableViewDataSource, ContentDownloaderDelegate, NSFetchedResultsControllerDelegate>
 
-@property (weak, nonatomic) IBOutlet UIActivityIndicatorView *activityIndicator;
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *activityIndicatorItem;
 @property (weak, nonatomic) IBOutlet UIButton *synchronizeButton;
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
 
@@ -26,9 +27,10 @@
 @property (strong, nonatomic) ContentDownloader *contentDownloader;
 @property (strong, nonatomic) FeedManager *feedManager;
 
+
 @end
 
-@implementation ViewController
+@implementation FeedViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -59,14 +61,19 @@
 - (void)contentDownloader:(ContentDownloader *)contentDownloader didDownloadContentToArray:(NSArray *)array {
     [self.feedManager manageObjects:array];
 
-    [self.activityIndicator stopAnimating];
+    [self.activityIndicatorItem.customView stopAnimating];
     self.synchronizeButton.hidden = NO;
 }
 
 #pragma mark - IBActions
 
 - (IBAction)refresh:(UIButton *)sender {
-    [self.activityIndicator startAnimating];
+    UIActivityIndicatorView *activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+    activityIndicator.color = [UIColor blackColor];
+    
+    [activityIndicator startAnimating];
+    
+    self.activityIndicatorItem.customView = activityIndicator;
     self.synchronizeButton.hidden = YES;
     
     [self.contentDownloader downloadContent];
@@ -80,28 +87,36 @@
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    Cell *cell = (Cell *)[tableView dequeueReusableCellWithIdentifier:@"Cell"];
+    FeedCell *cell = (FeedCell *)[tableView dequeueReusableCellWithIdentifier:@"Cell"];
     [self configureCell:cell atIndexPath:indexPath];
     return cell;
 }
 
-- (void)configureCell:(Cell *)cell atIndexPath:(NSIndexPath *)indexPath {
+- (void)configureCell:(FeedCell *)cell atIndexPath:(NSIndexPath *)indexPath {
     Feed *feed = [self.fetchedResultsController objectAtIndexPath:indexPath];
     
     cell.titleLabel.text = feed.title;
     cell.subTitleLabel.text = feed.subtitle;
     
-//    __weak Cell *weakSelf = cell;
+    __weak FeedViewController *weakSelf = self;
     [ImageDownloader downloadImageFromString:feed.imageName forIndexPath:indexPath completion:^(UIImage *image, NSIndexPath *indexPath) {
-//        __strong Cell *strongSelf = weakSelf;
-//        if (strongSelf) {
-//            strongSelf.photoImageView.image = image;
-        Cell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
-        if (cell) {
-            cell.photoImageView.image = image;
+        __strong FeedViewController *strongSelf = weakSelf;
+        if (strongSelf) {
+            FeedCell *cell = [strongSelf.tableView cellForRowAtIndexPath:indexPath];
+            if (cell) {
+                cell.photoImageView.image = image;
+            }
         }
-        
     }];
+}
+
+#pragma mark - Navigation
+
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    if ([[segue identifier] isEqualToString:@"FeedCellSegue"]) {
+        DetailFeedViewController *detailController = [segue destinationViewController];
+        detailController.someProperty = self.tableView.indexPathForSelectedRow;
+    }
 }
 
 #pragma mark - <NSFetchedResultsControllerDelegate>

@@ -8,12 +8,14 @@
 
 /* Begin PBXBuildFile section */
 		8418C56A1C76A9B200B6AE09 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8418C5691C76A9B200B6AE09 /* Assets.xcassets */; settings = {ASSET_TAGS = (); }; };
-		842964111C676EF10044F610 /* Cell.m in Sources */ = {isa = PBXBuildFile; fileRef = 842964101C676EF10044F610 /* Cell.m */; settings = {ASSET_TAGS = (); }; };
+		842964111C676EF10044F610 /* FeedCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 842964101C676EF10044F610 /* FeedCell.m */; settings = {ASSET_TAGS = (); }; };
 		8430299B1C7A7987001C133C /* Feed+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 843029981C7A7987001C133C /* Feed+CoreDataProperties.m */; settings = {ASSET_TAGS = (); }; };
 		8430299C1C7A7987001C133C /* Feed.m in Sources */ = {isa = PBXBuildFile; fileRef = 8430299A1C7A7987001C133C /* Feed.m */; settings = {ASSET_TAGS = (); }; };
+		8430299F1C7B8B4C001C133C /* DetailFeedViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8430299E1C7B8B4C001C133C /* DetailFeedViewController.m */; settings = {ASSET_TAGS = (); }; };
+		843029A21C7B9A39001C133C /* AuthorizationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 843029A11C7B9A39001C133C /* AuthorizationViewController.m */; settings = {ASSET_TAGS = (); }; };
 		844AE94E1C676361003ED708 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 844AE94D1C676361003ED708 /* main.m */; };
 		844AE9511C676361003ED708 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 844AE9501C676361003ED708 /* AppDelegate.m */; };
-		844AE9541C676361003ED708 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 844AE9531C676361003ED708 /* ViewController.m */; };
+		844AE9541C676361003ED708 /* FeedViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 844AE9531C676361003ED708 /* FeedViewController.m */; };
 		844AE9571C676361003ED708 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 844AE9551C676361003ED708 /* Main.storyboard */; };
 		846DE9E81C6C9E19005393D6 /* ContentDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = 846DE9E71C6C9E19005393D6 /* ContentDownloader.m */; settings = {ASSET_TAGS = (); }; };
 		84E118861C6EA6C20079BF06 /* ImageDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = 84E118851C6EA6C20079BF06 /* ImageDownloader.m */; settings = {ASSET_TAGS = (); }; };
@@ -24,18 +26,22 @@
 
 /* Begin PBXFileReference section */
 		8418C5691C76A9B200B6AE09 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		8429640F1C676EF10044F610 /* Cell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Cell.h; sourceTree = "<group>"; };
-		842964101C676EF10044F610 /* Cell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Cell.m; sourceTree = "<group>"; };
+		8429640F1C676EF10044F610 /* FeedCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FeedCell.h; sourceTree = "<group>"; };
+		842964101C676EF10044F610 /* FeedCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FeedCell.m; sourceTree = "<group>"; };
 		843029971C7A7987001C133C /* Feed+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Feed+CoreDataProperties.h"; sourceTree = "<group>"; };
 		843029981C7A7987001C133C /* Feed+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "Feed+CoreDataProperties.m"; sourceTree = "<group>"; };
 		843029991C7A7987001C133C /* Feed.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Feed.h; sourceTree = "<group>"; };
 		8430299A1C7A7987001C133C /* Feed.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Feed.m; sourceTree = "<group>"; };
+		8430299D1C7B8B4C001C133C /* DetailFeedViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DetailFeedViewController.h; sourceTree = "<group>"; };
+		8430299E1C7B8B4C001C133C /* DetailFeedViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DetailFeedViewController.m; sourceTree = "<group>"; };
+		843029A01C7B9A39001C133C /* AuthorizationViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AuthorizationViewController.h; sourceTree = "<group>"; };
+		843029A11C7B9A39001C133C /* AuthorizationViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AuthorizationViewController.m; sourceTree = "<group>"; };
 		844AE9491C676361003ED708 /* App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = App.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		844AE94D1C676361003ED708 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		844AE94F1C676361003ED708 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		844AE9501C676361003ED708 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		844AE9521C676361003ED708 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
-		844AE9531C676361003ED708 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		844AE9521C676361003ED708 /* FeedViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FeedViewController.h; sourceTree = "<group>"; };
+		844AE9531C676361003ED708 /* FeedViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FeedViewController.m; sourceTree = "<group>"; };
 		844AE9561C676361003ED708 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		844AE95D1C676361003ED708 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		846DE9E61C6C9E19005393D6 /* ContentDownloader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ContentDownloader.h; sourceTree = "<group>"; };
@@ -83,12 +89,16 @@
 				84E46C271C7555F800120ABE /* CoreData */,
 				844AE94F1C676361003ED708 /* AppDelegate.h */,
 				844AE9501C676361003ED708 /* AppDelegate.m */,
-				844AE9521C676361003ED708 /* ViewController.h */,
-				844AE9531C676361003ED708 /* ViewController.m */,
-				8429640F1C676EF10044F610 /* Cell.h */,
-				842964101C676EF10044F610 /* Cell.m */,
+				844AE9521C676361003ED708 /* FeedViewController.h */,
+				844AE9531C676361003ED708 /* FeedViewController.m */,
+				8429640F1C676EF10044F610 /* FeedCell.h */,
+				842964101C676EF10044F610 /* FeedCell.m */,
 				846DE9E61C6C9E19005393D6 /* ContentDownloader.h */,
 				846DE9E71C6C9E19005393D6 /* ContentDownloader.m */,
+				843029A01C7B9A39001C133C /* AuthorizationViewController.h */,
+				843029A11C7B9A39001C133C /* AuthorizationViewController.m */,
+				8430299D1C7B8B4C001C133C /* DetailFeedViewController.h */,
+				8430299E1C7B8B4C001C133C /* DetailFeedViewController.m */,
 				84E118841C6EA6C20079BF06 /* ImageDownloader.h */,
 				84E118851C6EA6C20079BF06 /* ImageDownloader.m */,
 				844AE95D1C676361003ED708 /* Info.plist */,
@@ -194,11 +204,13 @@
 				84E118861C6EA6C20079BF06 /* ImageDownloader.m in Sources */,
 				846DE9E81C6C9E19005393D6 /* ContentDownloader.m in Sources */,
 				8430299B1C7A7987001C133C /* Feed+CoreDataProperties.m in Sources */,
-				844AE9541C676361003ED708 /* ViewController.m in Sources */,
+				844AE9541C676361003ED708 /* FeedViewController.m in Sources */,
 				84E46C201C7537B900120ABE /* FeedManager.m in Sources */,
 				8430299C1C7A7987001C133C /* Feed.m in Sources */,
 				84E46C1A1C73EADC00120ABE /* FeedModel.xcdatamodeld in Sources */,
-				842964111C676EF10044F610 /* Cell.m in Sources */,
+				842964111C676EF10044F610 /* FeedCell.m in Sources */,
+				843029A21C7B9A39001C133C /* AuthorizationViewController.m in Sources */,
+				8430299F1C7B8B4C001C133C /* DetailFeedViewController.m in Sources */,
 				844AE9511C676361003ED708 /* AppDelegate.m in Sources */,
 				844AE94E1C676361003ED708 /* main.m in Sources */,
 			);
