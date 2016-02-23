@@ -26,6 +26,7 @@
 @property (strong, nonatomic) NSFetchedResultsController *fetchedResultsController;
 @property (strong, nonatomic) ContentDownloader *contentDownloader;
 @property (strong, nonatomic) FeedManager *feedManager;
+@property (strong, nonatomic) NSString *userToken;
 
 
 @end
@@ -41,6 +42,9 @@
     
     id feedManager = [(AppDelegate *)[[UIApplication sharedApplication] delegate] feedManager] ;
     self.feedManager = feedManager;
+    
+    id userToken = [(AppDelegate *)[[UIApplication sharedApplication] delegate] userToken] ;
+    self.userToken = userToken;
     
     NSFetchedResultsController *fetchedResultsController = self.feedManager.fetchedResultsController;
     fetchedResultsController.delegate = self;
@@ -115,8 +119,7 @@
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     if ([[segue identifier] isEqualToString:@"FeedCellSegue"]) {
         DetailFeedViewController *detailController = [segue destinationViewController];
-        detailController.someProperty = self.tableView.indexPathForSelectedRow;
-        detailController.userToken = self.userToken;
+        detailController.feed = [self.fetchedResultsController objectAtIndexPath:self.tableView.indexPathForSelectedRow];
     }
 }
 

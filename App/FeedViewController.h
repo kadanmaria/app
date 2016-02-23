@@ -10,7 +10,5 @@
 
 @interface FeedViewController : UIViewController
 
-@property (strong, nonatomic) NSString *userToken;
-
 @end
 

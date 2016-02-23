@@ -7,10 +7,10 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "Feed.h"
 
 @interface DetailFeedViewController : UIViewController
 
-@property (strong, nonatomic) NSIndexPath *someProperty;
-@property (strong, nonatomic) NSString *userToken;
+@property (strong, nonatomic) Feed *feed;
 
 @end

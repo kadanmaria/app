@@ -7,10 +7,17 @@
 //
 
 #import "DetailFeedViewController.h"
+#import "AppDelegate.h"
+#import "ImageDownloader.h"
 
 @interface DetailFeedViewController ()
 
-@property (weak, nonatomic) IBOutlet UILabel *someLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *photoImageView;
+@property (weak, nonatomic) IBOutlet UITextView *titlteTextView;
+@property (weak, nonatomic) IBOutlet UITextView *subtitleTextView;
+
+
+@property (strong, nonatomic) NSString *userToken;
 
 @end
 
@@ -18,26 +25,22 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-//    NSString *string = [NSString stringWithFormat:@"%lu", self.someProperty.row];
-//    self.someLabel.text = string;
-//    
-    self.someLabel.text = self.userToken;
-    // Do any additional setup after loading the view.
+    
+    id userToken = [(AppDelegate *)[[UIApplication sharedApplication] delegate] userToken] ;
+    self.userToken = userToken;
+//    self.titleLabel.text = self.userToken;
+    self.titlteTextView.text = self.feed.title;
+//    self.subtitleTextField.text = nil;
+    self.subtitleTextView.text = self.feed.subtitle;
+    
+    [ImageDownloader downloadImageFromString:self.feed.imageName forIndexPath:nil completion:^(UIImage *image, NSIndexPath *indexPath) {
+        self.photoImageView.image = image;
+    }];    
 }
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
-
-/*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
-}
-*/
 
 @end
