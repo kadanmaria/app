@@ -18,8 +18,10 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    NSString *string = [NSString stringWithFormat:@"%lu", self.someProperty.row];
-    self.someLabel.text = string;
+//    NSString *string = [NSString stringWithFormat:@"%lu", self.someProperty.row];
+//    self.someLabel.text = string;
+//    
+    self.someLabel.text = self.userToken;
     // Do any additional setup after loading the view.
 }
 

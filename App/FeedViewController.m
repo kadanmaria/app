@@ -116,6 +116,7 @@
     if ([[segue identifier] isEqualToString:@"FeedCellSegue"]) {
         DetailFeedViewController *detailController = [segue destinationViewController];
         detailController.someProperty = self.tableView.indexPathForSelectedRow;
+        detailController.userToken = self.userToken;
     }
 }
 

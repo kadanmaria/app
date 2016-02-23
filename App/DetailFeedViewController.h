@@ -11,5 +11,6 @@
 @interface DetailFeedViewController : UIViewController
 
 @property (strong, nonatomic) NSIndexPath *someProperty;
+@property (strong, nonatomic) NSString *userToken;
 
 @end
