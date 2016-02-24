@@ -10,9 +10,9 @@
 
 static NSString * const applicatonId = @"8D2F3524-3D1D-88BC-FF2C-536BF2717200";
 static NSString * const restId = @"A8A7BD7A-0B83-C7DC-FFA0-52D384DA6B00";
-static NSString * const stringForURLRequest = @"https://api.backendless.com/v1/users/login";
 static NSString * const contentType = @"application/json";
 static NSString * const applicationType = @"REST";
+static NSString * const stringForURLRequest = @"https://api.backendless.com/v1/users/login";
 
 @implementation AuthorizationManager
 
@@ -57,6 +57,7 @@ static NSString * const applicationType = @"REST";
                         }
 //                        NSLog(@"%@", parsedObject);
 //                        NSLog(@"Response %@", response);
+                        NSLog(@"1");
                     }
                 });
                 

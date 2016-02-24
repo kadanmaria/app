@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
+#import "Feed.h"
 
 @interface FeedManager : NSObject
 
@@ -16,5 +17,6 @@
 
 - (void)initializeCoreData;
 - (void)manageObjects:(NSArray *)objects;
+- (void)updateFeed:(Feed *)feed accordingToChangedTitle:(NSString *)title subtitle:(NSString *)subtitle;
 
 @end

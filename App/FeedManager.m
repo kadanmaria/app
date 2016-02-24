@@ -203,4 +203,58 @@
     }
 }
 
+- (void)updateFeed:(Feed *)feed accordingToChangedTitle:(NSString *)title subtitle:(NSString *)subtitle {
+    
+    NSManagedObjectContext *mainContext = [self managedObjectContext];
+    NSManagedObjectContext *tempContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+    tempContext.parentContext = mainContext;
+    
+    [tempContext performBlock:^{
+        
+        NSEntityDescription *entity = [NSEntityDescription entityForName:@"Feed" inManagedObjectContext:tempContext];
+        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"objectId like %@", feed.objectId];
+        fetchRequest.predicate = predicate;
+        [fetchRequest setEntity:entity];
+        
+        NSError *error;
+        NSArray *feedsFromCoreData = [tempContext executeFetchRequest:fetchRequest error:&error];
+        if (error) {
+            NSLog(@"Error fetching data %@, %@", error, [error userInfo]);
+        }
+        Feed *feedFromCoreData = [feedsFromCoreData firstObject];
+//        if (feedsFromCoreData.count >0) {
+//            feedFromCoreData = [feedsFromCoreData firstObject];
+//        } else {
+//            NSLog(@"No Fetched objects");
+//        }
+        
+        if (![feedFromCoreData.title isEqualToString:title]) {
+            [feedFromCoreData setValue:title forKey:@"title"];
+            NSLog(@"TITLE %@ CHANGED To %@", feedFromCoreData.title, title);
+        }
+        if (![feedFromCoreData.subtitle isEqualToString:subtitle]) {
+            [feedFromCoreData setValue:subtitle forKey:@"subtitle"];
+        }
+//        if (![feedFromCoreData.imageName isEqualToString:imageName]) {
+//            [feedFromCoreData setValue:imageName forKey:@"imageName"];
+//        }
+        
+        NSError *savingBackgroundContextError = nil;
+        if (![tempContext save:&savingBackgroundContextError]) {
+            NSLog(@"Unresolved error %@, %@", savingBackgroundContextError, [savingBackgroundContextError userInfo]);
+        }
+        
+        [mainContext performBlock:^{
+            NSError *savingMainContextError = nil;
+            if (![mainContext save:&savingMainContextError]) {
+                NSLog(@"Unresolved error %@, %@", savingMainContextError, [savingMainContextError userInfo]);
+            } else {
+                NSLog(@"Saved seccessfull");
+            }
+        }];
+    }];
+                
+}
+
 @end

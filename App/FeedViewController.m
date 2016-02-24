@@ -19,8 +19,8 @@
 
 @interface FeedViewController () <UITableViewDelegate, UITableViewDataSource, ContentDownloaderDelegate, NSFetchedResultsControllerDelegate>
 
-@property (weak, nonatomic) IBOutlet UIBarButtonItem *activityIndicatorItem;
-@property (weak, nonatomic) IBOutlet UIButton *synchronizeButton;
+@property (strong, nonatomic) IBOutlet UIBarButtonItem *activityIndicatorItem;
+@property (strong, nonatomic) IBOutlet UIBarButtonItem *synchronizeButton;
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
 
 @property (strong, nonatomic) NSFetchedResultsController *fetchedResultsController;
@@ -28,10 +28,16 @@
 @property (strong, nonatomic) FeedManager *feedManager;
 @property (strong, nonatomic) NSString *userToken;
 
+@property (strong, nonatomic) NSMutableArray *navigationBarItems;
+
 
 @end
 
 @implementation FeedViewController
+
+- (IBAction)addFeed:(UIBarButtonItem *)sender {
+    [self performSegueWithIdentifier:@"AddFeedSegue" sender:nil];
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -50,6 +56,9 @@
     fetchedResultsController.delegate = self;
     self.fetchedResultsController = fetchedResultsController;
     
+    NSMutableArray *navigationBarItems = [self.navigationItem.rightBarButtonItems mutableCopy];
+    self.navigationBarItems = navigationBarItems;
+    
     NSError *error;
     if (![self.fetchedResultsController performFetch:&error]) {
         NSLog(@"Error %@, %@", error, [error userInfo]);
@@ -66,20 +75,26 @@
     [self.feedManager manageObjects:array];
 
     [self.activityIndicatorItem.customView stopAnimating];
-    self.synchronizeButton.hidden = NO;
+    
+    [self.navigationBarItems removeObject:self.activityIndicatorItem];
+    [self.navigationBarItems addObject:self.synchronizeButton];
+    [self.navigationItem setRightBarButtonItems:self.navigationBarItems animated:YES];
 }
 
 #pragma mark - IBActions
 
-- (IBAction)refresh:(UIButton *)sender {
-    UIActivityIndicatorView *activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
-    activityIndicator.color = [UIColor blackColor];
+- (IBAction)refresh:(UIBarButtonItem *)sender {
+    if (![self.navigationItem.rightBarButtonItems containsObject:self.activityIndicatorItem]) {
+        [self.navigationBarItems addObject:self.activityIndicatorItem];
+    }
+    [self.navigationBarItems removeObject:self.synchronizeButton];
+    [self.navigationItem setRightBarButtonItems:self.navigationBarItems animated:YES];
     
+    UIActivityIndicatorView *activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+    activityIndicator.color = self.view.tintColor;
     [activityIndicator startAnimating];
     
     self.activityIndicatorItem.customView = activityIndicator;
-    self.synchronizeButton.hidden = YES;
-    
     [self.contentDownloader downloadContent];
 }
 
@@ -117,7 +132,7 @@
 #pragma mark - Navigation
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    if ([[segue identifier] isEqualToString:@"FeedCellSegue"]) {
+    if ([[segue identifier] isEqualToString:@"CellFeedSegue"]) {
         DetailFeedViewController *detailController = [segue destinationViewController];
         detailController.feed = [self.fetchedResultsController objectAtIndexPath:self.tableView.indexPathForSelectedRow];
     }
