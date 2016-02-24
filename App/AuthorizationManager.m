@@ -12,20 +12,21 @@ static NSString * const applicatonId = @"8D2F3524-3D1D-88BC-FF2C-536BF2717200";
 static NSString * const restId = @"A8A7BD7A-0B83-C7DC-FFA0-52D384DA6B00";
 static NSString * const contentType = @"application/json";
 static NSString * const applicationType = @"REST";
-static NSString * const stringForURLRequest = @"https://api.backendless.com/v1/users/login";
+static NSString * const stringForAuthorizationRequest = @"https://api.backendless.com/v1/users/login";
+static NSString * const stringForValidatationRequest = @"https://api.backendless.com/v1/users/isvalidusertoken/";
 
 @implementation AuthorizationManager
 
 - (void)userTokenAfterAuthorizationWithLogin:(NSString *)login password:(NSString *)password {
     
-    NSString *restCall = stringForURLRequest;
+    NSString *restCall = stringForAuthorizationRequest;
     NSURL *restURL = [NSURL URLWithString:restCall];
     NSMutableURLRequest *restReqest = [NSMutableURLRequest requestWithURL:restURL];
     
     [restReqest addValue:applicatonId forHTTPHeaderField:@"application-id"];
     [restReqest addValue:restId forHTTPHeaderField:@"secret-key"];
     [restReqest addValue:contentType forHTTPHeaderField:@"Content-Type"];
-    [restReqest addValue:applicationType forHTTPHeaderField:@"Content-Type"];
+    [restReqest addValue:applicationType forHTTPHeaderField:@"application-type"];
     
     [restReqest setHTTPMethod:@"POST"];
     
@@ -50,10 +51,10 @@ static NSString * const stringForURLRequest = @"https://api.backendless.com/v1/u
                         NSLog(@"Error Parsing JSON %@", localError);
                     } else {
                         if ([parsedObject valueForKey:@"user-token"]) {
-                            [self.delegate authorizationManager:self hasRecievedUserToken:[parsedObject valueForKey:@"user-token"]];
+                            [self.delegate authorizationManager:self hasRecievedUserToken:[parsedObject valueForKey:@"user-token"] forLogin:login];
                             
                         } else {
-                            [self.delegate authorizationManager:self hasRecievedUserToken:nil];
+                            [self.delegate authorizationManager:self hasRecievedUserToken:nil forLogin:login];
                         }
 //                        NSLog(@"%@", parsedObject);
 //                        NSLog(@"Response %@", response);
@@ -68,6 +69,29 @@ static NSString * const stringForURLRequest = @"https://api.backendless.com/v1/u
     }];
     
     [jsonData resume];
+}
+
+- (void)isSessionValidWithUserToken:(NSString *)token completion:(void(^)(bool isValid))completion {
+    
+    NSString *validationString = [NSString stringWithFormat:@"%@%@", stringForValidatationRequest, token];
+    
+    NSURL *validationURL = [NSURL URLWithString:validationString];
+    NSMutableURLRequest *validationReqest = [NSMutableURLRequest requestWithURL:validationURL];
+    
+    [validationReqest addValue:applicatonId forHTTPHeaderField:@"application-id"];
+    [validationReqest addValue:restId forHTTPHeaderField:@"secret-key"];
+    [validationReqest addValue:applicationType forHTTPHeaderField:@"application-type"];
+    
+    [validationReqest setHTTPMethod:@"GET"];
+    
+    NSURLSession *session = [NSURLSession sharedSession];
+    NSURLSessionDataTask *validationTask = [session dataTaskWithRequest:validationReqest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+        //NSDictionary *parsedObject = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+        NSString *boolInString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+        BOOL isValid = [boolInString boolValue];
+        completion(isValid);
+    }];
+    [validationTask resume];
 }
 
 @end

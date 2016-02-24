@@ -11,7 +11,7 @@
 
 @protocol AuthorizationManagerDelegate <NSObject>
 
-- (void)authorizationManager:(AuthorizationManager *)manager hasRecievedUserToken:(NSString *)token;
+- (void)authorizationManager:(AuthorizationManager *)manager hasRecievedUserToken:(NSString *)token forLogin:(NSString *)login;
 
 @end
 
@@ -20,5 +20,6 @@
 @property (weak, nonatomic) id <AuthorizationManagerDelegate> delegate;
 
 - (void)userTokenAfterAuthorizationWithLogin:(NSString *)login password:(NSString *)password;
+- (void)isSessionValidWithUserToken:(NSString *)token completion:(void(^)(bool isValid))completion ;
 
 @end

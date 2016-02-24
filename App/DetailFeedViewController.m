@@ -33,9 +33,6 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    id userToken = [(AppDelegate *)[[UIApplication sharedApplication] delegate] userToken];
-    self.userToken = userToken;
-    
     id feedManager = [(AppDelegate *)[[UIApplication sharedApplication] delegate] feedManager];
     self.feedManager = feedManager;
     

@@ -49,11 +49,15 @@
 
 #pragma mark - <AuthorizationManagerDelegate>
 
-- (void)authorizationManager:(AuthorizationManager *)manager hasRecievedUserToken:(NSString *)token {
+- (void)authorizationManager:(AuthorizationManager *)manager hasRecievedUserToken:(NSString *)token forLogin:(NSString *)login {
     if (token) {
-        [(AppDelegate *)[[UIApplication sharedApplication] delegate] setUserToken:token];
         self.loginButton.enabled = YES;
-        [self performSegueWithIdentifier:@"LogInSegue" sender:self];
+        
+        NSUserDefaults *user = [NSUserDefaults standardUserDefaults];
+        [user setObject:token forKey:@"token"];
+        [user setObject:login forKey:@"login"];
+        NSLog(@"TOKEN FROM USER DEFAULTS %@", [user objectForKey:@"token"]);
+        [self dismissViewControllerAnimated:NO completion:nil];
     } else {
         UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Log in problem"
                                                                                  message:@"Ooops! Try another login/password!"
@@ -77,15 +81,5 @@
     }
     return YES;
 }
-
-#pragma mark - Navigation
-
-//
-//- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-//    if ([[segue identifier] isEqualToString:@"LogInSegue"]) {
-//        FeedViewController *feedViewController = [segue destinationViewController];
-//        feedViewController.userToken = self.userToken;
-//    }
-//}
 
 @end

@@ -15,6 +15,8 @@
 #import "Feed.h"
 #import "AppDelegate.h"
 #import "DetailFeedViewController.h"
+#import "AuthorizationViewController.h"
+#import "AuthorizationManager.h"
 
 
 @interface FeedViewController () <UITableViewDelegate, UITableViewDataSource, ContentDownloaderDelegate, NSFetchedResultsControllerDelegate>
@@ -35,34 +37,41 @@
 
 @implementation FeedViewController
 
-- (IBAction)addFeed:(UIBarButtonItem *)sender {
-    [self performSegueWithIdentifier:@"AddFeedSegue" sender:nil];
-}
-
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
     self.tableView.estimatedRowHeight = 140.0;
     self.tableView.rowHeight = UITableViewAutomaticDimension;
+    
     self.contentDownloader = [[ContentDownloader alloc] init];
     self.contentDownloader.delegate = self;
-    
+
     id feedManager = [(AppDelegate *)[[UIApplication sharedApplication] delegate] feedManager] ;
     self.feedManager = feedManager;
-    
-    id userToken = [(AppDelegate *)[[UIApplication sharedApplication] delegate] userToken] ;
-    self.userToken = userToken;
-    
+
     NSFetchedResultsController *fetchedResultsController = self.feedManager.fetchedResultsController;
     fetchedResultsController.delegate = self;
     self.fetchedResultsController = fetchedResultsController;
-    
+
     NSMutableArray *navigationBarItems = [self.navigationItem.rightBarButtonItems mutableCopy];
     self.navigationBarItems = navigationBarItems;
-    
+
     NSError *error;
     if (![self.fetchedResultsController performFetch:&error]) {
         NSLog(@"Error %@, %@", error, [error userInfo]);
     }
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    
+    AuthorizationManager *manager = [[AuthorizationManager alloc] init];
+    NSUserDefaults *user = [NSUserDefaults standardUserDefaults];
+    [manager isSessionValidWithUserToken:[user objectForKey:@"token"] completion:^(bool isValid) {
+        if (!isValid) {
+            [self performSegueWithIdentifier:@"ShowAuthorizationController" sender:self];
+        }
+    }];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -96,6 +105,10 @@
     
     self.activityIndicatorItem.customView = activityIndicator;
     [self.contentDownloader downloadContent];
+}
+
+- (IBAction)addFeed:(UIBarButtonItem *)sender {
+    [self performSegueWithIdentifier:@"AddFeedSegue" sender:nil];
 }
 
 #pragma mark - <TableViewDataSourse>

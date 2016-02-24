@@ -18,10 +18,7 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     FeedManager *feedManager = [[FeedManager alloc] init];
     self.feedManager = feedManager;
-    
-    NSString *userToken = [[NSString alloc] init];
-    self.userToken = userToken;
-    
+
     return YES;
 }
 

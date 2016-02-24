@@ -13,7 +13,6 @@
 
 @property (strong, nonatomic) UIWindow *window;
 @property (strong, nonatomic) FeedManager *feedManager;
-@property (strong, nonatomic) NSString *userToken;
 
 @end
 
