@@ -17,7 +17,7 @@ static NSString * const stringForValidatationRequest = @"https://api.backendless
 
 @implementation AuthorizationManager
 
-- (void)userTokenAfterAuthorizationWithLogin:(NSString *)login password:(NSString *)password {
+- (void)loginWithLogin:(NSString *)login password:(NSString *)password {
     
     NSString *restCall = stringForAuthorizationRequest;
     NSURL *restURL = [NSURL URLWithString:restCall];
@@ -56,9 +56,6 @@ static NSString * const stringForValidatationRequest = @"https://api.backendless
                         } else {
                             [self.delegate authorizationManager:self hasRecievedUserToken:nil forLogin:login];
                         }
-//                        NSLog(@"%@", parsedObject);
-//                        NSLog(@"Response %@", response);
-                        NSLog(@"1");
                     }
                 });
                 
@@ -86,10 +83,17 @@ static NSString * const stringForValidatationRequest = @"https://api.backendless
     
     NSURLSession *session = [NSURLSession sharedSession];
     NSURLSessionDataTask *validationTask = [session dataTaskWithRequest:validationReqest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-        //NSDictionary *parsedObject = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-        NSString *boolInString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-        BOOL isValid = [boolInString boolValue];
-        completion(isValid);
+        
+        dispatch_async(dispatch_get_global_queue(0, 0), ^{
+            
+            NSString *boolInString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+            BOOL isValid = [boolInString boolValue];
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                completion(isValid);
+            });
+            
+        });
     }];
     [validationTask resume];
 }

@@ -47,10 +47,6 @@
 
 @interface ImageDownloader ()
 
-@property (assign, nonatomic) NSIndexPath *indexPath;
-@property (strong, nonatomic) ImageDownloaderTasks *imageDownloaderTasks;
-@property (strong, nonatomic) NSURLSession *session;
-
 @end
 
 @implementation ImageDownloader

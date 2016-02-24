@@ -8,11 +8,13 @@
 
 #import <UIKit/UIKit.h>
 #import "FeedManager.h"
+#import "AuthorizationManager.h"
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
 @property (strong, nonatomic) FeedManager *feedManager;
+@property (strong, nonatomic) NSDate *lastLoginDate;
 
 @end
 

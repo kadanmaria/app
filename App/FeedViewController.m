@@ -29,6 +29,7 @@
 @property (strong, nonatomic) ContentDownloader *contentDownloader;
 @property (strong, nonatomic) FeedManager *feedManager;
 @property (strong, nonatomic) NSString *userToken;
+@property (strong, nonatomic) NSDate *lastLoginDate;
 
 @property (strong, nonatomic) NSMutableArray *navigationBarItems;
 
@@ -48,7 +49,7 @@
 
     id feedManager = [(AppDelegate *)[[UIApplication sharedApplication] delegate] feedManager] ;
     self.feedManager = feedManager;
-
+    
     NSFetchedResultsController *fetchedResultsController = self.feedManager.fetchedResultsController;
     fetchedResultsController.delegate = self;
     self.fetchedResultsController = fetchedResultsController;
@@ -64,14 +65,25 @@
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
+
+    id lastLoginDate = [(AppDelegate *)[[UIApplication sharedApplication] delegate] lastLoginDate];
+    self.lastLoginDate = lastLoginDate;
     
-    AuthorizationManager *manager = [[AuthorizationManager alloc] init];
-    NSUserDefaults *user = [NSUserDefaults standardUserDefaults];
-    [manager isSessionValidWithUserToken:[user objectForKey:@"token"] completion:^(bool isValid) {
-        if (!isValid) {
+    NSComparisonResult result;
+    result = [self.lastLoginDate compare:[NSDate dateWithTimeIntervalSince1970:0]];
+    
+    if (result != NSOrderedSame) {
+        NSDate *currentDate = [NSDate date];
+        NSDate *lastLoginDatePlus15Mins = [NSDate dateWithTimeInterval:15*60 sinceDate:self.lastLoginDate];
+        
+        NSComparisonResult result;
+        result = [lastLoginDatePlus15Mins compare:currentDate];
+        if (result == NSOrderedAscending) { //15 mins have end already /// last+15 is less than Current
             [self performSegueWithIdentifier:@"ShowAuthorizationController" sender:self];
         }
-    }];
+    } else {
+        [self performSegueWithIdentifier:@"ShowAuthorizationController" sender:self];
+    }
 }
 
 - (void)didReceiveMemoryWarning {

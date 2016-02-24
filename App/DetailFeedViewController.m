@@ -43,6 +43,7 @@
     
     self.titlteTextView.text = self.feed.title;
     self.subtitleTextView.text = self.feed.subtitle;
+    
     [ImageDownloader downloadImageFromString:self.feed.imageName forIndexPath:nil completion:^(UIImage *image, NSIndexPath *indexPath) {
         self.photoImageView.image = image;
     }];    
@@ -55,9 +56,14 @@
 
 #pragma mark - IBActions
 
-- (IBAction)editFeed:(id)sender {
+- (IBAction)editFeed:(id)sender {    
     self.titlteTextView.editable = YES;
     self.subtitleTextView.editable = YES;
+    
+    self.titlteTextView.text = self.feed.title;
+    self.subtitleTextView.text = self.feed.subtitle;
+    
+    [self.titlteTextView becomeFirstResponder];
     
     [self.navigationBarItems removeObject:self.editButton];
     [self.navigationBarItems addObject:self.saveButton];

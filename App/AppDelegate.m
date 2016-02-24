@@ -19,6 +19,9 @@
     FeedManager *feedManager = [[FeedManager alloc] init];
     self.feedManager = feedManager;
 
+    NSDate *lastLoginDate = [[NSDate alloc] initWithTimeIntervalSince1970:0];
+    self.lastLoginDate = lastLoginDate;
+    
     return YES;
 }
 

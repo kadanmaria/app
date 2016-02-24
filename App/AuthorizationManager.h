@@ -19,7 +19,7 @@
 
 @property (weak, nonatomic) id <AuthorizationManagerDelegate> delegate;
 
-- (void)userTokenAfterAuthorizationWithLogin:(NSString *)login password:(NSString *)password;
+- (void)loginWithLogin:(NSString *)login password:(NSString *)password;
 - (void)isSessionValidWithUserToken:(NSString *)token completion:(void(^)(bool isValid))completion ;
 
 @end
