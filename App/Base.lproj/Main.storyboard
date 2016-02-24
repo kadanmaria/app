@@ -252,7 +252,9 @@
                         </rightBarButtonItems>
                     </navigationItem>
                     <connections>
+                        <outlet property="editButton" destination="VfI-BR-ZfN" id="Qhg-9t-eTc"/>
                         <outlet property="photoImageView" destination="4jH-qA-Qzm" id="M44-pd-zja"/>
+                        <outlet property="saveButton" destination="8b9-QW-eRe" id="PLm-iO-eUJ"/>
                         <outlet property="subtitleTextView" destination="24S-D1-gcw" id="u0D-nV-4tb"/>
                         <outlet property="titlteTextView" destination="p50-jC-SbN" id="Izn-4U-mng"/>
                     </connections>

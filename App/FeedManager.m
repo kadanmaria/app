@@ -223,11 +223,6 @@
             NSLog(@"Error fetching data %@, %@", error, [error userInfo]);
         }
         Feed *feedFromCoreData = [feedsFromCoreData firstObject];
-//        if (feedsFromCoreData.count >0) {
-//            feedFromCoreData = [feedsFromCoreData firstObject];
-//        } else {
-//            NSLog(@"No Fetched objects");
-//        }
         
         if (![feedFromCoreData.title isEqualToString:title]) {
             [feedFromCoreData setValue:title forKey:@"title"];
