@@ -14,7 +14,7 @@ static NSString * const restId = @"A8A7BD7A-0B83-C7DC-FFA0-52D384DA6B00";
 static NSString * const contentType = @"application/json";
 static NSString * const applicationType = @"REST";
 static NSString * const stringForURLRequest = @"https://api.backendless.com/v1/data/Data?pageSize=100";
-static NSString * const stringForPutRequest = @"https://api.backendless.com/v1/data/Data/";
+static NSString * const stringForPutRequest = @"https://api.backendless.com/v1/data/Data";
 
 @implementation ContentManager
 
@@ -57,8 +57,13 @@ static NSString * const stringForPutRequest = @"https://api.backendless.com/v1/d
     
     for (Feed *feed in feeds) {
         
-        NSString *putString = [NSString stringWithFormat:@"%@%@", stringForPutRequest, [feed valueForKey:@"objectId"]];
+        NSString *putString = [[NSString alloc] init];
         
+        if ([[feed valueForKey:@"objectId"] isEqualToString:@"temporaryId"]) {
+            putString = stringForPutRequest;
+        } else {
+            putString = [NSString stringWithFormat:@"%@/%@", stringForPutRequest, [feed valueForKey:@"objectId"]];
+        }
         NSURL *putURL = [NSURL URLWithString:putString];
         NSMutableURLRequest *putReqest = [NSMutableURLRequest requestWithURL:putURL];
         
@@ -67,10 +72,15 @@ static NSString * const stringForPutRequest = @"https://api.backendless.com/v1/d
         [putReqest addValue:applicationType forHTTPHeaderField:@"application-type"];
         [putReqest addValue:contentType forHTTPHeaderField:@"Content-Type"];
         
+        if ([[feed valueForKey:@"objectId"] isEqualToString:@"temporaryId"]) {
+            NSUserDefaults *user = [NSUserDefaults standardUserDefaults];
+            [putReqest addValue:[user valueForKey:@"token"] forHTTPHeaderField:@"user-token"];
+        }
+        
         NSMutableDictionary *putBodyDictionary = [[NSMutableDictionary alloc] init];
         [putBodyDictionary setObject:[feed valueForKey:@"title"] forKey:@"title"];
         [putBodyDictionary setObject:[feed valueForKey:@"subtitle"] forKey:@"subtitle"];
-//        [putBodyDictionary setObject:[feed valueForKey:@"imageName"] forKey:@"imageName"];
+        [putBodyDictionary setObject:[feed valueForKey:@"imageName"] forKey:@"imageName"];
         
         NSData *putBody = [NSJSONSerialization dataWithJSONObject:putBodyDictionary options:0 error:0];
         [putReqest setHTTPBody:putBody];
@@ -81,6 +91,7 @@ static NSString * const stringForPutRequest = @"https://api.backendless.com/v1/d
         NSURLSessionDataTask *putTask = [[NSURLSession sharedSession] dataTaskWithRequest:putReqest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
             
             dispatch_async(dispatch_get_global_queue(0, 0), ^{
+                NSLog(@"RESPONSE %@", response);
                 if (error) {
                     NSLog(@"ERROR PUT To server %@", error);
                 }

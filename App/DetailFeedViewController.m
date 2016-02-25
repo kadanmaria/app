@@ -12,17 +12,21 @@
 #import "FeedManager.h"
 #import "FeedViewController.h"
 
-@interface DetailFeedViewController () <UITextViewDelegate>
+@interface DetailFeedViewController () <UITextViewDelegate, UIImagePickerControllerDelegate, UITextViewDelegate>
 
 @property (weak, nonatomic) IBOutlet UIImageView *photoImageView;
 @property (weak, nonatomic) IBOutlet UITextView *titlteTextView;
 @property (weak, nonatomic) IBOutlet UITextView *subtitleTextView;
+
 
 @property (strong, nonatomic) IBOutlet UIBarButtonItem *editButton;
 @property (strong, nonatomic) IBOutlet UIBarButtonItem *saveButton;
 
 @property (weak, nonatomic) FeedManager *feedManager;
 @property (strong, nonatomic) NSMutableArray *navigationBarItems;
+//@property (strong, nonatomic) UIImagePickerController *imagePickerController;
+
+
 
 @end
 
@@ -46,6 +50,14 @@
         [ImageDownloader downloadImageFromString:self.feed.imageName forIndexPath:nil completion:^(UIImage *image, NSIndexPath *indexPath) {
             self.photoImageView.image = image;
         }];
+    } else {
+        self.titlteTextView.delegate = self;
+        self.titlteTextView.text = @"What's happening?";
+        self.titlteTextView.textColor = [UIColor lightGrayColor];
+        
+        self.subtitleTextView.delegate = self;
+        self.subtitleTextView.text = @"What's happening?";
+        self.subtitleTextView.textColor = [UIColor lightGrayColor];
     }
 }
 
@@ -78,10 +90,34 @@
     [self.navigationBarItems addObject:self.editButton];
     [self.navigationItem setRightBarButtonItems:self.navigationBarItems animated:YES];
     
-    [self.feedManager updateFeed:self.feed accordingToChangedTitle:self.titlteTextView.text subtitle:self.subtitleTextView.text];
+    [self.feedManager updateOrAddFeed:self.feed accordingToChangedTitle:self.titlteTextView.text subtitle:self.subtitleTextView.text];
+    [self.navigationController popViewControllerAnimated:YES];
 }
 
 
-#pragma mark - <UITextFieldDelegate>
+#pragma mark - <UITextViewDelegate>
+
+
+- (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
+    if ( textView == self.titlteTextView && [text isEqualToString:@"\n"]) {
+        [textView resignFirstResponder];
+        [self.subtitleTextView becomeFirstResponder];
+        return NO;
+//    } else if (textView == self.subtitleTextView && [text isEqualToString:@"\n"]) {
+//        
+//    }
+    }
+    return YES;
+}
+
+
+
+
+
+
+
+
+
+
 
 @end

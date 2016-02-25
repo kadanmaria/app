@@ -28,10 +28,13 @@
 @property (strong, nonatomic) NSFetchedResultsController *fetchedResultsController;
 @property (strong, nonatomic) ContentManager *contentManager;
 @property (strong, nonatomic) FeedManager *feedManager;
+@property (strong, nonatomic) AuthorizationManager *authManager;
 @property (strong, nonatomic) NSString *userToken;
 @property (strong, nonatomic) NSDate *lastLoginDate;
 
 @property (strong, nonatomic) NSMutableArray *navigationBarItems;
+@property (strong, nonatomic) UIActivityIndicatorView *activityIndicator;
+@property (strong, nonatomic) NSNumber *isAlreadyLogedIn;
 
 @end
 
@@ -42,6 +45,8 @@
     
     self.tableView.estimatedRowHeight = 140.0;
     self.tableView.rowHeight = UITableViewAutomaticDimension;
+    
+    self.isAlreadyLogedIn = [NSNumber numberWithBool:FALSE];
     
     self.contentManager = [[ContentManager alloc] init];
     self.contentManager.delegate = self;
@@ -60,27 +65,40 @@
     if (![self.fetchedResultsController performFetch:&error]) {
         NSLog(@"Error %@, %@", error, [error userInfo]);
     }
+    
+    UIActivityIndicatorView *activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+    activityIndicator.color = [UIColor blackColor];
+    activityIndicator.center = self.view.center;
+    self.activityIndicator = activityIndicator;
+    [self.view addSubview:self.activityIndicator];
+
 }
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-
-    id lastLoginDate = [(AppDelegate *)[[UIApplication sharedApplication] delegate] lastLoginDate];
-    self.lastLoginDate = lastLoginDate;
     
-    NSComparisonResult result;
-    result = [self.lastLoginDate compare:[NSDate dateWithTimeIntervalSince1970:0]];
+    NSUserDefaults *user = [NSUserDefaults standardUserDefaults];
     
-    if (result != NSOrderedSame) {
-        NSDate *currentDate = [NSDate date];
-        NSDate *lastLoginDatePlus15Mins = [NSDate dateWithTimeInterval:15*60 sinceDate:self.lastLoginDate];
-        
-        NSComparisonResult result;
-        result = [lastLoginDatePlus15Mins compare:currentDate];
-        if (result == NSOrderedAscending) { //15 mins have end already /// last+15 is less than Current
-            [self performSegueWithIdentifier:@"ShowAuthorizationController" sender:self];
+    if ([user objectForKey:@"token"]) {
+        if ([self.isAlreadyLogedIn isEqualToNumber:[NSNumber numberWithBool:FALSE]]) {
+            
+            [self.activityIndicator startAnimating];
+            
+            AuthorizationManager *authManager = [[AuthorizationManager alloc] init];
+            self.authManager = authManager;
+            
+            [self.authManager isSessionValidWithUserToken:[user objectForKey:@"token"] completion:^(bool isValid) {
+                if (isValid) {
+                    [self.activityIndicator stopAnimating];
+                    self.isAlreadyLogedIn = [NSNumber numberWithBool:TRUE];
+                    
+                } else {
+                    [self performSegueWithIdentifier:@"ShowAuthorizationController" sender:self];
+                }
+            }];
         }
     } else {
+        self.isAlreadyLogedIn = [NSNumber numberWithBool:TRUE];
         [self performSegueWithIdentifier:@"ShowAuthorizationController" sender:self];
     }
 }
@@ -89,25 +107,11 @@
     [super didReceiveMemoryWarning];
 }
 
-#pragma mark - <ContentManagerDelegate>
-
-- (void)contentManager:(ContentManager *)contentManager didDownloadContentToArray:(NSArray *)array {
-    [self.feedManager manageObjects:array];
-
-    [self.activityIndicatorItem.customView stopAnimating];
-    [self.navigationBarItems removeObject:self.activityIndicatorItem];
-    
-    if (![self.navigationItem.rightBarButtonItems containsObject:self.synchronizeButton]) {
-        [self.navigationBarItems addObject:self.synchronizeButton];
-    }
-    [self.navigationItem setRightBarButtonItems:self.navigationBarItems animated:YES];
-}
-
-- (void)contentManagerDidUploadObjectsToServer:(ContentManager *)contentManager {
-    [self.contentManager downloadContent];
-}
-
 #pragma mark - IBActions
+
+- (IBAction)addFeed:(UIBarButtonItem *)sender {
+    [self performSegueWithIdentifier:@"AddFeedSegue" sender:nil];
+}
 
 - (IBAction)refresh:(UIBarButtonItem *)sender {
     if (![self.navigationItem.rightBarButtonItems containsObject:self.activityIndicatorItem]) {
@@ -131,8 +135,23 @@
     }
 }
 
-- (IBAction)addFeed:(UIBarButtonItem *)sender {
-    [self performSegueWithIdentifier:@"AddFeedSegue" sender:nil];
+
+#pragma mark - <ContentManagerDelegate>
+
+- (void)contentManager:(ContentManager *)contentManager didDownloadContentToArray:(NSArray *)array {
+    [self.feedManager manageObjects:array];
+    
+    [self.activityIndicatorItem.customView stopAnimating];
+    [self.navigationBarItems removeObject:self.activityIndicatorItem];
+    
+    if (![self.navigationItem.rightBarButtonItems containsObject:self.synchronizeButton]) {
+        [self.navigationBarItems addObject:self.synchronizeButton];
+    }
+    [self.navigationItem setRightBarButtonItems:self.navigationBarItems animated:YES];
+}
+
+- (void)contentManagerDidUploadObjectsToServer:(ContentManager *)contentManager {
+    [self.contentManager downloadContent];
 }
 
 #pragma mark - <TableViewDataSourse>

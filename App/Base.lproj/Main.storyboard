@@ -191,7 +191,7 @@
                         <outlet property="synchronizeButton" destination="KVE-EZ-4pM" id="gOh-YA-eJe"/>
                         <outlet property="tableView" destination="QlJ-Vr-Wh3" id="PSm-zX-wuM"/>
                         <segue destination="kd8-Za-9GW" kind="show" identifier="AddFeedSegue" id="QVV-Uf-Dl2"/>
-                        <segue destination="8OP-Lq-CAL" kind="presentation" identifier="ShowAuthorizationController" id="0dS-af-SQd"/>
+                        <segue destination="8OP-Lq-CAL" kind="presentation" identifier="ShowAuthorizationController" animates="NO" id="0dS-af-SQd"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
@@ -234,15 +234,15 @@
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
+                            <constraint firstItem="vRl-2e-ZPc" firstAttribute="top" secondItem="24S-D1-gcw" secondAttribute="bottom" constant="25" id="CI2-6v-Un9"/>
                             <constraint firstAttribute="trailing" secondItem="24S-D1-gcw" secondAttribute="trailing" constant="25" id="LBh-3R-qhe"/>
-                            <constraint firstItem="p50-jC-SbN" firstAttribute="top" secondItem="Tjm-yI-tqr" secondAttribute="bottom" constant="25" id="UYE-YH-J8j"/>
                             <constraint firstAttribute="trailing" secondItem="p50-jC-SbN" secondAttribute="trailing" constant="25" id="iNc-Z1-gEZ"/>
-                            <constraint firstItem="vRl-2e-ZPc" firstAttribute="top" secondItem="24S-D1-gcw" secondAttribute="bottom" constant="25" id="mtI-Mk-bXl"/>
                             <constraint firstItem="24S-D1-gcw" firstAttribute="leading" secondItem="4jH-qA-Qzm" secondAttribute="trailing" constant="25" id="ov1-DT-9qt"/>
                             <constraint firstItem="4jH-qA-Qzm" firstAttribute="leading" secondItem="AfR-TC-vQh" secondAttribute="leading" constant="25" id="pv8-rC-skx"/>
                             <constraint firstItem="4jH-qA-Qzm" firstAttribute="top" secondItem="p50-jC-SbN" secondAttribute="bottom" constant="25" id="q8V-j4-XPx"/>
                             <constraint firstItem="p50-jC-SbN" firstAttribute="leading" secondItem="AfR-TC-vQh" secondAttribute="leading" constant="25" id="t8w-kd-ykI"/>
                             <constraint firstItem="24S-D1-gcw" firstAttribute="top" secondItem="p50-jC-SbN" secondAttribute="bottom" constant="25" id="tI6-Y8-Vti"/>
+                            <constraint firstItem="p50-jC-SbN" firstAttribute="top" secondItem="Tjm-yI-tqr" secondAttribute="bottom" constant="25" id="ump-sa-wK7"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="w53-ZQ-FOG">
@@ -269,7 +269,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="g2n-ho-AaK" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1057" y="695"/>
+            <point key="canvasLocation" x="1051" y="419"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="aT3-mW-O1Q">
@@ -285,10 +285,10 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ICR-f3-qFg" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-514" y="695"/>
+            <point key="canvasLocation" x="-538" y="419"/>
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="QVV-Uf-Dl2"/>
+        <segue reference="Z3O-M2-ubw"/>
     </inferredMetricsTieBreakers>
 </document>

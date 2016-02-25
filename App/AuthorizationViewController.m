@@ -35,36 +35,12 @@
     
     UIView *grayView = [[UIView alloc] initWithFrame:self.view.frame];
     grayView.backgroundColor = [UIColor blackColor];
-    grayView.alpha = 0.1;
+    grayView.alpha = 0.05;
     self.carpetView = grayView;
 }
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
-}
-
-- (void)viewDidAppear:(BOOL)animated {
-    [super viewDidAppear:animated];
-    
-    NSUserDefaults *user = [NSUserDefaults standardUserDefaults];
-
-    if ([user objectForKey:@"token"]) {
-        
-        [self.view addSubview:self.carpetView];
-        [self.activityIndicator startAnimating];
-        
-        [self.authorizationManager isSessionValidWithUserToken:[user objectForKey:@"token"] completion:^(bool isValid) {
-            if (isValid) {
-                [self.activityIndicator stopAnimating];
-                NSDate *lastLoginDate = [NSDate date];
-                [(AppDelegate *)[[UIApplication sharedApplication] delegate] setLastLoginDate:lastLoginDate];
-                [self dismissViewControllerAnimated:NO completion:nil];
-            } else {
-                [self.activityIndicator stopAnimating];
-                [self.carpetView removeFromSuperview];
-            }
-        }];
-    }
 }
 
 #pragma mark - IBActions
@@ -94,9 +70,9 @@
         NSUserDefaults *user = [NSUserDefaults standardUserDefaults];
         [user setObject:token forKey:@"token"];
         [user setObject:login forKey:@"login"];
-        
-        NSDate *lastLoginDate = [NSDate date];
-        [(AppDelegate *)[[UIApplication sharedApplication] delegate] setLastLoginDate:lastLoginDate];
+//        
+//        NSDate *lastLoginDate = [NSDate date];
+//        [(AppDelegate *)[[UIApplication sharedApplication] delegate] setLastLoginDate:lastLoginDate];
         
         [self dismissViewControllerAnimated:NO completion:nil];
     } else {
@@ -105,7 +81,7 @@
                                                                           preferredStyle:UIAlertControllerStyleAlert];
         
         [alertController addAction:[UIAlertAction actionWithTitle:@"Ok" style:UIAlertActionStyleCancel handler:nil]];
-        [self presentViewController:alertController animated:YES completion:nil];
+        [self presentViewController:alertController animated:NO completion:nil];
         self.loginButton.enabled = YES;
     }
 }
