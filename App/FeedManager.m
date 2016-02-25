@@ -258,21 +258,36 @@
 
 - (NSArray *)changedFeeds {
     
-    NSManagedObjectContext *backgroundContext = [self backgroundContext];
-   
-    NSEntityDescription *entity = [NSEntityDescription entityForName:@"Feed" inManagedObjectContext:backgroundContext];
+  //  NSManagedObjectContext *backgroundContext = [self backgroundContext];
+    NSManagedObjectContext *mainContext = [self managedObjectContext];
+    
+    
+    NSEntityDescription *entity = [NSEntityDescription entityForName:@"Feed" inManagedObjectContext:mainContext];
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"hasChanged == YES"];
     fetchRequest.predicate = predicate;
     [fetchRequest setEntity:entity];
         
     NSError *error;
-    NSArray *fetchedFeeds = [backgroundContext executeFetchRequest:fetchRequest error:&error];
+    NSArray *fetchedFeeds = [mainContext executeFetchRequest:fetchRequest error:&error];
     if (error) {
         NSLog(@"Error fetching data %@, %@", error, [error userInfo]);
     }
-
     
+    for (Feed *feed in fetchedFeeds) {
+        feed.hasChanged = [NSNumber numberWithBool:NO];
+    }
+//    NSError *savingBackgroundContextError = nil;
+//    if (![backgroundContext save:&savingBackgroundContextError]) {
+//        NSLog(@"Unresolved error %@, %@", savingBackgroundContextError, [savingBackgroundContextError userInfo]);
+//    }
+//    
+//    [mainContext performBlock:^{
+    NSError *savingMainContextError = nil;
+    if (![mainContext save:&savingMainContextError]) {
+        NSLog(@"Unresolved error %@, %@", savingMainContextError, [savingMainContextError userInfo]);
+    }
+//    }];
 //    NSError *savingBackgroundContextError = nil;
 //    if (![backgroundContext save:&savingBackgroundContextError]) {
 //        NSLog(@"Unresolved error %@, %@", savingBackgroundContextError, [savingBackgroundContextError userInfo]);

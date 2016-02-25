@@ -38,7 +38,7 @@
     return [self.tasks objectForKey:key];
 }
 
-- (void)setImageDownloaderTasks:(NSURLSessionDataTask *)task forKey:(NSString *)key {
+- (void)setImageDownloaderTask:(NSURLSessionDataTask *)task forKey:(NSString *)key {
     [self.tasks setValue:task forKey:key];
 }
 
@@ -89,7 +89,7 @@
                         if (!image) {
                             NSLog(@"Error Setting Image");
                         } else {
-                            [[ImageDownloaderTasks sharedInstance] setImageDownloaderTasks:imageDataTask forKey:imageString];
+                            [[ImageDownloaderTasks sharedInstance] setImageDownloaderTask:imageDataTask forKey:imageString];
                             completion (image, indexPath);
                         }
                     });

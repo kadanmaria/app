@@ -71,8 +71,8 @@
 
 - (IBAction)login:(id)sender {
     if (self.loginButton.isEnabled) {
-        [self.authorizationManager loginWithLogin:self.loginTextField.text password:self.passwordTextField.text];
-   //     [self.authorizationManager loginWithLogin:@"user" password:@"user"];
+   //     [self.authorizationManager loginWithLogin:self.loginTextField.text password:self.passwordTextField.text];
+        [self.authorizationManager loginWithLogin:@"user" password:@"user"];
         
         [self.loginTextField resignFirstResponder];
         [self.passwordTextField resignFirstResponder];
