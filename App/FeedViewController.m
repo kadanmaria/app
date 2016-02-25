@@ -173,6 +173,11 @@
         DetailFeedViewController *detailController = [segue destinationViewController];
         detailController.feed = [self.fetchedResultsController objectAtIndexPath:self.tableView.indexPathForSelectedRow];
     }
+    
+    if ([[segue identifier] isEqualToString:@"AddSegue"]) {
+        DetailFeedViewController *detailController = [segue destinationViewController];
+        detailController.feed = nil;
+    }
 }
 
 #pragma mark - <NSFetchedResultsControllerDelegate>

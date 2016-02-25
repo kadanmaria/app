@@ -20,11 +20,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "App/ContentManager.m"
-            timestampString = "478057124.227067"
+            timestampString = "478083643.896739"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "98"
-            endingLineNumber = "98"
+            startingLineNumber = "87"
+            endingLineNumber = "87"
             landmarkName = "-putChangesOnServer:"
             landmarkType = "5">
          </BreakpointContent>
@@ -36,11 +36,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "App/ContentManager.m"
-            timestampString = "478057124.227067"
+            timestampString = "478083643.896739"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "113"
-            endingLineNumber = "113"
+            startingLineNumber = "94"
+            endingLineNumber = "94"
             landmarkName = "-putChangesOnServer:"
             landmarkType = "5">
          </BreakpointContent>
@@ -52,44 +52,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "App/ContentManager.m"
-            timestampString = "478057124.227067"
+            timestampString = "478083702.421158"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "117"
-            endingLineNumber = "117"
+            startingLineNumber = "79"
+            endingLineNumber = "79"
             landmarkName = "-putChangesOnServer:"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "App/FeedManager.m"
-            timestampString = "478055943.988392"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "261"
-            endingLineNumber = "261"
-            landmarkName = "-changedFeeds"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "App/FeedManager.m"
-            timestampString = "478057447.310007"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "263"
-            endingLineNumber = "263"
-            landmarkName = "-changedFeeds"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>

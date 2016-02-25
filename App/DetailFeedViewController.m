@@ -10,6 +10,7 @@
 #import "AppDelegate.h"
 #import "ImageDownloader.h"
 #import "FeedManager.h"
+#import "FeedViewController.h"
 
 @interface DetailFeedViewController () <UITextViewDelegate>
 
@@ -22,9 +23,6 @@
 
 @property (weak, nonatomic) FeedManager *feedManager;
 @property (strong, nonatomic) NSMutableArray *navigationBarItems;
-
-@property (strong, nonatomic) NSString *userToken;
-
 
 @end
 
@@ -41,12 +39,14 @@
     [self.navigationBarItems removeObject:self.saveButton];
     [self.navigationItem setRightBarButtonItems:self.navigationBarItems animated:YES];
     
-    self.titlteTextView.text = self.feed.title;
-    self.subtitleTextView.text = self.feed.subtitle;
-    
-    [ImageDownloader downloadImageFromString:self.feed.imageName forIndexPath:nil completion:^(UIImage *image, NSIndexPath *indexPath) {
-        self.photoImageView.image = image;
-    }];    
+    if (self.feed) {
+        self.titlteTextView.text = self.feed.title;
+        self.subtitleTextView.text = self.feed.subtitle;
+        
+        [ImageDownloader downloadImageFromString:self.feed.imageName forIndexPath:nil completion:^(UIImage *image, NSIndexPath *indexPath) {
+            self.photoImageView.image = image;
+        }];
+    }
 }
 
 - (void)didReceiveMemoryWarning {

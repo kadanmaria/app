@@ -16,42 +16,6 @@ static NSString * const applicationType = @"REST";
 static NSString * const stringForURLRequest = @"https://api.backendless.com/v1/data/Data?pageSize=100";
 static NSString * const stringForPutRequest = @"https://api.backendless.com/v1/data/Data/";
 
-@interface ContentManagerPutTasks : NSObject
-
-@property (strong, nonatomic) NSMutableDictionary *tasks;
-
-@end
-
-@implementation ContentManagerPutTasks
-
-+ (instancetype)sharedInstance {
-    static ContentManagerPutTasks *instance = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        instance = [[self alloc] init];
-    });
-    return instance;
-}
-
-- (instancetype)init {
-    if (self = [super init]) {
-        NSMutableDictionary *tasks = [[NSMutableDictionary alloc] init];
-        self.tasks = tasks;
-    }
-    return self;
-}
-
-- (NSURLSessionDataTask *)contentManagerPutTaskforKey:(NSString *)key {
-    return [self.tasks objectForKey:key];
-}
-
-- (void)setContentManagerPutTask:(NSURLSessionDataTask *)task forKey:(NSString *)key {
-    [self.tasks setValue:task forKey:key];
-}
-
-@end
-
-
 @implementation ContentManager
 
 - (void)downloadContent {
@@ -89,11 +53,9 @@ static NSString * const stringForPutRequest = @"https://api.backendless.com/v1/d
 
 - (void)putChangesOnServer:(NSArray *)feeds {
     
+    dispatch_group_t putGroup = dispatch_group_create();
+    
     for (Feed *feed in feeds) {
-        
-//        if ([[ContentManagerPutTasks sharedInstance] contentManagerPutTaskforKey:[feed valueForKey:@"objectId"]]) {
-//            [[[ContentManagerPutTasks sharedInstance] contentManagerPutTaskforKey:[feed valueForKey:@"objectId"]] cancel];
-//        }
         
         NSString *putString = [NSString stringWithFormat:@"%@%@", stringForPutRequest, [feed valueForKey:@"objectId"]];
         
@@ -115,28 +77,22 @@ static NSString * const stringForPutRequest = @"https://api.backendless.com/v1/d
         
         [putReqest setHTTPMethod:@"PUT"];
         
-        NSURLSession *session = [NSURLSession sharedSession];
-        NSURLSessionDataTask *putTask = [session dataTaskWithRequest:putReqest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+        dispatch_group_enter(putGroup);
+        NSURLSessionDataTask *putTask = [[NSURLSession sharedSession] dataTaskWithRequest:putReqest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
             
             dispatch_async(dispatch_get_global_queue(0, 0), ^{
                 if (error) {
                     NSLog(@"ERROR PUT To server %@", error);
-                } else {
-                    
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                  //  [[ContentManagerPutTasks sharedInstance] setContentManagerPutTask:putTask forKey:[feed valueForKey:@"objectId"]];
-                    [self.delegate contentManagerDidUploadObjectsToServer:self];
-                    });
                 }
-                
-                NSLog(@"RESPONSE %@", response);
+                dispatch_group_leave(putGroup);
             });
-            
         }];
-        
         [putTask resume];
     }
     
+    dispatch_group_notify(putGroup, dispatch_get_main_queue(), ^{
+        [self.delegate contentManagerDidUploadObjectsToServer:self];
+    });
 }
 
 @end
