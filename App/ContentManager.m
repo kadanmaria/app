@@ -70,7 +70,7 @@ static NSString * const stringForPutRequest = @"https://api.backendless.com/v1/d
         NSMutableDictionary *putBodyDictionary = [[NSMutableDictionary alloc] init];
         [putBodyDictionary setObject:[feed valueForKey:@"title"] forKey:@"title"];
         [putBodyDictionary setObject:[feed valueForKey:@"subtitle"] forKey:@"subtitle"];
-        [putBodyDictionary setObject:[feed valueForKey:@"imageName"] forKey:@"imageName"];
+//        [putBodyDictionary setObject:[feed valueForKey:@"imageName"] forKey:@"imageName"];
         
         NSData *putBody = [NSJSONSerialization dataWithJSONObject:putBodyDictionary options:0 error:0];
         [putReqest setHTTPBody:putBody];
@@ -86,6 +86,7 @@ static NSString * const stringForPutRequest = @"https://api.backendless.com/v1/d
                 }
                 dispatch_group_leave(putGroup);
             });
+            
         }];
         [putTask resume];
     }

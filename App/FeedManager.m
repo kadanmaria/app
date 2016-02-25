@@ -12,6 +12,7 @@
 @interface FeedManager ()
 
 @property (strong, nonatomic) NSManagedObjectContext *backgroundContext;
+@property (strong, nonatomic) NSManagedObjectContext *mainContext;
 
 @end
 
@@ -40,7 +41,7 @@
     [fetchRequest setFetchBatchSize:10];
     
     NSFetchedResultsController *fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest
-                                                                                               managedObjectContext:self.managedObjectContext
+                                                                                               managedObjectContext:self.mainContext
                                                                                                  sectionNameKeyPath:nil cacheName:@"Cache"];
     self.fetchedResultsController = fetchedResultsController;
     
@@ -59,19 +60,19 @@
         NSLog(@"Error initializing Coordinator");
     }
     
-    NSManagedObjectContext *managedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
-    if (!managedObjectContext) {
+    NSManagedObjectContext *mainContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
+    if (!mainContext) {
         NSLog(@"Error initializing MainContext");
     }
     NSManagedObjectContext *backgroundContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-    backgroundContext.parentContext = managedObjectContext;
+    backgroundContext.parentContext = mainContext;
     if (!backgroundContext) {
         NSLog(@"Error initializing BackgroundContext");
     }
     self.backgroundContext = backgroundContext;
     
-    [managedObjectContext setPersistentStoreCoordinator:persistentStoreCoordinator];
-    [self setManagedObjectContext:managedObjectContext];
+    [mainContext setPersistentStoreCoordinator:persistentStoreCoordinator];
+    [self setMainContext:mainContext];
     
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSURL *documentsURL = [[fileManager URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
@@ -85,7 +86,7 @@
 
 - (void)manageObjects:(NSArray *)objects {
 
-    NSManagedObjectContext *mainContext = [self managedObjectContext];
+    NSManagedObjectContext *mainContext = [self mainContext];
     NSManagedObjectContext *backgroundContext = [self backgroundContext];
     
     [backgroundContext performBlock:^{
@@ -178,7 +179,7 @@
         [feed setValue:[object valueForKey:@"subtitle"] forKey:@"subtitle"];
         [feed setValue:[object valueForKey:@"title"] forKey:@"title"];
         [feed setValue:[object valueForKey:@"imageName"] forKey:@"imageName"];
-//        [feed setValue:[NSNumber numberWithBool:NO] forKey:@"hasChanged"];
+        [feed setValue:[NSNumber numberWithBool:NO] forKey:@"hasChanged"];
         
     }
 }
@@ -206,20 +207,19 @@
 
 - (void)updateFeed:(Feed *)feed accordingToChangedTitle:(NSString *)title subtitle:(NSString *)subtitle {
     
-    NSManagedObjectContext *mainContext = [self managedObjectContext];
-    NSManagedObjectContext *tempContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-    tempContext.parentContext = mainContext;
+    NSManagedObjectContext *mainContext = [self mainContext];
+    NSManagedObjectContext *backgroundContext = [self backgroundContext];
     
-    [tempContext performBlock:^{
+    [backgroundContext performBlock:^{
         
-        NSEntityDescription *entity = [NSEntityDescription entityForName:@"Feed" inManagedObjectContext:tempContext];
+        NSEntityDescription *entity = [NSEntityDescription entityForName:@"Feed" inManagedObjectContext:backgroundContext];
         NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
         NSPredicate *predicate = [NSPredicate predicateWithFormat:@"objectId like %@", feed.objectId];
         fetchRequest.predicate = predicate;
         [fetchRequest setEntity:entity];
         
         NSError *error;
-        NSArray *feedsFromCoreData = [tempContext executeFetchRequest:fetchRequest error:&error];
+        NSArray *feedsFromCoreData = [backgroundContext executeFetchRequest:fetchRequest error:&error];
         if (error) {
             NSLog(@"Error fetching data %@, %@", error, [error userInfo]);
         }
@@ -237,11 +237,8 @@
 //        if (![feedFromCoreData.imageName isEqualToString:imageName]) {
 //            [feedFromCoreData setValue:imageName forKey:@"imageName"];
 //        }
-        
-//        [feedFromCoreData setValue:[NSNumber numberWithBool:TRUE] forKey:@"hasChanged"];
-        
         NSError *savingBackgroundContextError = nil;
-        if (![tempContext save:&savingBackgroundContextError]) {
+        if (![backgroundContext save:&savingBackgroundContextError]) {
             NSLog(@"Unresolved error %@, %@", savingBackgroundContextError, [savingBackgroundContextError userInfo]);
         }
         
@@ -257,10 +254,7 @@
 }
 
 - (NSArray *)changedFeeds {
-    
-  //  NSManagedObjectContext *backgroundContext = [self backgroundContext];
-    NSManagedObjectContext *mainContext = [self managedObjectContext];
-    
+    NSManagedObjectContext *mainContext = [self mainContext];
     
     NSEntityDescription *entity = [NSEntityDescription entityForName:@"Feed" inManagedObjectContext:mainContext];
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
@@ -274,26 +268,34 @@
         NSLog(@"Error fetching data %@, %@", error, [error userInfo]);
     }
     
-    for (Feed *feed in fetchedFeeds) {
-        feed.hasChanged = [NSNumber numberWithBool:NO];
-    }
-//    NSError *savingBackgroundContextError = nil;
-//    if (![backgroundContext save:&savingBackgroundContextError]) {
-//        NSLog(@"Unresolved error %@, %@", savingBackgroundContextError, [savingBackgroundContextError userInfo]);
-//    }
-//    
-//    [mainContext performBlock:^{
-    NSError *savingMainContextError = nil;
-    if (![mainContext save:&savingMainContextError]) {
-        NSLog(@"Unresolved error %@, %@", savingMainContextError, [savingMainContextError userInfo]);
-    }
-//    }];
-//    NSError *savingBackgroundContextError = nil;
-//    if (![backgroundContext save:&savingBackgroundContextError]) {
-//        NSLog(@"Unresolved error %@, %@", savingBackgroundContextError, [savingBackgroundContextError userInfo]);
-//    }
+    [self setHasChangedValueToNo:fetchedFeeds];
     
     return fetchedFeeds;
+}
+
+- (void)setHasChangedValueToNo:(NSArray *)objects {
+    NSManagedObjectContext *backgroundContext = [self backgroundContext];
+    NSManagedObjectContext *mainContext = [self mainContext];
+    
+    [backgroundContext performBlock:^{
+        
+        for (Feed *feed in objects) {
+            feed.hasChanged = [NSNumber numberWithBool:NO];
+        }
+        
+        NSError *savingBackgroundContextError = nil;
+        if (![backgroundContext save:&savingBackgroundContextError]) {
+            NSLog(@"Unresolved error %@, %@", savingBackgroundContextError, [savingBackgroundContextError userInfo]);
+        }
+    
+        [mainContext performBlock:^{
+            NSError *savingMainContextError = nil;
+            if (![mainContext save:&savingMainContextError]) {
+                NSLog(@"Unresolved error %@, %@", savingMainContextError, [savingMainContextError userInfo]);
+            }
+        }];
+        
+    }];
 }
 
 @end
