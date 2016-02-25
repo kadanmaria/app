@@ -10,7 +10,7 @@
 
 #import "FeedViewController.h"
 #import "FeedCell.h"
-#import "ContentDownloader.h"
+#import "ContentManager.h"
 #import "ImageDownloader.h"
 #import "Feed.h"
 #import "AppDelegate.h"
@@ -19,20 +19,19 @@
 #import "AuthorizationManager.h"
 
 
-@interface FeedViewController () <UITableViewDelegate, UITableViewDataSource, ContentDownloaderDelegate, NSFetchedResultsControllerDelegate>
+@interface FeedViewController () <UITableViewDelegate, UITableViewDataSource, ContentManagerDelegate, NSFetchedResultsControllerDelegate>
 
 @property (strong, nonatomic) IBOutlet UIBarButtonItem *activityIndicatorItem;
 @property (strong, nonatomic) IBOutlet UIBarButtonItem *synchronizeButton;
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
 
 @property (strong, nonatomic) NSFetchedResultsController *fetchedResultsController;
-@property (strong, nonatomic) ContentDownloader *contentDownloader;
+@property (strong, nonatomic) ContentManager *contentManager;
 @property (strong, nonatomic) FeedManager *feedManager;
 @property (strong, nonatomic) NSString *userToken;
 @property (strong, nonatomic) NSDate *lastLoginDate;
 
 @property (strong, nonatomic) NSMutableArray *navigationBarItems;
-
 
 @end
 
@@ -44,8 +43,8 @@
     self.tableView.estimatedRowHeight = 140.0;
     self.tableView.rowHeight = UITableViewAutomaticDimension;
     
-    self.contentDownloader = [[ContentDownloader alloc] init];
-    self.contentDownloader.delegate = self;
+    self.contentManager = [[ContentManager alloc] init];
+    self.contentManager.delegate = self;
 
     id feedManager = [(AppDelegate *)[[UIApplication sharedApplication] delegate] feedManager] ;
     self.feedManager = feedManager;
@@ -56,7 +55,7 @@
 
     NSMutableArray *navigationBarItems = [self.navigationItem.rightBarButtonItems mutableCopy];
     self.navigationBarItems = navigationBarItems;
-
+    
     NSError *error;
     if (![self.fetchedResultsController performFetch:&error]) {
         NSLog(@"Error %@, %@", error, [error userInfo]);
@@ -90,16 +89,22 @@
     [super didReceiveMemoryWarning];
 }
 
-#pragma mark - <ContentDownloaderDelegate>
+#pragma mark - <ContentManagerDelegate>
 
-- (void)contentDownloader:(ContentDownloader *)contentDownloader didDownloadContentToArray:(NSArray *)array {
+- (void)contentManager:(ContentManager *)contentManager didDownloadContentToArray:(NSArray *)array {
     [self.feedManager manageObjects:array];
 
     [self.activityIndicatorItem.customView stopAnimating];
-    
     [self.navigationBarItems removeObject:self.activityIndicatorItem];
-    [self.navigationBarItems addObject:self.synchronizeButton];
+    
+    if (![self.navigationItem.rightBarButtonItems containsObject:self.synchronizeButton]) {
+        [self.navigationBarItems addObject:self.synchronizeButton];
+    }
     [self.navigationItem setRightBarButtonItems:self.navigationBarItems animated:YES];
+}
+
+- (void)contentManagerDidUploadObjectsToServer:(ContentManager *)contentManager {
+    [self.contentManager downloadContent];
 }
 
 #pragma mark - IBActions
@@ -116,7 +121,14 @@
     [activityIndicator startAnimating];
     
     self.activityIndicatorItem.customView = activityIndicator;
-    [self.contentDownloader downloadContent];
+    
+    NSArray *feedsToBeUploaded = [self.feedManager changedFeeds];
+    if (feedsToBeUploaded.count > 0) {
+        [self.contentManager putChangesOnServer:feedsToBeUploaded];
+    }
+    else {
+        [self.contentManager downloadContent];
+    }
 }
 
 - (IBAction)addFeed:(UIBarButtonItem *)sender {

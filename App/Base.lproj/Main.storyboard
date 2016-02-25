@@ -85,6 +85,7 @@
                         <outlet property="activityIndicator" destination="d6W-ch-4xb" id="730-JJ-09L"/>
                         <outlet property="loginButton" destination="tsG-Kz-Idh" id="tHS-D3-Trb"/>
                         <outlet property="loginTextField" destination="nFc-JK-ggd" id="cQM-dW-Xwc"/>
+                        <outlet property="navigationItem" destination="6ls-yw-zLj" id="ZUq-pp-ouw"/>
                         <outlet property="passwordTextField" destination="L57-rh-Mcj" id="zjk-9a-KqQ"/>
                     </connections>
                 </viewController>

@@ -178,6 +178,7 @@
         [feed setValue:[object valueForKey:@"subtitle"] forKey:@"subtitle"];
         [feed setValue:[object valueForKey:@"title"] forKey:@"title"];
         [feed setValue:[object valueForKey:@"imageName"] forKey:@"imageName"];
+//        [feed setValue:[NSNumber numberWithBool:NO] forKey:@"hasChanged"];
         
     }
 }
@@ -227,13 +228,17 @@
         if (![feedFromCoreData.title isEqualToString:title]) {
             [feedFromCoreData setValue:title forKey:@"title"];
             NSLog(@"TITLE %@ CHANGED To %@", feedFromCoreData.title, title);
+            [feedFromCoreData setValue:[NSNumber numberWithBool:TRUE] forKey:@"hasChanged"];
         }
         if (![feedFromCoreData.subtitle isEqualToString:subtitle]) {
             [feedFromCoreData setValue:subtitle forKey:@"subtitle"];
+            [feedFromCoreData setValue:[NSNumber numberWithBool:TRUE] forKey:@"hasChanged"];
         }
 //        if (![feedFromCoreData.imageName isEqualToString:imageName]) {
 //            [feedFromCoreData setValue:imageName forKey:@"imageName"];
 //        }
+        
+//        [feedFromCoreData setValue:[NSNumber numberWithBool:TRUE] forKey:@"hasChanged"];
         
         NSError *savingBackgroundContextError = nil;
         if (![tempContext save:&savingBackgroundContextError]) {
@@ -249,7 +254,31 @@
             }
         }];
     }];
-                
+}
+
+- (NSArray *)changedFeeds {
+    
+    NSManagedObjectContext *backgroundContext = [self backgroundContext];
+   
+    NSEntityDescription *entity = [NSEntityDescription entityForName:@"Feed" inManagedObjectContext:backgroundContext];
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"hasChanged == YES"];
+    fetchRequest.predicate = predicate;
+    [fetchRequest setEntity:entity];
+        
+    NSError *error;
+    NSArray *fetchedFeeds = [backgroundContext executeFetchRequest:fetchRequest error:&error];
+    if (error) {
+        NSLog(@"Error fetching data %@, %@", error, [error userInfo]);
+    }
+
+    
+//    NSError *savingBackgroundContextError = nil;
+//    if (![backgroundContext save:&savingBackgroundContextError]) {
+//        NSLog(@"Unresolved error %@, %@", savingBackgroundContextError, [savingBackgroundContextError userInfo]);
+//    }
+    
+    return fetchedFeeds;
 }
 
 @end

@@ -19,27 +19,27 @@ static NSString * const stringForValidatationRequest = @"https://api.backendless
 
 - (void)loginWithLogin:(NSString *)login password:(NSString *)password {
     
-    NSString *restCall = stringForAuthorizationRequest;
-    NSURL *restURL = [NSURL URLWithString:restCall];
-    NSMutableURLRequest *restReqest = [NSMutableURLRequest requestWithURL:restURL];
+    NSString *loginString = stringForAuthorizationRequest;
+    NSURL *loginURL = [NSURL URLWithString:loginString];
+    NSMutableURLRequest *loginRequest = [NSMutableURLRequest requestWithURL:loginURL];
     
-    [restReqest addValue:applicatonId forHTTPHeaderField:@"application-id"];
-    [restReqest addValue:restId forHTTPHeaderField:@"secret-key"];
-    [restReqest addValue:contentType forHTTPHeaderField:@"Content-Type"];
-    [restReqest addValue:applicationType forHTTPHeaderField:@"application-type"];
+    [loginRequest addValue:applicatonId forHTTPHeaderField:@"application-id"];
+    [loginRequest addValue:restId forHTTPHeaderField:@"secret-key"];
+    [loginRequest addValue:contentType forHTTPHeaderField:@"Content-Type"];
+    [loginRequest addValue:applicationType forHTTPHeaderField:@"application-type"];
     
-    [restReqest setHTTPMethod:@"POST"];
+    [loginRequest setHTTPMethod:@"POST"];
     
-    NSMutableDictionary *requestDict = [[NSMutableDictionary alloc] init];
-    [requestDict setObject:login forKey:@"login"];
-    [requestDict setObject:password forKey:@"password"];
+    NSMutableDictionary *loginDict = [[NSMutableDictionary alloc] init];
+    [loginDict setObject:login forKey:@"login"];
+    [loginDict setObject:password forKey:@"password"];
     
-    NSData *requestBody = [NSJSONSerialization dataWithJSONObject:requestDict options:0 error:0];
-    [restReqest setHTTPBody:requestBody];
+    NSData *requestBody = [NSJSONSerialization dataWithJSONObject:loginDict options:0 error:0];
+    [loginRequest setHTTPBody:requestBody];
   
     
     NSURLSession *session = [NSURLSession sharedSession];
-    NSURLSessionDataTask *jsonData = [session dataTaskWithRequest:restReqest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+    NSURLSessionDataTask *loginTask = [session dataTaskWithRequest:loginRequest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         
         dispatch_async(dispatch_get_global_queue(0, 0), ^{
             if (!error) {
@@ -64,8 +64,7 @@ static NSString * const stringForValidatationRequest = @"https://api.backendless
             }
         });
     }];
-    
-    [jsonData resume];
+    [loginTask resume];
 }
 
 - (void)isSessionValidWithUserToken:(NSString *)token completion:(void(^)(bool isValid))completion {
