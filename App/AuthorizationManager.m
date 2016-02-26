@@ -37,9 +37,7 @@ static NSString * const stringForValidatationRequest = @"https://api.backendless
     NSData *requestBody = [NSJSONSerialization dataWithJSONObject:loginDict options:0 error:0];
     [loginRequest setHTTPBody:requestBody];
   
-    
-    NSURLSession *session = [NSURLSession sharedSession];
-    NSURLSessionDataTask *loginTask = [session dataTaskWithRequest:loginRequest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+    NSURLSessionDataTask *loginTask = [[NSURLSession sharedSession] dataTaskWithRequest:loginRequest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         
         dispatch_async(dispatch_get_global_queue(0, 0), ^{
             if (!error) {
@@ -61,6 +59,7 @@ static NSString * const stringForValidatationRequest = @"https://api.backendless
                 
             } else {
                 NSLog(@"jsonDataTask with error %@", error);
+                [self.delegate authorizationManager:self hasRecievedUserToken:nil forLogin:login];
             }
         });
     }];

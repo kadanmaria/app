@@ -97,20 +97,35 @@
 
 #pragma mark - <UITextViewDelegate>
 
-
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
     if ( textView == self.titlteTextView && [text isEqualToString:@"\n"]) {
         [textView resignFirstResponder];
         [self.subtitleTextView becomeFirstResponder];
         return NO;
-//    } else if (textView == self.subtitleTextView && [text isEqualToString:@"\n"]) {
-//        
-//    }
     }
     return YES;
 }
 
+- (BOOL)textViewShouldBeginEditing:(UITextView *)textView {
+    if (textView.textColor == [UIColor grayColor]) {
+        textView.text = @"";
+        textView.textColor = [UIColor blackColor];
+    }
+    return YES;
+}
 
+- (void) textViewDidChange:(UITextView *)textView {
+    if (textView.text.length == 0) {
+        textView.textColor = [UIColor lightGrayColor];
+        if (textView == self.titlteTextView ) {
+            textView.text = @"Write your title here";
+        } else {
+            textView.text = @"Write your subtitle here";
+        }
+        [textView resignFirstResponder];
+    }
+    
+}
 
 
 
