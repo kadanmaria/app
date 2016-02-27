@@ -18,6 +18,7 @@
 @property (weak, nonatomic) IBOutlet UITextView *titlteTextView;
 @property (weak, nonatomic) IBOutlet UITextView *subtitleTextView;
 
+@property (strong, nonatomic) IBOutlet UIScrollView *scrollView;
 
 @property (strong, nonatomic) IBOutlet UIBarButtonItem *editButton;
 @property (strong, nonatomic) IBOutlet UIBarButtonItem *saveButton;
@@ -34,14 +35,16 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
-    id feedManager = [(AppDelegate *)[[UIApplication sharedApplication] delegate] feedManager];
-    self.feedManager = feedManager;
+        
+    [self.scrollView setShowsHorizontalScrollIndicator:NO];
     
     NSMutableArray *navigationBarItems = [self.navigationItem.rightBarButtonItems mutableCopy];
     self.navigationBarItems = navigationBarItems;
     [self.navigationBarItems removeObject:self.saveButton];
     [self.navigationItem setRightBarButtonItems:self.navigationBarItems animated:YES];
+    
+    self.titlteTextView.delegate = self;
+    self.subtitleTextView.delegate = self;
     
     if (self.feed) {
         self.titlteTextView.text = self.feed.title;
@@ -51,12 +54,7 @@
             self.photoImageView.image = image;
         }];
     } else {
-        self.titlteTextView.delegate = self;
-        self.titlteTextView.text = @"What's happening?";
         self.titlteTextView.textColor = [UIColor lightGrayColor];
-        
-        self.subtitleTextView.delegate = self;
-        self.subtitleTextView.text = @"What's happening?";
         self.subtitleTextView.textColor = [UIColor lightGrayColor];
     }
 }
@@ -71,9 +69,14 @@
 - (IBAction)editFeed:(id)sender {    
     self.titlteTextView.editable = YES;
     self.subtitleTextView.editable = YES;
+    self.titlteTextView.textColor = [UIColor blackColor];
     
-    self.titlteTextView.text = self.feed.title;
-    self.subtitleTextView.text = self.feed.subtitle;
+    if (self.feed) {
+        self.subtitleTextView.textColor = [UIColor blackColor];
+        
+        self.titlteTextView.text = self.feed.title;
+        self.subtitleTextView.text = self.feed.subtitle;
+    }
     
     [self.titlteTextView becomeFirstResponder];
     
@@ -94,45 +97,28 @@
     [self.navigationController popViewControllerAnimated:YES];
 }
 
+- (IBAction)dissmissKeyboardOnTap:(id)sender{
+    [[self view] endEditing:YES];
+}
 
 #pragma mark - <UITextViewDelegate>
 
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
-    if ( textView == self.titlteTextView && [text isEqualToString:@"\n"]) {
-        [textView resignFirstResponder];
+    if (textView == self.titlteTextView && [text isEqualToString:@"\n"]) {
+        [self.titlteTextView resignFirstResponder];
         [self.subtitleTextView becomeFirstResponder];
         return NO;
     }
     return YES;
 }
-
-- (BOOL)textViewShouldBeginEditing:(UITextView *)textView {
-    if (textView.textColor == [UIColor grayColor]) {
-        textView.text = @"";
-        textView.textColor = [UIColor blackColor];
-    }
-    return YES;
-}
-
-- (void) textViewDidChange:(UITextView *)textView {
-    if (textView.text.length == 0) {
-        textView.textColor = [UIColor lightGrayColor];
-        if (textView == self.titlteTextView ) {
-            textView.text = @"Write your title here";
-        } else {
-            textView.text = @"Write your subtitle here";
-        }
-        [textView resignFirstResponder];
-    }
-    
-}
-
-
-
-
-
-
-
+//
+//- (BOOL)textViewShouldBeginEditing:(UITextView *)textView {
+//    if (textView == self.subtitleTextView) {
+//        self.subtitleTextView.editable = YES;
+//        self.subtitleTextView.textColor = [UIColor blackColor];
+//    }
+//    return YES;
+//}
 
 
 @end

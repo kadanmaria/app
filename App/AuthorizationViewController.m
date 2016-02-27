@@ -10,6 +10,7 @@
 #import "FeedViewController.h"
 #import "AuthorizationManager.h"
 #import "AppDelegate.h"
+#import "FeedManager.h"
 
 @interface AuthorizationViewController () <UITextFieldDelegate, AuthorizationManagerDelegate>
 
@@ -21,6 +22,7 @@
 
 @property (weak, nonatomic) IBOutlet UIActivityIndicatorView *activityIndicator;
 @property (strong, nonatomic) UIView *carpetView;
+@property (strong, nonatomic) AppDelegate *appDelegate;
 
 @end
 
@@ -33,10 +35,13 @@
     authorizationManager.delegate = self;
     self.authorizationManager = authorizationManager;
     
-    UIView *grayView = [[UIView alloc] initWithFrame:self.view.frame];
-    grayView.backgroundColor = [UIColor blackColor];
-    grayView.alpha = 0.05;
-    self.carpetView = grayView;
+    id appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    self.appDelegate = appDelegate;
+//    
+//    UIView *grayView = [[UIView alloc] initWithFrame:self.view.frame];
+//    grayView.backgroundColor = [UIColor blackColor];
+//    grayView.alpha = 0.05;
+//    self.carpetView = grayView;
 }
 
 - (void)didReceiveMemoryWarning {
@@ -53,17 +58,21 @@
         [self.loginTextField resignFirstResponder];
         [self.passwordTextField resignFirstResponder];
         
-        self.loginButton.enabled = NO;
-        [self.view addSubview:self.carpetView];
-        [self.activityIndicator startAnimating];
+//        self.loginButton.enabled = NO;
+////        [self.view addSubview:self.carpetView];
+////        [self.activityIndicator startAnimating];
+        
+        [self.appDelegate startThinkingInViewController:self];
+    
     }
 }
 
 #pragma mark - <AuthorizationManagerDelegate>
 
 - (void)authorizationManager:(AuthorizationManager *)manager hasRecievedUserToken:(NSString *)token forLogin:(NSString *)login {
-    [self.activityIndicator stopAnimating];
-    [self.carpetView removeFromSuperview];
+
+    [self.appDelegate stopThinkingInViewController:self];
+    
     if (token) {
         self.loginButton.enabled = YES;
         
@@ -84,6 +93,16 @@
         [self presentViewController:alertController animated:NO completion:nil];
         self.loginButton.enabled = YES;
     }
+}
+
+- (void)authorizationManager:(AuthorizationManager *)manager hasExecutedWithError:(NSError *)error {
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Log in problem"
+                                                                             message:@"Ooops! Error!"
+                                                                      preferredStyle:UIAlertControllerStyleAlert];
+    
+    [alertController addAction:[UIAlertAction actionWithTitle:@"Ok" style:UIAlertActionStyleCancel handler:nil]];
+    [self presentViewController:alertController animated:NO completion:nil];
+    self.loginButton.enabled = YES;
 }
 
 #pragma mark - <UITextFieldDelegate>

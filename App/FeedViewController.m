@@ -17,9 +17,10 @@
 #import "DetailFeedViewController.h"
 #import "AuthorizationViewController.h"
 #import "AuthorizationManager.h"
+#import "FeedManager.h"
 
 
-@interface FeedViewController () <UITableViewDelegate, UITableViewDataSource, ContentManagerDelegate, NSFetchedResultsControllerDelegate>
+@interface FeedViewController () <UITableViewDelegate, UITableViewDataSource, ContentManagerDelegate, NSFetchedResultsControllerDelegate, AuthorizationManagerDelegate>
 
 @property (strong, nonatomic) IBOutlet UIBarButtonItem *activityIndicatorItem;
 @property (strong, nonatomic) IBOutlet UIBarButtonItem *synchronizeButton;
@@ -27,14 +28,13 @@
 
 @property (strong, nonatomic) NSFetchedResultsController *fetchedResultsController;
 @property (strong, nonatomic) ContentManager *contentManager;
-@property (strong, nonatomic) FeedManager *feedManager;
 @property (strong, nonatomic) AuthorizationManager *authManager;
 @property (strong, nonatomic) NSString *userToken;
 @property (strong, nonatomic) NSDate *lastLoginDate;
+@property (strong, nonatomic) AppDelegate *appDelegate;
 
 @property (strong, nonatomic) NSMutableArray *navigationBarItems;
-@property (strong, nonatomic) UIActivityIndicatorView *activityIndicator;
-@property (strong, nonatomic) NSNumber *isAlreadyLogedIn;
+//@property (strong, nonatomic) UIActivityIndicatorView *activityIndicator;
 
 @end
 
@@ -46,15 +46,18 @@
     self.tableView.estimatedRowHeight = 140.0;
     self.tableView.rowHeight = UITableViewAutomaticDimension;
     
-    self.isAlreadyLogedIn = [NSNumber numberWithBool:FALSE];
-    
     self.contentManager = [[ContentManager alloc] init];
     self.contentManager.delegate = self;
 
-    id feedManager = [(AppDelegate *)[[UIApplication sharedApplication] delegate] feedManager] ;
-    self.feedManager = feedManager;
+    AuthorizationManager *authManager = [[AuthorizationManager alloc] init];
+    authManager.delegate = self;
+    self.authManager = authManager;
     
-    NSFetchedResultsController *fetchedResultsController = self.feedManager.fetchedResultsController;
+    id appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    self.appDelegate = appDelegate;
+    
+    NSFetchedResultsController *fetchedResultsController = [[FeedManager sharedInstance] fetchedResultsController];
+
     fetchedResultsController.delegate = self;
     self.fetchedResultsController = fetchedResultsController;
 
@@ -65,46 +68,53 @@
     if (![self.fetchedResultsController performFetch:&error]) {
         NSLog(@"Error %@, %@", error, [error userInfo]);
     }
-    
-    UIActivityIndicatorView *activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
-    activityIndicator.color = [UIColor blackColor];
-    activityIndicator.center = self.view.center;
-    self.activityIndicator = activityIndicator;
-    [self.view addSubview:self.activityIndicator];
-
 }
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
+    [self.appDelegate startThinkingInViewController:self];
     
-    NSUserDefaults *user = [NSUserDefaults standardUserDefaults];
+//    [self.activityIndicator startAnimating];  //SMTH TO DO WHIS THIS
     
-    if ([user objectForKey:@"token"]) {
-        if ([self.isAlreadyLogedIn isEqualToNumber:[NSNumber numberWithBool:FALSE]]) {
-            
-            [self.activityIndicator startAnimating];
-            
-            AuthorizationManager *authManager = [[AuthorizationManager alloc] init];
-            self.authManager = authManager;
-            
-            [self.authManager isSessionValidWithUserToken:[user objectForKey:@"token"] completion:^(bool isValid) {
-                if (isValid) {
-                    [self.activityIndicator stopAnimating];
-                    self.isAlreadyLogedIn = [NSNumber numberWithBool:TRUE];
-                    
-                } else {
-                    [self performSegueWithIdentifier:@"ShowAuthorizationController" sender:self];
-                }
-            }];
-        }
-    } else {
-        self.isAlreadyLogedIn = [NSNumber numberWithBool:TRUE];
-        [self performSegueWithIdentifier:@"ShowAuthorizationController" sender:self];
-    }
+    [self.authManager isSessionValid];
 }
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
+}
+
+#pragma mark - <AuthorisationManagerDelegate>
+
+- (void)authorizationManagerSessionIsNotValid {
+
+    [self.appDelegate stopThinkingInViewController:self];
+    
+//    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Log in problem"
+//                                                                             message:@"Ooops! Problem with Authorization!"
+//                                                                      preferredStyle:UIAlertControllerStyleAlert];
+//    
+//    [alertController addAction:[UIAlertAction actionWithTitle:@"Log in" style:UIAlertActionStyleDefault  handler:^(UIAlertAction * action){
+//        [self performSegueWithIdentifier:@"ShowAuthorizationController" sender:self];
+//    }]];
+//    
+//    [self presentViewController:alertController animated:NO completion:nil];
+    [self performSegueWithIdentifier:@"ShowAuthorizationController" sender:self];
+}
+
+- (void)authorizationManagerSessionIsValid{
+    
+    [self.appDelegate stopThinkingInViewController:self];
+}
+
+- (void)authorizationManager:(AuthorizationManager *)manager hasExecutedWithError:(NSError *)error {
+    
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Log in problem"
+                                                                             message:[NSString stringWithFormat:@"Ooops! %@", error]
+                                                                      preferredStyle:UIAlertControllerStyleAlert];
+    
+    [alertController addAction:[UIAlertAction actionWithTitle:@"Ok" style:UIAlertActionStyleCancel handler:nil]];
+    [self presentViewController:alertController animated:NO completion:nil];
+    
 }
 
 #pragma mark - IBActions
@@ -126,20 +136,22 @@
     
     self.activityIndicatorItem.customView = activityIndicator;
     
-    NSArray *feedsToBeUploaded = [self.feedManager changedFeeds];
+    NSArray *feedsToBeUploaded = [[FeedManager sharedInstance] changedFeeds];
     if (feedsToBeUploaded.count > 0) {
         [self.contentManager putChangesOnServer:feedsToBeUploaded];
     }
     else {
         [self.contentManager downloadContent];
     }
+    
+    [self.appDelegate startThinkingInViewController:self];
 }
 
 
 #pragma mark - <ContentManagerDelegate>
 
 - (void)contentManager:(ContentManager *)contentManager didDownloadContentToArray:(NSArray *)array {
-    [self.feedManager manageObjects:array];
+    [[FeedManager sharedInstance] manageObjects:array];
     
     [self.activityIndicatorItem.customView stopAnimating];
     [self.navigationBarItems removeObject:self.activityIndicatorItem];
@@ -148,6 +160,8 @@
         [self.navigationBarItems addObject:self.synchronizeButton];
     }
     [self.navigationItem setRightBarButtonItems:self.navigationBarItems animated:YES];
+    
+    [self.appDelegate stopThinkingInViewController:self];
 }
 
 - (void)contentManagerDidUploadObjectsToServer:(ContentManager *)contentManager {

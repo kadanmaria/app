@@ -13,8 +13,11 @@
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
-@property (strong, nonatomic) FeedManager *feedManager;
+
 @property (strong, nonatomic) NSDate *lastLoginDate;
+
+- (void)startThinkingInViewController:(UIViewController *)viewController;
+- (void)stopThinkingInViewController:(UIViewController *)viewController;
 
 @end
 

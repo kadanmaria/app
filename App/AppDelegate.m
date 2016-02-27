@@ -16,8 +16,6 @@
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    FeedManager *feedManager = [[FeedManager alloc] init];
-    self.feedManager = feedManager;
 
     NSDate *lastLoginDate = [[NSDate alloc] initWithTimeIntervalSince1970:0];
     self.lastLoginDate = lastLoginDate;
@@ -45,6 +43,33 @@
 
 - (void)applicationWillTerminate:(UIApplication *)application {
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+}
+
+- (void)stopThinkingInViewController:(UIViewController *)someViewController {
+    for (UIView *someView in someViewController.view.subviews) {
+        if ([someView isKindOfClass:[UIActivityIndicatorView class]] && someView.tag == 2) {
+            [someView removeFromSuperview];
+        }
+        if ([someView isKindOfClass:[UIView class]] && someView.tag == 1) {
+            [someView removeFromSuperview];
+        }
+    }
+}
+
+- (void)startThinkingInViewController:(UIViewController *)someViewController {
+    UIView *grayView = [[UIView alloc] initWithFrame:someViewController.view.frame];
+    grayView.backgroundColor = [UIColor blackColor];
+    grayView.alpha = 0.05;
+    grayView.tag = 1;
+    
+    UIActivityIndicatorView *activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+    activityIndicator.color = someViewController.view.tintColor;
+    activityIndicator.center = someViewController.view.center;
+    [activityIndicator startAnimating];
+    activityIndicator.tag = 2;
+    
+    [someViewController.view addSubview:grayView];
+    [someViewController.view addSubview:activityIndicator];
 }
 
 @end

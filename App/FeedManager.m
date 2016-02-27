@@ -18,12 +18,19 @@
 
 @implementation FeedManager
 
-- (id)init {
-    self = [super init];
-    if (!self) {
-        return nil;
++ (instancetype)sharedInstance {
+    static FeedManager *instance = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        instance = [[self alloc] init];
+    });
+    return instance;
+}
+
+- (instancetype)init {
+    if (self = [super init]) {
+        [self initializeCoreData];
     }
-    [self initializeCoreData];
     return self;
 }
 
@@ -54,7 +61,6 @@
     if (!managedObjectModel) {
         NSLog(@"Error initializing Model");
     }
-    
     NSPersistentStoreCoordinator *persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:managedObjectModel];
     if (!persistentStoreCoordinator) {
         NSLog(@"Error initializing Coordinator");

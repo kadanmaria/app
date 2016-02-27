@@ -14,6 +14,7 @@
 
 @property (strong, nonatomic) NSFetchedResultsController *fetchedResultsController;
 
++ (instancetype)sharedInstance;
 - (void)initializeCoreData;
 
 - (void)manageObjects:(NSArray *)objects;

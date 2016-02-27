@@ -183,11 +183,9 @@
                                     <action selector="refresh:" destination="BYZ-38-t0r" id="qbb-q3-TGg"/>
                                 </connections>
                             </barButtonItem>
-                            <barButtonItem enabled="NO" title=" " id="Frd-i6-ZZZ"/>
                         </rightBarButtonItems>
                     </navigationItem>
                     <connections>
-                        <outlet property="activityIndicatorItem" destination="Frd-i6-ZZZ" id="qlI-s9-EbE"/>
                         <outlet property="synchronizeButton" destination="KVE-EZ-4pM" id="gOh-YA-eJe"/>
                         <outlet property="tableView" destination="QlJ-Vr-Wh3" id="PSm-zX-wuM"/>
                         <segue destination="kd8-Za-9GW" kind="show" identifier="AddFeedSegue" id="QVV-Uf-Dl2"/>
@@ -206,44 +204,41 @@
                         <viewControllerLayoutGuide type="top" id="Tjm-yI-tqr"/>
                         <viewControllerLayoutGuide type="bottom" id="vRl-2e-ZPc"/>
                     </layoutGuides>
-                    <view key="view" contentMode="scaleToFill" id="AfR-TC-vQh">
+                    <view key="view" contentMode="scaleToFill" layoutMarginsFollowReadableWidth="YES" id="AfR-TC-vQh" customClass="UIScrollView">
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="placeholderImage" translatesAutoresizingMaskIntoConstraints="NO" id="4jH-qA-Qzm">
-                                <rect key="frame" x="25" y="144" width="150" height="150"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="150" id="nks-0O-Gc2"/>
-                                    <constraint firstAttribute="width" constant="150" id="u0R-k6-BSZ"/>
-                                </constraints>
+                                <rect key="frame" x="25" y="144" width="550" height="391"/>
                             </imageView>
-                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" text="Write you title here" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="p50-jC-SbN">
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" text="Write your story here" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="24S-D1-gcw">
+                                <rect key="frame" x="25" y="560" width="550" height="0.0"/>
+                                <color key="textColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences" enablesReturnKeyAutomatically="YES"/>
+                            </textView>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" editable="NO" text="Write you title here" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="p50-jC-SbN">
                                 <rect key="frame" x="25" y="89" width="550" height="30"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="30" id="3QR-f0-S7h"/>
                                 </constraints>
-                                <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="19"/>
-                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences" returnKeyType="done" enablesReturnKeyAutomatically="YES"/>
-                            </textView>
-                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" text="Write your story here" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="24S-D1-gcw">
-                                <rect key="frame" x="200" y="144" width="375" height="431"/>
-                                <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences" returnKeyType="next" enablesReturnKeyAutomatically="YES"/>
                             </textView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="vRl-2e-ZPc" firstAttribute="top" secondItem="24S-D1-gcw" secondAttribute="bottom" constant="25" id="CI2-6v-Un9"/>
-                            <constraint firstAttribute="trailing" secondItem="24S-D1-gcw" secondAttribute="trailing" constant="25" id="LBh-3R-qhe"/>
+                            <constraint firstAttribute="bottom" secondItem="24S-D1-gcw" secondAttribute="bottom" constant="40" id="8ku-et-g8f"/>
+                            <constraint firstItem="24S-D1-gcw" firstAttribute="leading" secondItem="AfR-TC-vQh" secondAttribute="leading" constant="25" id="NwA-rr-ncl"/>
+                            <constraint firstAttribute="trailing" secondItem="4jH-qA-Qzm" secondAttribute="trailing" constant="25" id="dmD-ef-mQg"/>
                             <constraint firstAttribute="trailing" secondItem="p50-jC-SbN" secondAttribute="trailing" constant="25" id="iNc-Z1-gEZ"/>
-                            <constraint firstItem="24S-D1-gcw" firstAttribute="leading" secondItem="4jH-qA-Qzm" secondAttribute="trailing" constant="25" id="ov1-DT-9qt"/>
+                            <constraint firstItem="24S-D1-gcw" firstAttribute="top" secondItem="4jH-qA-Qzm" secondAttribute="bottom" constant="25" id="orh-Jk-eom"/>
                             <constraint firstItem="4jH-qA-Qzm" firstAttribute="leading" secondItem="AfR-TC-vQh" secondAttribute="leading" constant="25" id="pv8-rC-skx"/>
                             <constraint firstItem="4jH-qA-Qzm" firstAttribute="top" secondItem="p50-jC-SbN" secondAttribute="bottom" constant="25" id="q8V-j4-XPx"/>
                             <constraint firstItem="p50-jC-SbN" firstAttribute="leading" secondItem="AfR-TC-vQh" secondAttribute="leading" constant="25" id="t8w-kd-ykI"/>
-                            <constraint firstItem="24S-D1-gcw" firstAttribute="top" secondItem="p50-jC-SbN" secondAttribute="bottom" constant="25" id="tI6-Y8-Vti"/>
                             <constraint firstItem="p50-jC-SbN" firstAttribute="top" secondItem="Tjm-yI-tqr" secondAttribute="bottom" constant="25" id="ump-sa-wK7"/>
+                            <constraint firstAttribute="trailing" secondItem="24S-D1-gcw" secondAttribute="trailing" constant="25" id="zm9-ZT-IWc"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="w53-ZQ-FOG">
@@ -264,6 +259,7 @@
                         <outlet property="editButton" destination="VfI-BR-ZfN" id="Qhg-9t-eTc"/>
                         <outlet property="photoImageView" destination="4jH-qA-Qzm" id="M44-pd-zja"/>
                         <outlet property="saveButton" destination="8b9-QW-eRe" id="PLm-iO-eUJ"/>
+                        <outlet property="scrollView" destination="AfR-TC-vQh" id="Z89-kO-onE"/>
                         <outlet property="subtitleTextView" destination="24S-D1-gcw" id="u0D-nV-4tb"/>
                         <outlet property="titlteTextView" destination="p50-jC-SbN" id="Izn-4U-mng"/>
                     </connections>

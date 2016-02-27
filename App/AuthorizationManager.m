@@ -50,7 +50,6 @@ static NSString * const stringForValidatationRequest = @"https://api.backendless
                     } else {
                         if ([parsedObject valueForKey:@"user-token"]) {
                             [self.delegate authorizationManager:self hasRecievedUserToken:[parsedObject valueForKey:@"user-token"] forLogin:login];
-                            
                         } else {
                             [self.delegate authorizationManager:self hasRecievedUserToken:nil forLogin:login];
                         }
@@ -58,15 +57,25 @@ static NSString * const stringForValidatationRequest = @"https://api.backendless
                 });
                 
             } else {
+                [self.delegate authorizationManager:self hasExecutedWithError:error];
                 NSLog(@"jsonDataTask with error %@", error);
-                [self.delegate authorizationManager:self hasRecievedUserToken:nil forLogin:login];
             }
         });
     }];
     [loginTask resume];
 }
 
-- (void)isSessionValidWithUserToken:(NSString *)token completion:(void(^)(bool isValid))completion {
+- (void)isSessionValid {
+    NSString *token = [[NSUserDefaults standardUserDefaults] objectForKey:@"token"];
+    if (token) {
+        [self isSessionValidWithUserToken:token];
+    } else {
+        [self.delegate authorizationManagerSessionIsNotValid];
+    }
+}
+
+
+- (void)isSessionValidWithUserToken:(NSString *)token {
     
     NSString *validationString = [NSString stringWithFormat:@"%@%@", stringForValidatationRequest, token];
     
@@ -83,13 +92,21 @@ static NSString * const stringForValidatationRequest = @"https://api.backendless
     NSURLSessionDataTask *validationTask = [session dataTaskWithRequest:validationReqest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         
         dispatch_async(dispatch_get_global_queue(0, 0), ^{
-            
-            NSString *boolInString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-            BOOL isValid = [boolInString boolValue];
-            
-            dispatch_async(dispatch_get_main_queue(), ^{
-                completion(isValid);
+            if (!error) {
+                NSString *boolInString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+                BOOL isValid = [boolInString boolValue];
+                
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    if (isValid) {
+                        [self.delegate authorizationManagerSessionIsValid];
+                    } else {
+                        [self.delegate authorizationManagerSessionIsNotValid];
+                    }
             });
+            }else {
+                [self.delegate authorizationManager:self hasExecutedWithError:error];
+                NSLog(@"Error %@", error);
+            }
             
         });
     }];
