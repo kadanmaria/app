@@ -18,16 +18,23 @@ static NSString * const stringForPutRequest = @"https://api.backendless.com/v1/d
 
 @implementation ContentManager
 
+- (NSMutableURLRequest *)request {
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
+    [request addValue:applicatonId forHTTPHeaderField:@"application-id"];
+    [request addValue:restId forHTTPHeaderField:@"secret-key"];
+    return request;
+}
+
 - (void)downloadContent {
     NSString *restCall = stringForURLRequest;
     NSURL *restURL = [NSURL URLWithString:restCall];
-    NSMutableURLRequest *restReqest = [NSMutableURLRequest requestWithURL:restURL];
-    [restReqest addValue:applicatonId forHTTPHeaderField:@"application-id"];
-    [restReqest addValue:restId forHTTPHeaderField:@"secret-key"];
-    [restReqest setHTTPMethod:@"GET"];
+    
+    NSMutableURLRequest *restRequest = [self request];
+    restRequest.URL = restURL;
+    [restRequest setHTTPMethod:@"GET"];
 
     NSURLSession *session = [NSURLSession sharedSession];
-    NSURLSessionDataTask *jsonData = [session dataTaskWithRequest:restReqest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+    NSURLSessionDataTask *jsonData = [session dataTaskWithRequest:restRequest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         
         dispatch_async(dispatch_get_global_queue(0, 0), ^{
             if (!error) {
@@ -38,6 +45,7 @@ static NSString * const stringForPutRequest = @"https://api.backendless.com/v1/d
                     if (localError) {
                         NSLog(@"Error Parsing JSON %@", localError);
                     } else {
+                        
                         [self.delegate contentManager:self didDownloadContentToArray:[parsedObject valueForKey:@"data"]];
                     }
                 });
@@ -51,7 +59,7 @@ static NSString * const stringForPutRequest = @"https://api.backendless.com/v1/d
     [jsonData resume];
 }
 
-- (void)putChangesOnServer:(NSArray *)feeds {
+- (void)putChangesToServer:(NSArray *)feeds inContext:(NSManagedObjectContext *)context {
     
     dispatch_group_t putGroup = dispatch_group_create();
     
@@ -65,10 +73,8 @@ static NSString * const stringForPutRequest = @"https://api.backendless.com/v1/d
             putString = [NSString stringWithFormat:@"%@/%@", stringForPutRequest, [feed valueForKey:@"objectId"]];
         }
         NSURL *putURL = [NSURL URLWithString:putString];
-        NSMutableURLRequest *putReqest = [NSMutableURLRequest requestWithURL:putURL];
-        
-        [putReqest addValue:applicatonId forHTTPHeaderField:@"application-id"];
-        [putReqest addValue:restId forHTTPHeaderField:@"secret-key"];
+        NSMutableURLRequest *putReqest = [self request];
+        putReqest.URL = putURL;
         [putReqest addValue:applicationType forHTTPHeaderField:@"application-type"];
         [putReqest addValue:contentType forHTTPHeaderField:@"Content-Type"];
         

@@ -15,7 +15,8 @@
 - (void)authorizationManagerSessionIsValid;
 - (void)authorizationManagerSessionIsNotValid;
 - (void)authorizationManager:(AuthorizationManager *)manager hasRecievedUserToken:(NSString *)token forLogin:(NSString *)login;
-- (void)authorizationManager:(AuthorizationManager *)manager hasExecutedWithError:(NSError *)error;
+- (void)authorizationManager:(AuthorizationManager *)manager validationHasExecutedWithError:(NSError *)error;
+- (void)authorizationManager:(AuthorizationManager *)manager loginHasExecutedWithError:(NSError *)error;
 
 @end
 

@@ -22,9 +22,11 @@
 
 @interface FeedViewController () <UITableViewDelegate, UITableViewDataSource, ContentManagerDelegate, NSFetchedResultsControllerDelegate, AuthorizationManagerDelegate>
 
-@property (strong, nonatomic) IBOutlet UIBarButtonItem *activityIndicatorItem;
+@property (strong, nonatomic) NSManagedObjectContext *context;
+
 @property (strong, nonatomic) IBOutlet UIBarButtonItem *synchronizeButton;
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *addButton;
 
 @property (strong, nonatomic) NSFetchedResultsController *fetchedResultsController;
 @property (strong, nonatomic) ContentManager *contentManager;
@@ -33,8 +35,7 @@
 @property (strong, nonatomic) NSDate *lastLoginDate;
 @property (strong, nonatomic) AppDelegate *appDelegate;
 
-@property (strong, nonatomic) NSMutableArray *navigationBarItems;
-//@property (strong, nonatomic) UIActivityIndicatorView *activityIndicator;
+@property (weak, nonatomic) IBOutlet UIScrollView *scrollView;
 
 @end
 
@@ -60,9 +61,6 @@
 
     fetchedResultsController.delegate = self;
     self.fetchedResultsController = fetchedResultsController;
-
-    NSMutableArray *navigationBarItems = [self.navigationItem.rightBarButtonItems mutableCopy];
-    self.navigationBarItems = navigationBarItems;
     
     NSError *error;
     if (![self.fetchedResultsController performFetch:&error]) {
@@ -72,13 +70,12 @@
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    [self.appDelegate startThinkingInViewController:self];
-    
-//    [self.activityIndicator startAnimating];  //SMTH TO DO WHIS THIS
-    
-    [self.authManager isSessionValid];
-}
 
+    [self enableButtons:NO];
+    [self.appDelegate startThinkingInViewController:self];
+    [self.authManager isSessionValid];
+
+}
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
 }
@@ -86,35 +83,24 @@
 #pragma mark - <AuthorisationManagerDelegate>
 
 - (void)authorizationManagerSessionIsNotValid {
-
     [self.appDelegate stopThinkingInViewController:self];
-    
-//    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Log in problem"
-//                                                                             message:@"Ooops! Problem with Authorization!"
-//                                                                      preferredStyle:UIAlertControllerStyleAlert];
-//    
-//    [alertController addAction:[UIAlertAction actionWithTitle:@"Log in" style:UIAlertActionStyleDefault  handler:^(UIAlertAction * action){
-//        [self performSegueWithIdentifier:@"ShowAuthorizationController" sender:self];
-//    }]];
-//    
-//    [self presentViewController:alertController animated:NO completion:nil];
     [self performSegueWithIdentifier:@"ShowAuthorizationController" sender:self];
 }
 
 - (void)authorizationManagerSessionIsValid{
-    
+    [self enableButtons:YES];
     [self.appDelegate stopThinkingInViewController:self];
 }
 
-- (void)authorizationManager:(AuthorizationManager *)manager hasExecutedWithError:(NSError *)error {
+- (void)authorizationManager:(AuthorizationManager *)manager validationHasExecutedWithError:(NSError *)error {
     
     UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Log in problem"
-                                                                             message:[NSString stringWithFormat:@"Ooops! %@", error]
+                                                                             message:@"Ooops! Validation has exequted with error!"
                                                                       preferredStyle:UIAlertControllerStyleAlert];
     
     [alertController addAction:[UIAlertAction actionWithTitle:@"Ok" style:UIAlertActionStyleCancel handler:nil]];
     [self presentViewController:alertController animated:NO completion:nil];
-    
+    [self.appDelegate stopThinkingInViewController:self];    
 }
 
 #pragma mark - IBActions
@@ -124,21 +110,11 @@
 }
 
 - (IBAction)refresh:(UIBarButtonItem *)sender {
-    if (![self.navigationItem.rightBarButtonItems containsObject:self.activityIndicatorItem]) {
-        [self.navigationBarItems addObject:self.activityIndicatorItem];
-    }
-    [self.navigationBarItems removeObject:self.synchronizeButton];
-    [self.navigationItem setRightBarButtonItems:self.navigationBarItems animated:YES];
-    
-    UIActivityIndicatorView *activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
-    activityIndicator.color = self.view.tintColor;
-    [activityIndicator startAnimating];
-    
-    self.activityIndicatorItem.customView = activityIndicator;
+    [self enableButtons:NO];
     
     NSArray *feedsToBeUploaded = [[FeedManager sharedInstance] changedFeeds];
     if (feedsToBeUploaded.count > 0) {
-        [self.contentManager putChangesOnServer:feedsToBeUploaded];
+        [self.contentManager putChangesToServer:feedsToBeUploaded inContext:self.context];
     }
     else {
         [self.contentManager downloadContent];
@@ -151,17 +127,10 @@
 #pragma mark - <ContentManagerDelegate>
 
 - (void)contentManager:(ContentManager *)contentManager didDownloadContentToArray:(NSArray *)array {
-    [[FeedManager sharedInstance] manageObjects:array];
-    
-    [self.activityIndicatorItem.customView stopAnimating];
-    [self.navigationBarItems removeObject:self.activityIndicatorItem];
-    
-    if (![self.navigationItem.rightBarButtonItems containsObject:self.synchronizeButton]) {
-        [self.navigationBarItems addObject:self.synchronizeButton];
-    }
-    [self.navigationItem setRightBarButtonItems:self.navigationBarItems animated:YES];
-    
+    [self enableButtons:YES];
     [self.appDelegate stopThinkingInViewController:self];
+    
+    [[FeedManager sharedInstance] manageObjects:array];
 }
 
 - (void)contentManagerDidUploadObjectsToServer:(ContentManager *)contentManager {
@@ -265,6 +234,13 @@
 
 - (void)controllerDidChangeContent:(NSFetchedResultsController *)controller {
     [self.tableView endUpdates];
+}
+
+- (void)enableButtons:(BOOL)how {
+    NSArray *buttons = self.navigationItem.rightBarButtonItems;
+    for (UIBarButtonItem *button in buttons) {
+        button.enabled = how;
+    }
 }
 
 @end

@@ -53,14 +53,9 @@
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="d6W-ch-4xb">
-                                <rect key="frame" x="282" y="281" width="37" height="37"/>
-                                <color key="color" red="0.039215686274509803" green="0.37647058823529411" blue="1" alpha="1" colorSpace="calibratedRGB"/>
-                            </activityIndicatorView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="d6W-ch-4xb" firstAttribute="centerX" secondItem="VXh-Tf-4Ql" secondAttribute="centerX" id="0Z0-8c-VOj"/>
                             <constraint firstItem="tsG-Kz-Idh" firstAttribute="leading" secondItem="VXh-Tf-4Ql" secondAttribute="leadingMargin" constant="100" id="2In-ya-7py"/>
                             <constraint firstItem="dqW-cL-k25" firstAttribute="top" secondItem="nFc-JK-ggd" secondAttribute="bottom" constant="20" id="6hD-59-dzt"/>
                             <constraint firstAttribute="trailingMargin" secondItem="D7v-h8-aPI" secondAttribute="trailing" constant="80" id="BeY-fc-Okd"/>
@@ -69,7 +64,6 @@
                             <constraint firstAttribute="trailingMargin" secondItem="dqW-cL-k25" secondAttribute="trailing" constant="80" id="OgI-g4-9Hh"/>
                             <constraint firstItem="nFc-JK-ggd" firstAttribute="top" secondItem="D7v-h8-aPI" secondAttribute="bottom" constant="10" id="R53-gC-h67"/>
                             <constraint firstItem="dqW-cL-k25" firstAttribute="leading" secondItem="VXh-Tf-4Ql" secondAttribute="leadingMargin" constant="80" id="S7t-mo-44y"/>
-                            <constraint firstItem="d6W-ch-4xb" firstAttribute="centerY" secondItem="VXh-Tf-4Ql" secondAttribute="centerY" id="Sos-Fp-r7Y"/>
                             <constraint firstItem="tsG-Kz-Idh" firstAttribute="top" secondItem="L57-rh-Mcj" secondAttribute="bottom" constant="25" id="Z3o-Q3-Ysc"/>
                             <constraint firstItem="dqW-cL-k25" firstAttribute="centerY" secondItem="VXh-Tf-4Ql" secondAttribute="centerY" id="fZy-Wg-KCh"/>
                             <constraint firstAttribute="trailingMargin" secondItem="L57-rh-Mcj" secondAttribute="trailing" constant="80" id="gWk-pf-su4"/>
@@ -80,12 +74,9 @@
                             <constraint firstAttribute="trailingMargin" secondItem="tsG-Kz-Idh" secondAttribute="trailing" constant="100" id="u1V-fe-lb0"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" id="6ls-yw-zLj"/>
                     <connections>
-                        <outlet property="activityIndicator" destination="d6W-ch-4xb" id="730-JJ-09L"/>
                         <outlet property="loginButton" destination="tsG-Kz-Idh" id="tHS-D3-Trb"/>
                         <outlet property="loginTextField" destination="nFc-JK-ggd" id="cQM-dW-Xwc"/>
-                        <outlet property="navigationItem" destination="6ls-yw-zLj" id="ZUq-pp-ouw"/>
                         <outlet property="passwordTextField" destination="L57-rh-Mcj" id="zjk-9a-KqQ"/>
                     </connections>
                 </viewController>
@@ -186,6 +177,7 @@
                         </rightBarButtonItems>
                     </navigationItem>
                     <connections>
+                        <outlet property="addButton" destination="JIP-KH-RSA" id="mmp-06-jTq"/>
                         <outlet property="synchronizeButton" destination="KVE-EZ-4pM" id="gOh-YA-eJe"/>
                         <outlet property="tableView" destination="QlJ-Vr-Wh3" id="PSm-zX-wuM"/>
                         <segue destination="kd8-Za-9GW" kind="show" identifier="AddFeedSegue" id="QVV-Uf-Dl2"/>

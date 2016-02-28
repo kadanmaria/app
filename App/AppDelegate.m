@@ -17,9 +17,9 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
 
-    NSDate *lastLoginDate = [[NSDate alloc] initWithTimeIntervalSince1970:0];
+    NSDate *lastLoginDate = [NSDate dateWithTimeIntervalSince1970:0];
     self.lastLoginDate = lastLoginDate;
-    
+
     return YES;
 }
 

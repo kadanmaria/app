@@ -7,6 +7,7 @@
 //
 
 #import "AuthorizationManager.h"
+#import "AppDelegate.h"
 
 static NSString * const applicatonId = @"8D2F3524-3D1D-88BC-FF2C-536BF2717200";
 static NSString * const restId = @"A8A7BD7A-0B83-C7DC-FFA0-52D384DA6B00";
@@ -17,17 +18,22 @@ static NSString * const stringForValidatationRequest = @"https://api.backendless
 
 @implementation AuthorizationManager
 
+- (NSMutableURLRequest *)request {
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
+    [request addValue:applicatonId forHTTPHeaderField:@"application-id"];
+    [request addValue:restId forHTTPHeaderField:@"secret-key"];
+    [request addValue:applicationType forHTTPHeaderField:@"application-type"];
+    return request;
+}
+
 - (void)loginWithLogin:(NSString *)login password:(NSString *)password {
     
     NSString *loginString = stringForAuthorizationRequest;
     NSURL *loginURL = [NSURL URLWithString:loginString];
-    NSMutableURLRequest *loginRequest = [NSMutableURLRequest requestWithURL:loginURL];
-    
-    [loginRequest addValue:applicatonId forHTTPHeaderField:@"application-id"];
-    [loginRequest addValue:restId forHTTPHeaderField:@"secret-key"];
+    NSMutableURLRequest *loginRequest = [self request];
+    loginRequest.URL = loginURL;
+
     [loginRequest addValue:contentType forHTTPHeaderField:@"Content-Type"];
-    [loginRequest addValue:applicationType forHTTPHeaderField:@"application-type"];
-    
     [loginRequest setHTTPMethod:@"POST"];
     
     NSMutableDictionary *loginDict = [[NSMutableDictionary alloc] init];
@@ -49,6 +55,7 @@ static NSString * const stringForValidatationRequest = @"https://api.backendless
                         NSLog(@"Error Parsing JSON %@", localError);
                     } else {
                         if ([parsedObject valueForKey:@"user-token"]) {
+                            [(AppDelegate *)[[UIApplication sharedApplication] delegate] setLastLoginDate:[NSDate date]];
                             [self.delegate authorizationManager:self hasRecievedUserToken:[parsedObject valueForKey:@"user-token"] forLogin:login];
                         } else {
                             [self.delegate authorizationManager:self hasRecievedUserToken:nil forLogin:login];
@@ -57,8 +64,11 @@ static NSString * const stringForValidatationRequest = @"https://api.backendless
                 });
                 
             } else {
-                [self.delegate authorizationManager:self hasExecutedWithError:error];
-                NSLog(@"jsonDataTask with error %@", error);
+                dispatch_async(dispatch_get_main_queue(), ^{
+
+                    [self.delegate authorizationManager:self loginHasExecutedWithError:error];
+                    NSLog(@"jsonDataTask with error %@", error);
+                });
             }
         });
     }];
@@ -66,11 +76,19 @@ static NSString * const stringForValidatationRequest = @"https://api.backendless
 }
 
 - (void)isSessionValid {
-    NSString *token = [[NSUserDefaults standardUserDefaults] objectForKey:@"token"];
-    if (token) {
-        [self isSessionValidWithUserToken:token];
+    
+    NSDate *lastLoginDate = [(AppDelegate *)[[UIApplication sharedApplication] delegate] lastLoginDate];
+    NSDate *datePlusHour = [lastLoginDate dateByAddingTimeInterval:60*60];
+    
+    if ([lastLoginDate isEqualToDate:[NSDate dateWithTimeIntervalSince1970:0]] || [datePlusHour compare:lastLoginDate] == NSOrderedAscending) {
+        NSString *token = [[NSUserDefaults standardUserDefaults] objectForKey:@"token"];
+        if (token) {
+            [self isSessionValidWithUserToken:token];
+        } else {
+            [self.delegate authorizationManagerSessionIsNotValid];
+        }
     } else {
-        [self.delegate authorizationManagerSessionIsNotValid];
+        [self.delegate authorizationManagerSessionIsValid];
     }
 }
 
@@ -80,16 +98,15 @@ static NSString * const stringForValidatationRequest = @"https://api.backendless
     NSString *validationString = [NSString stringWithFormat:@"%@%@", stringForValidatationRequest, token];
     
     NSURL *validationURL = [NSURL URLWithString:validationString];
-    NSMutableURLRequest *validationReqest = [NSMutableURLRequest requestWithURL:validationURL];
     
-    [validationReqest addValue:applicatonId forHTTPHeaderField:@"application-id"];
-    [validationReqest addValue:restId forHTTPHeaderField:@"secret-key"];
-    [validationReqest addValue:applicationType forHTTPHeaderField:@"application-type"];
-    
-    [validationReqest setHTTPMethod:@"GET"];
+    NSMutableURLRequest *validationRequest = [self request];
+    validationRequest.URL = validationURL;
+
+    [validationRequest addValue:applicationType forHTTPHeaderField:@"application-type"];
+    [validationRequest setHTTPMethod:@"GET"];
     
     NSURLSession *session = [NSURLSession sharedSession];
-    NSURLSessionDataTask *validationTask = [session dataTaskWithRequest:validationReqest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+    NSURLSessionDataTask *validationTask = [session dataTaskWithRequest:validationRequest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         
         dispatch_async(dispatch_get_global_queue(0, 0), ^{
             if (!error) {
@@ -98,14 +115,17 @@ static NSString * const stringForValidatationRequest = @"https://api.backendless
                 
                 dispatch_async(dispatch_get_main_queue(), ^{
                     if (isValid) {
+                        [(AppDelegate *)[[UIApplication sharedApplication] delegate] setLastLoginDate:[NSDate date]];
                         [self.delegate authorizationManagerSessionIsValid];
                     } else {
                         [self.delegate authorizationManagerSessionIsNotValid];
                     }
             });
-            }else {
-                [self.delegate authorizationManager:self hasExecutedWithError:error];
-                NSLog(@"Error %@", error);
+            } else {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self.delegate authorizationManager:self validationHasExecutedWithError:error];
+                    NSLog(@"Error %@", error);
+                });
             }
             
         });

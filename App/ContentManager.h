@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <CoreData/CoreData.h>
 @class ContentManager;
 @class Feed;
 
@@ -22,6 +23,6 @@
 @property (weak, nonatomic) id <ContentManagerDelegate> delegate;
 
 - (void)downloadContent;
-- (void)putChangesOnServer:(NSArray *)feeds;
+- (void)putChangesToServer:(NSArray *)feeds inContext:(NSManagedObjectContext *)context;
 
 @end

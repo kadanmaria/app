@@ -19,9 +19,6 @@
 @property (weak, nonatomic) IBOutlet UITextField *loginTextField;
 
 @property (strong, nonatomic) AuthorizationManager *authorizationManager;
-
-@property (weak, nonatomic) IBOutlet UIActivityIndicatorView *activityIndicator;
-@property (strong, nonatomic) UIView *carpetView;
 @property (strong, nonatomic) AppDelegate *appDelegate;
 
 @end
@@ -37,11 +34,6 @@
     
     id appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     self.appDelegate = appDelegate;
-//    
-//    UIView *grayView = [[UIView alloc] initWithFrame:self.view.frame];
-//    grayView.backgroundColor = [UIColor blackColor];
-//    grayView.alpha = 0.05;
-//    self.carpetView = grayView;
 }
 
 - (void)didReceiveMemoryWarning {
@@ -58,12 +50,7 @@
         [self.loginTextField resignFirstResponder];
         [self.passwordTextField resignFirstResponder];
         
-//        self.loginButton.enabled = NO;
-////        [self.view addSubview:self.carpetView];
-////        [self.activityIndicator startAnimating];
-        
         [self.appDelegate startThinkingInViewController:self];
-    
     }
 }
 
@@ -74,14 +61,9 @@
     [self.appDelegate stopThinkingInViewController:self];
     
     if (token) {
-        self.loginButton.enabled = YES;
-        
-        NSUserDefaults *user = [NSUserDefaults standardUserDefaults];
+         NSUserDefaults *user = [NSUserDefaults standardUserDefaults];
         [user setObject:token forKey:@"token"];
         [user setObject:login forKey:@"login"];
-//        
-//        NSDate *lastLoginDate = [NSDate date];
-//        [(AppDelegate *)[[UIApplication sharedApplication] delegate] setLastLoginDate:lastLoginDate];
         
         [self dismissViewControllerAnimated:NO completion:nil];
     } else {
@@ -91,18 +73,16 @@
         
         [alertController addAction:[UIAlertAction actionWithTitle:@"Ok" style:UIAlertActionStyleCancel handler:nil]];
         [self presentViewController:alertController animated:NO completion:nil];
-        self.loginButton.enabled = YES;
     }
 }
 
-- (void)authorizationManager:(AuthorizationManager *)manager hasExecutedWithError:(NSError *)error {
+- (void)authorizationManager:(AuthorizationManager *)manager loginHasExecutedWithError:(NSError *)error {
     UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Log in problem"
-                                                                             message:@"Ooops! Error!"
+                                                                             message:@"Ooops! Loging in has executed with error!"
                                                                       preferredStyle:UIAlertControllerStyleAlert];
     
     [alertController addAction:[UIAlertAction actionWithTitle:@"Ok" style:UIAlertActionStyleCancel handler:nil]];
     [self presentViewController:alertController animated:NO completion:nil];
-    self.loginButton.enabled = YES;
 }
 
 #pragma mark - <UITextFieldDelegate>
