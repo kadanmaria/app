@@ -7,7 +7,6 @@
 //
 
 #import "AuthorizationManager.h"
-#import "AppDelegate.h"
 
 static NSString * const applicatonId = @"8D2F3524-3D1D-88BC-FF2C-536BF2717200";
 static NSString * const restId = @"A8A7BD7A-0B83-C7DC-FFA0-52D384DA6B00";
@@ -22,7 +21,6 @@ static NSString * const stringForValidatationRequest = @"https://api.backendless
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
     [request addValue:applicatonId forHTTPHeaderField:@"application-id"];
     [request addValue:restId forHTTPHeaderField:@"secret-key"];
-    [request addValue:applicationType forHTTPHeaderField:@"application-type"];
     return request;
 }
 
@@ -34,6 +32,8 @@ static NSString * const stringForValidatationRequest = @"https://api.backendless
     loginRequest.URL = loginURL;
 
     [loginRequest addValue:contentType forHTTPHeaderField:@"Content-Type"];
+    [loginRequest addValue:applicationType forHTTPHeaderField:@"application-type"];
+    
     [loginRequest setHTTPMethod:@"POST"];
     
     NSMutableDictionary *loginDict = [[NSMutableDictionary alloc] init];
@@ -52,10 +52,11 @@ static NSString * const stringForValidatationRequest = @"https://api.backendless
              
                 dispatch_async(dispatch_get_main_queue(), ^{
                     if (localError) {
-                        NSLog(@"Error Parsing JSON %@", localError);
+                        [self.delegate authorizationManager:self loginHasExecutedWithError:localError];
                     } else {
                         if ([parsedObject valueForKey:@"user-token"]) {
-                            [(AppDelegate *)[[UIApplication sharedApplication] delegate] setLastLoginDate:[NSDate date]];
+                            NSUserDefaults *user = [NSUserDefaults standardUserDefaults];
+                            [user setObject:[NSDate date] forKey:@"date"];
                             [self.delegate authorizationManager:self hasRecievedUserToken:[parsedObject valueForKey:@"user-token"] forLogin:login];
                         } else {
                             [self.delegate authorizationManager:self hasRecievedUserToken:nil forLogin:login];
@@ -65,9 +66,7 @@ static NSString * const stringForValidatationRequest = @"https://api.backendless
                 
             } else {
                 dispatch_async(dispatch_get_main_queue(), ^{
-
                     [self.delegate authorizationManager:self loginHasExecutedWithError:error];
-                    NSLog(@"jsonDataTask with error %@", error);
                 });
             }
         });
@@ -77,18 +76,23 @@ static NSString * const stringForValidatationRequest = @"https://api.backendless
 
 - (void)isSessionValid {
     
-    NSDate *lastLoginDate = [(AppDelegate *)[[UIApplication sharedApplication] delegate] lastLoginDate];
-    NSDate *datePlusHour = [lastLoginDate dateByAddingTimeInterval:60*60];
-    
-    if ([lastLoginDate isEqualToDate:[NSDate dateWithTimeIntervalSince1970:0]] || [datePlusHour compare:lastLoginDate] == NSOrderedAscending) {
-        NSString *token = [[NSUserDefaults standardUserDefaults] objectForKey:@"token"];
-        if (token) {
-            [self isSessionValidWithUserToken:token];
+    NSUserDefaults *user = [NSUserDefaults standardUserDefaults];
+    NSDate *lastLoginDate = [user valueForKey:@"date"];
+    if (lastLoginDate) {
+        NSDate *datePlusHour = [lastLoginDate dateByAddingTimeInterval:60*60];
+        
+        if ([datePlusHour compare:[NSDate date]] == NSOrderedAscending) {
+            NSString *token = [[NSUserDefaults standardUserDefaults] objectForKey:@"token"];
+            if (token) {
+                [self isSessionValidWithUserToken:token];
+            } else {
+                [self.delegate authorizationManagerSessionIsNotValid];
+            }
         } else {
-            [self.delegate authorizationManagerSessionIsNotValid];
+            [self.delegate authorizationManagerSessionIsValid];
         }
     } else {
-        [self.delegate authorizationManagerSessionIsValid];
+        [self.delegate authorizationManagerSessionIsNotValid];
     }
 }
 
@@ -115,7 +119,8 @@ static NSString * const stringForValidatationRequest = @"https://api.backendless
                 
                 dispatch_async(dispatch_get_main_queue(), ^{
                     if (isValid) {
-                        [(AppDelegate *)[[UIApplication sharedApplication] delegate] setLastLoginDate:[NSDate date]];
+                        NSUserDefaults *user = [NSUserDefaults standardUserDefaults];
+                        [user setObject:[NSDate date] forKey:@"date"];
                         [self.delegate authorizationManagerSessionIsValid];
                     } else {
                         [self.delegate authorizationManagerSessionIsNotValid];

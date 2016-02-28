@@ -18,15 +18,14 @@
 @property (weak, nonatomic) IBOutlet UITextView *titlteTextView;
 @property (weak, nonatomic) IBOutlet UITextView *subtitleTextView;
 
-@property (strong, nonatomic) IBOutlet UIScrollView *scrollView;
+
+@property (weak, nonatomic) IBOutlet UIScrollView *scrollView;
 
 @property (strong, nonatomic) IBOutlet UIBarButtonItem *editButton;
 @property (strong, nonatomic) IBOutlet UIBarButtonItem *saveButton;
 
-@property (weak, nonatomic) FeedManager *feedManager;
 @property (strong, nonatomic) NSMutableArray *navigationBarItems;
 //@property (strong, nonatomic) UIImagePickerController *imagePickerController;
-
 
 
 @end
@@ -35,7 +34,8 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-        
+    
+    self.scrollView.contentSize = CGSizeMake(self.scrollView.contentSize.width, self.scrollView.frame.size.height);
     [self.scrollView setShowsHorizontalScrollIndicator:NO];
     
     NSMutableArray *navigationBarItems = [self.navigationItem.rightBarButtonItems mutableCopy];
@@ -62,6 +62,12 @@
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+//    self.scrollView.contentSize = CGSizeMake(self.scrollView.contentSize.width, self.scrollView.frame.size.height);
 }
 
 #pragma mark - IBActions
@@ -93,7 +99,7 @@
     [self.navigationBarItems addObject:self.editButton];
     [self.navigationItem setRightBarButtonItems:self.navigationBarItems animated:YES];
     
-    [self.feedManager updateOrAddFeed:self.feed accordingToChangedTitle:self.titlteTextView.text subtitle:self.subtitleTextView.text];
+    [[FeedManager sharedInstance] updateOrAddFeed:self.feed accordingToChangedTitle:self.titlteTextView.text subtitle:self.subtitleTextView.text];
     [self.navigationController popViewControllerAnimated:YES];
 }
 

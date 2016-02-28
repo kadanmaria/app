@@ -15,6 +15,7 @@
 
 - (void)contentManager:(ContentManager *)contentManager didDownloadContentToArray:(NSArray *)array;
 - (void)contentManagerDidUploadObjectsToServer:(ContentManager *)contentManager;
+- (void)contentManager:(ContentManager *)contentManager hasExecutedWithError:(NSError *)error;
 
 @end
 
@@ -23,6 +24,6 @@
 @property (weak, nonatomic) id <ContentManagerDelegate> delegate;
 
 - (void)downloadContent;
-- (void)putChangesToServer:(NSArray *)feeds inContext:(NSManagedObjectContext *)context;
+- (void)putChangesToServer;
 
 @end

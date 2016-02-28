@@ -31,11 +31,8 @@
 @property (strong, nonatomic) NSFetchedResultsController *fetchedResultsController;
 @property (strong, nonatomic) ContentManager *contentManager;
 @property (strong, nonatomic) AuthorizationManager *authManager;
-@property (strong, nonatomic) NSString *userToken;
-@property (strong, nonatomic) NSDate *lastLoginDate;
 @property (strong, nonatomic) AppDelegate *appDelegate;
 
-@property (weak, nonatomic) IBOutlet UIScrollView *scrollView;
 
 @end
 
@@ -112,13 +109,13 @@
 - (IBAction)refresh:(UIBarButtonItem *)sender {
     [self enableButtons:NO];
     
-    NSArray *feedsToBeUploaded = [[FeedManager sharedInstance] changedFeeds];
-    if (feedsToBeUploaded.count > 0) {
-        [self.contentManager putChangesToServer:feedsToBeUploaded inContext:self.context];
-    }
-    else {
-        [self.contentManager downloadContent];
-    }
+//    NSArray *feedsToBeUploaded = [[FeedManager sharedInstance] changedFeeds];
+//    if (feedsToBeUploaded.count > 0) {
+        [self.contentManager putChangesToServer];
+//    }
+//    else {
+//        [self.contentManager downloadContent];
+//    }
     
     [self.appDelegate startThinkingInViewController:self];
 }
@@ -135,6 +132,10 @@
 
 - (void)contentManagerDidUploadObjectsToServer:(ContentManager *)contentManager {
     [self.contentManager downloadContent];
+}
+
+- (void)contentManager:(ContentManager *)contentManager hasExecutedWithError:(NSError *)error {
+    NSLog(@"ERROR");
 }
 
 #pragma mark - <TableViewDataSourse>

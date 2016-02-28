@@ -11,9 +11,6 @@
 
 @interface FeedManager ()
 
-@property (strong, nonatomic) NSManagedObjectContext *backgroundContext;
-@property (strong, nonatomic) NSManagedObjectContext *mainContext;
-
 @end
 
 @implementation FeedManager
@@ -258,56 +255,27 @@
             NSError *savingMainContextError = nil;
             if (![mainContext save:&savingMainContextError]) {
                 NSLog(@"Unresolved error %@, %@", savingMainContextError, [savingMainContextError userInfo]);
-            } else {
-                NSLog(@"Saved seccessfull");
-            }
+            } 
         }];
     }];
 }
 
-- (NSArray *)changedFeeds {
-    NSManagedObjectContext *mainContext = [self mainContext];
+- (NSArray *)changedFeedsInContext:(NSManagedObjectContext *)context {
     
-    NSEntityDescription *entity = [NSEntityDescription entityForName:@"Feed" inManagedObjectContext:mainContext];
+    NSEntityDescription *entity = [NSEntityDescription entityForName:@"Feed" inManagedObjectContext:context];
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"hasChanged == YES"];
     fetchRequest.predicate = predicate;
     [fetchRequest setEntity:entity];
         
     NSError *error;
-    NSArray *fetchedFeeds = [mainContext executeFetchRequest:fetchRequest error:&error];
+    NSArray *fetchedFeeds = [context executeFetchRequest:fetchRequest error:&error];
     if (error) {
         NSLog(@"Error fetching data %@, %@", error, [error userInfo]);
-    }
-    
-    [self setHasChangedValueToNo:fetchedFeeds];
-    
+    }    
     return fetchedFeeds;
 }
 
-- (void)setHasChangedValueToNo:(NSArray *)objects {
-    NSManagedObjectContext *backgroundContext = [self backgroundContext];
-    NSManagedObjectContext *mainContext = [self mainContext];
-    
-    [backgroundContext performBlock:^{
-        
-        for (Feed *feed in objects) {
-            feed.hasChanged = [NSNumber numberWithBool:NO];
-        }
-        
-        NSError *savingBackgroundContextError = nil;
-        if (![backgroundContext save:&savingBackgroundContextError]) {
-            NSLog(@"Unresolved error %@, %@", savingBackgroundContextError, [savingBackgroundContextError userInfo]);
-        }
-    
-        [mainContext performBlock:^{
-            NSError *savingMainContextError = nil;
-            if (![mainContext save:&savingMainContextError]) {
-                NSLog(@"Unresolved error %@, %@", savingMainContextError, [savingMainContextError userInfo]);
-            }
-        }];
-        
-    }];
-}
+
 
 @end

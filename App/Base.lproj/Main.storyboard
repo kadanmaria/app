@@ -144,7 +144,7 @@
                                             <outlet property="photoImageView" destination="dsi-gy-c52" id="ypd-Nn-ljH"/>
                                             <outlet property="subTitleLabel" destination="He7-nK-Qcl" id="aNT-Ca-ret"/>
                                             <outlet property="titleLabel" destination="pWm-LZ-eBr" id="tTv-wT-WiX"/>
-                                            <segue destination="kd8-Za-9GW" kind="show" identifier="CellFeedSegue" id="Z3O-M2-ubw"/>
+                                            <segue destination="MZJ-gz-b2V" kind="show" identifier="AddFeedSegue" id="NlS-Xe-nww"/>
                                         </connections>
                                     </tableViewCell>
                                 </prototypes>
@@ -180,7 +180,6 @@
                         <outlet property="addButton" destination="JIP-KH-RSA" id="mmp-06-jTq"/>
                         <outlet property="synchronizeButton" destination="KVE-EZ-4pM" id="gOh-YA-eJe"/>
                         <outlet property="tableView" destination="QlJ-Vr-Wh3" id="PSm-zX-wuM"/>
-                        <segue destination="kd8-Za-9GW" kind="show" identifier="AddFeedSegue" id="QVV-Uf-Dl2"/>
                         <segue destination="8OP-Lq-CAL" kind="presentation" identifier="ShowAuthorizationController" animates="NO" id="0dS-af-SQd"/>
                     </connections>
                 </viewController>
@@ -196,11 +195,11 @@
                         <viewControllerLayoutGuide type="top" id="Tjm-yI-tqr"/>
                         <viewControllerLayoutGuide type="bottom" id="vRl-2e-ZPc"/>
                     </layoutGuides>
-                    <view key="view" contentMode="scaleToFill" layoutMarginsFollowReadableWidth="YES" id="AfR-TC-vQh" customClass="UIScrollView">
+                    <view key="view" contentMode="scaleAspectFit" layoutMarginsFollowReadableWidth="YES" id="AfR-TC-vQh" userLabel="View" customClass="UIScrollView">
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="placeholderImage" translatesAutoresizingMaskIntoConstraints="NO" id="4jH-qA-Qzm">
+                            <imageView userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" image="placeholderImage" translatesAutoresizingMaskIntoConstraints="NO" id="4jH-qA-Qzm">
                                 <rect key="frame" x="25" y="144" width="550" height="391"/>
                             </imageView>
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" text="Write your story here" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="24S-D1-gcw">
@@ -209,7 +208,7 @@
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences" enablesReturnKeyAutomatically="YES"/>
                             </textView>
-                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" editable="NO" text="Write you title here" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="p50-jC-SbN">
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" misplaced="YES" scrollEnabled="NO" editable="NO" text="Write you title here" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="p50-jC-SbN">
                                 <rect key="frame" x="25" y="89" width="550" height="30"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="30" id="3QR-f0-S7h"/>
@@ -233,6 +232,36 @@
                             <constraint firstAttribute="trailing" secondItem="24S-D1-gcw" secondAttribute="trailing" constant="25" id="zm9-ZT-IWc"/>
                         </constraints>
                     </view>
+                    <connections>
+                        <outlet property="editButton" destination="VfI-BR-ZfN" id="Qhg-9t-eTc"/>
+                        <outlet property="photoImageView" destination="4jH-qA-Qzm" id="M44-pd-zja"/>
+                        <outlet property="saveButton" destination="8b9-QW-eRe" id="PLm-iO-eUJ"/>
+                        <outlet property="subtitleTextView" destination="24S-D1-gcw" id="u0D-nV-4tb"/>
+                        <outlet property="titlteTextView" destination="p50-jC-SbN" id="Izn-4U-mng"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="g2n-ho-AaK" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1051" y="419"/>
+        </scene>
+        <!--Detail Feed View Controller-->
+        <scene sceneID="U5i-RD-Xmj">
+            <objects>
+                <viewController id="MZJ-gz-b2V" customClass="DetailFeedViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="ChD-84-LVK"/>
+                        <viewControllerLayoutGuide type="bottom" id="RvJ-fl-chJ"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="AU3-Zn-b5X">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Jdd-Ti-cbx">
+                                <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                            </scrollView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
                     <navigationItem key="navigationItem" id="w53-ZQ-FOG">
                         <rightBarButtonItems>
                             <barButtonItem systemItem="edit" id="VfI-BR-ZfN">
@@ -248,17 +277,12 @@
                         </rightBarButtonItems>
                     </navigationItem>
                     <connections>
-                        <outlet property="editButton" destination="VfI-BR-ZfN" id="Qhg-9t-eTc"/>
-                        <outlet property="photoImageView" destination="4jH-qA-Qzm" id="M44-pd-zja"/>
-                        <outlet property="saveButton" destination="8b9-QW-eRe" id="PLm-iO-eUJ"/>
-                        <outlet property="scrollView" destination="AfR-TC-vQh" id="Z89-kO-onE"/>
-                        <outlet property="subtitleTextView" destination="24S-D1-gcw" id="u0D-nV-4tb"/>
-                        <outlet property="titlteTextView" destination="p50-jC-SbN" id="Izn-4U-mng"/>
+                        <outlet property="scrollView" destination="Jdd-Ti-cbx" id="aWY-pW-aYu"/>
                     </connections>
                 </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="g2n-ho-AaK" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dlz-ZX-edd" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1051" y="419"/>
+            <point key="canvasLocation" x="1053" y="1083"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="aT3-mW-O1Q">
@@ -280,7 +304,4 @@
     <resources>
         <image name="placeholderImage" width="512" height="512"/>
     </resources>
-    <inferredMetricsTieBreakers>
-        <segue reference="Z3O-M2-ubw"/>
-    </inferredMetricsTieBreakers>
 </document>

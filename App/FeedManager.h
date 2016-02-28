@@ -13,12 +13,13 @@
 @interface FeedManager : NSObject
 
 @property (strong, nonatomic) NSFetchedResultsController *fetchedResultsController;
+@property (strong, nonatomic) NSManagedObjectContext *backgroundContext;
+@property (strong, nonatomic) NSManagedObjectContext *mainContext;
 
 + (instancetype)sharedInstance;
 - (void)initializeCoreData;
 
 - (void)manageObjects:(NSArray *)objects;
 - (void)updateOrAddFeed:(Feed *)feed accordingToChangedTitle:(NSString *)title subtitle:(NSString *)subtitle;
-- (NSArray *)changedFeeds;
-
+- (NSArray *)changedFeedsInContext:(NSManagedObjectContext *)context;
 @end

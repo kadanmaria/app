@@ -43,15 +43,14 @@
 #pragma mark - IBActions
 
 - (IBAction)login:(id)sender {
-    if (self.loginButton.isEnabled) {
-        [self.authorizationManager loginWithLogin:self.loginTextField.text password:self.passwordTextField.text];
-   //     [self.authorizationManager loginWithLogin:@"user" password:@"user"];
+    //    [self.authorizationManager loginWithLogin:self.loginTextField.text password:self.passwordTextField.text];
+        [self.authorizationManager loginWithLogin:@"user" password:@"user"];
         
         [self.loginTextField resignFirstResponder];
         [self.passwordTextField resignFirstResponder];
         
         [self.appDelegate startThinkingInViewController:self];
-    }
+    
 }
 
 #pragma mark - <AuthorizationManagerDelegate>
@@ -62,6 +61,7 @@
     
     if (token) {
          NSUserDefaults *user = [NSUserDefaults standardUserDefaults];
+        
         [user setObject:token forKey:@"token"];
         [user setObject:login forKey:@"login"];
         

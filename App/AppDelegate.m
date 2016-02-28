@@ -16,10 +16,6 @@
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-
-    NSDate *lastLoginDate = [NSDate dateWithTimeIntervalSince1970:0];
-    self.lastLoginDate = lastLoginDate;
-
     return YES;
 }
 
