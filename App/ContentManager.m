@@ -113,12 +113,12 @@ static NSString * const stringForPutRequest = @"https://api.backendless.com/v1/d
                             } else {
                                 feed.hasChanged = [NSNumber numberWithBool:NO];
                             }
-                            dispatch_group_leave(putGroup);//GOVNO
                         });
                         
                     } else {
-                         [self.delegate contentManager:self hasExecutedWithError:error];
+                        uploadingError = error;
                     }
+                    dispatch_group_leave(putGroup);
                 }];
                 [putTask resume];
             }
@@ -141,6 +141,8 @@ static NSString * const stringForPutRequest = @"https://api.backendless.com/v1/d
                     NSLog(@"Unresolved error %@, %@", savingMainContextError, [savingMainContextError userInfo]);
                 }
             }];
+        } else {
+            [self.delegate contentManagerDidUploadObjectsToServer:self];
         }
     }];
 }

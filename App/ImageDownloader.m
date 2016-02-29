@@ -78,7 +78,7 @@ static NSString * const stringForURLRequest = @"https://api.backendless.com/v1/f
     
     
     NSURLSession *session = [NSURLSession sharedSession];
-    NSURLSessionUploadTask *uploadTask = [session uploadTaskWithRequest:request fromData:dataToUpload completionHandler:                                        ^(NSData *data, NSURLResponse *response, NSError *error) {
+    NSURLSessionUploadTask *uploadTask = [session uploadTaskWithRequest:request fromData:dataToUpload completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         
         dispatch_async(dispatch_get_global_queue(0, 0), ^{
             NSLog(@"%@", response);
