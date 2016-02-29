@@ -18,9 +18,6 @@
 @property (weak, nonatomic) IBOutlet UITextView *titlteTextView;
 @property (weak, nonatomic) IBOutlet UITextView *subtitleTextView;
 
-
-@property (weak, nonatomic) IBOutlet UIScrollView *scrollView;
-
 @property (strong, nonatomic) IBOutlet UIBarButtonItem *editButton;
 @property (strong, nonatomic) IBOutlet UIBarButtonItem *saveButton;
 
@@ -130,9 +127,7 @@
     self.titlteTextView.editable = NO;
     self.subtitleTextView.editable = NO;
     
-    [self.navigationBarItems removeObject:self.saveButton];
-    [self.navigationBarItems addObject:self.editButton];
-    [self.navigationItem setRightBarButtonItems:self.navigationBarItems animated:YES];
+    [self showEditButton];
     
     [[FeedManager sharedInstance] updateOrAddFeed:self.feed accordingToChangedTitle:self.titlteTextView.text subtitle:self.subtitleTextView.text];
     [self.navigationController popViewControllerAnimated:YES];

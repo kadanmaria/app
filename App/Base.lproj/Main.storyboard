@@ -206,20 +206,20 @@
                                 <subviews>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="kyX-pA-Feu">
                                         <rect key="frame" x="0.0" y="0.0" width="300" height="300"/>
+                                        <color key="backgroundColor" red="0.80000001192092896" green="0.80000001192092896" blue="0.80000001192092896" alpha="1" colorSpace="calibratedRGB"/>
                                         <constraints>
                                             <constraint firstAttribute="width" secondItem="kyX-pA-Feu" secondAttribute="height" multiplier="1:1" id="Mi4-2Y-T02"/>
                                         </constraints>
                                     </imageView>
-                                    <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" editable="NO" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="sxR-IE-V6h">
-                                        <rect key="frame" x="0.0" y="338" width="300" height="234"/>
-                                        <string key="text">Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.</string>
+                                    <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" editable="NO" text="Write your text here" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="sxR-IE-V6h">
+                                        <rect key="frame" x="0.0" y="338" width="300" height="33"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                         <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                                     </textView>
-                                    <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" editable="NO" text="Title text view" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="CuZ-is-LAn">
+                                    <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" bounces="NO" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" editable="NO" text="Title text view" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="CuZ-is-LAn">
                                         <rect key="frame" x="0.0" y="300" width="300" height="38"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="18"/>
-                                        <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                                        <fontDescription key="fontDescription" type="italicSystem" pointSize="18"/>
+                                        <textInputTraits key="textInputTraits" autocapitalizationType="sentences" returnKeyType="next" enablesReturnKeyAutomatically="YES"/>
                                     </textView>
                                 </subviews>
                                 <constraints>
@@ -267,7 +267,6 @@
                         <outlet property="editButton" destination="VfI-BR-ZfN" id="Qhg-9t-eTc"/>
                         <outlet property="photoImageView" destination="kyX-pA-Feu" id="xMk-Qj-4xT"/>
                         <outlet property="saveButton" destination="8b9-QW-eRe" id="PLm-iO-eUJ"/>
-                        <outlet property="scrollView" destination="lND-19-ReG" id="1On-hd-6Rj"/>
                         <outlet property="subtitleTextView" destination="sxR-IE-V6h" id="wl2-LP-yb0"/>
                         <outlet property="titlteTextView" destination="CuZ-is-LAn" id="Phq-6f-8Vn"/>
                     </connections>

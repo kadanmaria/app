@@ -150,18 +150,18 @@
         }
         
         NSError *savingBackgroundContextError = nil;
-        if (![backgroundContext save:&savingBackgroundContextError]) {
+        if ([backgroundContext save:&savingBackgroundContextError]) {
+            [mainContext performBlock:^{
+                NSError *savingMainContextError = nil;
+                if (![mainContext save:&savingMainContextError]) {
+                    NSLog(@"Unresolved error %@, %@", savingMainContextError, [savingMainContextError userInfo]);
+                }
+            }];
+        } else {
             NSLog(@"Unresolved error %@, %@", savingBackgroundContextError, [savingBackgroundContextError userInfo]);
         }
-        
-        [mainContext performBlock:^{
-            NSError *savingMainContextError = nil;
-            if (![mainContext save:&savingMainContextError]) {
-                NSLog(@"Unresolved error %@, %@", savingMainContextError, [savingMainContextError userInfo]);
-            }
-        }];
-        
     }];
+    
 }
 
 - (void)deleteObject:(NSManagedObject *)object {
@@ -227,11 +227,11 @@
             if (![feedFromCoreData.title isEqualToString:title]) {
                 [feedFromCoreData setValue:title forKey:@"title"];
                 NSLog(@"TITLE %@ CHANGED To %@", feedFromCoreData.title, title);
-                [feedFromCoreData setValue:[NSNumber numberWithBool:TRUE] forKey:@"hasChanged"];
+                [feedFromCoreData setValue:@YES forKey:@"hasChanged"];
             }
             if (![feedFromCoreData.subtitle isEqualToString:subtitle]) {
                 [feedFromCoreData setValue:subtitle forKey:@"subtitle"];
-                [feedFromCoreData setValue:[NSNumber numberWithBool:TRUE] forKey:@"hasChanged"];
+                [feedFromCoreData setValue:@YES forKey:@"hasChanged"];
             }
     //        if (![feedFromCoreData.imageName isEqualToString:imageName]) {
     //            [feedFromCoreData setValue:imageName forKey:@"imageName"];
@@ -239,7 +239,7 @@
         } else {
             NSDictionary *object = @{ @"title"     : title,
                                       @"subtitle"  : subtitle,
-                                      @"hasChanged": [NSNumber numberWithBool:TRUE],
+                                      @"hasChanged": @YES,
                                       @"objectId"  : @"temporaryId",
                                       @"imageName" : @"http://i2.wp.com/www.wompcav.com/wp-content/uploads/2014/04/default-placeholder.png?fit=1024%2C1024"
                                       };
@@ -247,16 +247,16 @@
         }
         
         NSError *savingBackgroundContextError = nil;
-        if (![backgroundContext save:&savingBackgroundContextError]) {
+        if ([backgroundContext save:&savingBackgroundContextError]) {
+            [mainContext performBlock:^{
+                NSError *savingMainContextError = nil;
+                if (![mainContext save:&savingMainContextError]) {
+                    NSLog(@"Unresolved error %@, %@", savingMainContextError, [savingMainContextError userInfo]);
+                }
+            }];
+        } else {
             NSLog(@"Unresolved error %@, %@", savingBackgroundContextError, [savingBackgroundContextError userInfo]);
         }
-        
-        [mainContext performBlock:^{
-            NSError *savingMainContextError = nil;
-            if (![mainContext save:&savingMainContextError]) {
-                NSLog(@"Unresolved error %@, %@", savingMainContextError, [savingMainContextError userInfo]);
-            } 
-        }];
     }];
 }
 

@@ -108,16 +108,9 @@
 
 - (IBAction)refresh:(UIBarButtonItem *)sender {
     [self enableButtons:NO];
-    
-//    NSArray *feedsToBeUploaded = [[FeedManager sharedInstance] changedFeeds];
-//    if (feedsToBeUploaded.count > 0) {
-        [self.contentManager putChangesToServer];
-//    }
-//    else {
-//        [self.contentManager downloadContent];
-//    }
-    
     [self.appDelegate startThinkingInViewController:self];
+    
+    [self.contentManager putChangesToServer];
 }
 
 
@@ -135,7 +128,7 @@
 }
 
 - (void)contentManager:(ContentManager *)contentManager hasExecutedWithError:(NSError *)error {
-    NSLog(@"ERROR");
+    NSLog(@"contentManager hasExecutedWithError %@", error);
 }
 
 #pragma mark - <TableViewDataSourse>
