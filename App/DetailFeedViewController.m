@@ -12,7 +12,9 @@
 #import "FeedManager.h"
 #import "FeedViewController.h"
 
-@interface DetailFeedViewController () <UITextViewDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate>
+@interface DetailFeedViewController () <UITextViewDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIScrollViewDelegate>
+
+@property (weak, nonatomic) IBOutlet UIScrollView *scrollView;
 
 @property (weak, nonatomic) IBOutlet UIImageView *photoImageView;
 @property (weak, nonatomic) IBOutlet UITextView *titlteTextView;
@@ -23,7 +25,7 @@
 
 @property (strong, nonatomic) NSMutableArray *navigationBarItems;
 @property (strong, nonatomic) UIImagePickerController *imagePickerController;
-
+@property (strong, nonatomic) UITextView *activeTextView;
 
 @end
 
@@ -33,6 +35,10 @@
     [super viewDidLoad];
     
     [self showEditButton];
+    [self registerForKeyboardNotifications];
+    
+    UITextView *tempTextView = [[UITextView alloc] init];
+    self.activeTextView = tempTextView;
     
     self.titlteTextView.delegate = self;
     self.subtitleTextView.delegate = self;
@@ -48,6 +54,34 @@
             self.photoImageView.image = image;
         }];
     }
+}
+
+- (void)registerForKeyboardNotifications {
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWasShown:) name:UIKeyboardDidShowNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillBeHidden:) name:UIKeyboardDidHideNotification object:nil];
+}
+
+- (void)keyboardWasShown:(NSNotification *)notification {
+    NSDictionary *info = [notification userInfo];
+    CGSize keyboardSize = [[info objectForKey:UIKeyboardFrameBeginUserInfoKey] CGRectValue].size;
+    
+    UIEdgeInsets contentInsets = UIEdgeInsetsMake(0.0, 0.0, keyboardSize.height, 0.0);
+    self.scrollView.contentInset = contentInsets;
+    self.scrollView.scrollIndicatorInsets = contentInsets;
+    
+    #pragma TODO:active field to be scrolled up
+    CGRect rect = self.view.frame;
+    rect.size.height -= keyboardSize.height;
+    id frame = [self.activeTextView valueForKey:@"frame"];
+    if (!CGRectContainsPoint(rect, self.activeTextView.frame.origin)) {
+        [self.scrollView scrollRectToVisible:self.activeTextView.frame animated:YES];
+    }
+}
+
+- (void)keyboardWillBeHidden:(NSNotification *)notification {
+    UIEdgeInsets contentInsets = UIEdgeInsetsZero;
+    self.scrollView.contentInset = contentInsets;
+    self.scrollView.scrollIndicatorInsets = contentInsets;
 }
 
 - (void)tapOnPhotoDetected {
@@ -146,6 +180,15 @@
         return NO;
     }
     return YES;
+}
+
+- (void)textViewDidBeginEditing:(UITextView *)textView {
+    self.activeTextView = textView;
+  
+}
+
+- (void)textViewDidEndEditing:(UITextView *)textView {
+    self.activeTextView = nil;
 }
 
 - (void)showSaveButton {

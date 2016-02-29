@@ -267,6 +267,7 @@
                         <outlet property="editButton" destination="VfI-BR-ZfN" id="Qhg-9t-eTc"/>
                         <outlet property="photoImageView" destination="kyX-pA-Feu" id="xMk-Qj-4xT"/>
                         <outlet property="saveButton" destination="8b9-QW-eRe" id="PLm-iO-eUJ"/>
+                        <outlet property="scrollView" destination="lND-19-ReG" id="aIu-Xh-inM"/>
                         <outlet property="subtitleTextView" destination="sxR-IE-V6h" id="wl2-LP-yb0"/>
                         <outlet property="titlteTextView" destination="CuZ-is-LAn" id="Phq-6f-8Vn"/>
                     </connections>
