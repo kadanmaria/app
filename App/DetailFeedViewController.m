@@ -95,7 +95,7 @@
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary<NSString *,id> *)info {
     UIImage *image = [info valueForKey:UIImagePickerControllerOriginalImage];
-    [ImageDownloader uploadImage:UIImageJPEGRepresentation(image, 0.0)];
+    [ImageDownloader uploadImage:UIImageJPEGRepresentation(image, 1.0)];
     
     [self dismissViewControllerAnimated:YES completion:NULL];
     self.photoImageView.image = image;
