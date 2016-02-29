@@ -35,9 +35,6 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    self.scrollView.contentSize = CGSizeMake(self.scrollView.contentSize.width, self.scrollView.frame.size.height);
-    [self.scrollView setShowsHorizontalScrollIndicator:NO];
-    
     NSMutableArray *navigationBarItems = [self.navigationItem.rightBarButtonItems mutableCopy];
     self.navigationBarItems = navigationBarItems;
     [self.navigationBarItems removeObject:self.saveButton];
@@ -45,6 +42,10 @@
     
     self.titlteTextView.delegate = self;
     self.subtitleTextView.delegate = self;
+    
+    UITapGestureRecognizer *singleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapDetected)];
+    singleTap.numberOfTapsRequired = 1;
+    [self.photoImageView addGestureRecognizer:singleTap];
     
     if (self.feed) {
         self.titlteTextView.text = self.feed.title;
@@ -57,6 +58,10 @@
         self.titlteTextView.textColor = [UIColor lightGrayColor];
         self.subtitleTextView.textColor = [UIColor lightGrayColor];
     }
+}
+
+- (void)tapDetected {
+    NSLog(@"Tap detected");
 }
 
 - (void)didReceiveMemoryWarning {
@@ -75,6 +80,8 @@
 - (IBAction)editFeed:(id)sender {    
     self.titlteTextView.editable = YES;
     self.subtitleTextView.editable = YES;
+    [self.photoImageView setUserInteractionEnabled:YES];
+    
     self.titlteTextView.textColor = [UIColor blackColor];
     
     if (self.feed) {

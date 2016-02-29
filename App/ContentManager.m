@@ -68,81 +68,80 @@ static NSString * const stringForPutRequest = @"https://api.backendless.com/v1/d
     NSManagedObjectContext *mainContext = [[FeedManager sharedInstance] mainContext];
 
     [backgroundContext performBlock:^{
-        
-        dispatch_group_t putGroup = dispatch_group_create();
-        
+        __block NSError *uploadingError = nil;
         NSArray *feeds = [[FeedManager sharedInstance] changedFeedsInContext:backgroundContext];
         
-        for (Feed *feed in feeds) {
+        if (feeds.count > 0) {
+            dispatch_group_t putGroup = dispatch_group_create();
             
-            NSString *putString = [[NSString alloc] init];
-            
-            if ([[feed valueForKey:@"objectId"] isEqualToString:@"temporaryId"]) {
-                putString = stringForPutRequest;
-            } else {
-                putString = [NSString stringWithFormat:@"%@/%@", stringForPutRequest, [feed valueForKey:@"objectId"]];
-            }
-            NSURL *putURL = [NSURL URLWithString:putString];
-            NSMutableURLRequest *putReqest = [self request];
-            putReqest.URL = putURL;
-            [putReqest addValue:applicationType forHTTPHeaderField:@"application-type"];
-            [putReqest addValue:contentType forHTTPHeaderField:@"Content-Type"];
-            
-            if ([[feed valueForKey:@"objectId"] isEqualToString:@"temporaryId"]) {
-                NSUserDefaults *user = [NSUserDefaults standardUserDefaults];
-                [putReqest addValue:[user valueForKey:@"token"] forHTTPHeaderField:@"user-token"];
-            }
-            
-            NSMutableDictionary *putBodyDictionary = [[NSMutableDictionary alloc] init];
-            [putBodyDictionary setObject:[feed valueForKey:@"title"] forKey:@"title"];
-            [putBodyDictionary setObject:[feed valueForKey:@"subtitle"] forKey:@"subtitle"];
-            [putBodyDictionary setObject:[feed valueForKey:@"imageName"] forKey:@"imageName"];
-            
-            NSData *putBody = [NSJSONSerialization dataWithJSONObject:putBodyDictionary options:0 error:0];
-            [putReqest setHTTPBody:putBody];
-            
-            [putReqest setHTTPMethod:@"PUT"];
-            
-            dispatch_group_enter(putGroup);
-            NSURLSessionDataTask *putTask = [[NSURLSession sharedSession] dataTaskWithRequest:putReqest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-                if (!error) {
-                    
-                    dispatch_async(dispatch_get_global_queue(0, 0), ^{
-                        if (error) {
-                            
-                            dispatch_group_notify(putGroup, dispatch_get_main_queue(), ^{
-                                [self.delegate contentManager:self hasExecutedWithError:error];
-                            });
-                            
-                        } else {
-                            feed.hasChanged = [NSNumber numberWithBool:NO];
-                        }
-                        dispatch_group_leave(putGroup);//GOVNO
-                    });
-                    
+            for (Feed *feed in feeds) {
+                NSString *putString = [[NSString alloc] init];
+                
+                if ([[feed valueForKey:@"objectId"] isEqualToString:@"temporaryId"]) {
+                    putString = stringForPutRequest;
                 } else {
-                     [self.delegate contentManager:self hasExecutedWithError:error];
+                    putString = [NSString stringWithFormat:@"%@/%@", stringForPutRequest, [feed valueForKey:@"objectId"]];
+                }
+                NSURL *putURL = [NSURL URLWithString:putString];
+                NSMutableURLRequest *putReqest = [self request];
+                putReqest.URL = putURL;
+                [putReqest addValue:applicationType forHTTPHeaderField:@"application-type"];
+                [putReqest addValue:contentType forHTTPHeaderField:@"Content-Type"];
+                
+                if ([[feed valueForKey:@"objectId"] isEqualToString:@"temporaryId"]) {
+                    NSUserDefaults *user = [NSUserDefaults standardUserDefaults];
+                    [putReqest addValue:[user valueForKey:@"token"] forHTTPHeaderField:@"user-token"];
+                }
+                
+                NSMutableDictionary *putBodyDictionary = [[NSMutableDictionary alloc] init];
+                [putBodyDictionary setObject:[feed valueForKey:@"title"] forKey:@"title"];
+                [putBodyDictionary setObject:[feed valueForKey:@"subtitle"] forKey:@"subtitle"];
+                [putBodyDictionary setObject:[feed valueForKey:@"imageName"] forKey:@"imageName"];
+                
+                NSData *putBody = [NSJSONSerialization dataWithJSONObject:putBodyDictionary options:0 error:0];
+                [putReqest setHTTPBody:putBody];
+                
+                [putReqest setHTTPMethod:@"PUT"];
+                
+                dispatch_group_enter(putGroup);
+                NSURLSessionDataTask *putTask = [[NSURLSession sharedSession] dataTaskWithRequest:putReqest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+                    if (!error) {
+                        
+                        dispatch_async(dispatch_get_global_queue(0, 0), ^{
+                            if (error) {
+                                uploadingError = error;
+                            } else {
+                                feed.hasChanged = [NSNumber numberWithBool:NO];
+                            }
+                            dispatch_group_leave(putGroup);//GOVNO
+                        });
+                        
+                    } else {
+                         [self.delegate contentManager:self hasExecutedWithError:error];
+                    }
+                }];
+                [putTask resume];
+            }
+            if (!uploadingError) {
+                dispatch_group_notify(putGroup, dispatch_get_main_queue(), ^{
+                    [self.delegate contentManagerDidUploadObjectsToServer:self];
+                });
+            } else {
+                [self.delegate contentManager:self hasExecutedWithError:uploadingError];
+            }
+            
+            NSError *savingBackgroundContextError = nil;
+            if (![backgroundContext save:&savingBackgroundContextError]) {
+                NSLog(@"Unresolved error %@, %@", savingBackgroundContextError, [savingBackgroundContextError userInfo]);
+            }
+            
+            [mainContext performBlock:^{
+                NSError *savingMainContextError = nil;
+                if (![mainContext save:&savingMainContextError]) {
+                    NSLog(@"Unresolved error %@, %@", savingMainContextError, [savingMainContextError userInfo]);
                 }
             }];
-            [putTask resume];
         }
-        
-        dispatch_group_notify(putGroup, dispatch_get_main_queue(), ^{
-            [self.delegate contentManagerDidUploadObjectsToServer:self];
-        });
-        
-        NSError *savingBackgroundContextError = nil;
-        if (![backgroundContext save:&savingBackgroundContextError]) {
-            NSLog(@"Unresolved error %@, %@", savingBackgroundContextError, [savingBackgroundContextError userInfo]);
-        }
-        
-        [mainContext performBlock:^{
-            NSError *savingMainContextError = nil;
-            if (![mainContext save:&savingMainContextError]) {
-                NSLog(@"Unresolved error %@, %@", savingMainContextError, [savingMainContextError userInfo]);
-            }
-        }];
-        
     }];
 }
 
