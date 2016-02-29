@@ -12,7 +12,7 @@
 #import "FeedManager.h"
 #import "FeedViewController.h"
 
-@interface DetailFeedViewController () <UITextViewDelegate, UIImagePickerControllerDelegate, UITextViewDelegate>
+@interface DetailFeedViewController () <UITextViewDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate>
 
 @property (weak, nonatomic) IBOutlet UIImageView *photoImageView;
 @property (weak, nonatomic) IBOutlet UITextView *titlteTextView;
@@ -35,10 +35,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    NSMutableArray *navigationBarItems = [self.navigationItem.rightBarButtonItems mutableCopy];
-    self.navigationBarItems = navigationBarItems;
-    [self.navigationBarItems removeObject:self.saveButton];
-    [self.navigationItem setRightBarButtonItems:self.navigationBarItems animated:YES];
+    [self showEditButton];
     
     self.titlteTextView.delegate = self;
     self.subtitleTextView.delegate = self;
@@ -50,40 +47,62 @@
     if (self.feed) {
         self.titlteTextView.text = self.feed.title;
         self.subtitleTextView.text = self.feed.subtitle;
-        
         [ImageDownloader downloadImageFromString:self.feed.imageName forIndexPath:nil completion:^(UIImage *image, NSIndexPath *indexPath) {
             self.photoImageView.image = image;
         }];
-    } else {
-        self.titlteTextView.textColor = [UIColor lightGrayColor];
-        self.subtitleTextView.textColor = [UIColor lightGrayColor];
     }
 }
 
 - (void)tapOnPhotoDetected {
     [[self view] endEditing:YES];
+    
     UIAlertController *actionSheet = [UIAlertController alertControllerWithTitle:nil message:nil preferredStyle:UIAlertControllerStyleActionSheet];
-    if (UIImagePickerControllerSourceTypeSavedPhotosAlbum)
-    [actionSheet addAction:[UIAlertAction actionWithTitle:@"Take photo" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action){
-        NSLog(@"Take photo");
-    }]];
-    [actionSheet addAction:[UIAlertAction actionWithTitle:@"Choose from galary" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action){
-        NSLog(@"Choose from galary");
-    }]];
+    
+    if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]) {
+        [actionSheet addAction:[UIAlertAction actionWithTitle:@"Take photo" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action){
+            NSLog(@"Take photo");
+            [self showImagePickerForSourceType:UIImagePickerControllerSourceTypeCamera];
+        }]];
+    }
+    if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypePhotoLibrary]) {
+        [actionSheet addAction:[UIAlertAction actionWithTitle:@"Choose from galery" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action){
+            NSLog(@"Choose from galary");
+             [self showImagePickerForSourceType:UIImagePickerControllerSourceTypePhotoLibrary];
+        }]];
+    }
     [actionSheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
     
     [self presentViewController:actionSheet animated:NO completion:nil];
 }
+
+- (void)showImagePickerForSourceType:(UIImagePickerControllerSourceType)sourceType {
+    UIImagePickerController *imagePickerController = [[UIImagePickerController alloc] init];
+    imagePickerController.sourceType = sourceType;
+    imagePickerController.delegate = self;
+    
+    self.imagePickerController = imagePickerController;
+    
+    [self presentViewController:self.imagePickerController animated:YES completion:nil];
+}
+
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
 
-- (void)viewWillAppear:(BOOL)animated {
-    [super viewWillAppear:animated];
+#pragma mark - <ImagePickerControllerDelegate>
+
+- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary<NSString *,id> *)info {
+    UIImage *image = [info valueForKey:UIImagePickerControllerOriginalImage];
+    [ImageDownloader uploadImage:UIImageJPEGRepresentation(image, 0.0)];
     
-//    self.scrollView.contentSize = CGSizeMake(self.scrollView.contentSize.width, self.scrollView.frame.size.height);
+    [self dismissViewControllerAnimated:YES completion:NULL];
+    self.photoImageView.image = image;
+}
+
+- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
+     [self dismissViewControllerAnimated:YES completion:NULL];
 }
 
 #pragma mark - IBActions
@@ -104,9 +123,7 @@
     
     [self.titlteTextView becomeFirstResponder];
     
-    [self.navigationBarItems removeObject:self.editButton];
-    [self.navigationBarItems addObject:self.saveButton];
-    [self.navigationItem setRightBarButtonItems:self.navigationBarItems animated:YES];
+    [self showSaveButton];
 }
 
 - (IBAction)saveFeed:(id)sender {
@@ -135,14 +152,18 @@
     }
     return YES;
 }
-//
-//- (BOOL)textViewShouldBeginEditing:(UITextView *)textView {
-//    if (textView == self.subtitleTextView) {
-//        self.subtitleTextView.editable = YES;
-//        self.subtitleTextView.textColor = [UIColor blackColor];
-//    }
-//    return YES;
-//}
 
+- (void)showSaveButton {
+    [self.navigationBarItems removeObject:self.editButton];
+    [self.navigationBarItems addObject:self.saveButton];
+    [self.navigationItem setRightBarButtonItems:self.navigationBarItems animated:YES];
+}
+
+- (void)showEditButton {
+    NSMutableArray *navigationBarItems = [self.navigationItem.rightBarButtonItems mutableCopy];
+    self.navigationBarItems = navigationBarItems;
+    [self.navigationBarItems removeObject:self.saveButton];
+    [self.navigationItem setRightBarButtonItems:self.navigationBarItems animated:YES];
+}
 
 @end

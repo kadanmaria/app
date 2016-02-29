@@ -15,4 +15,6 @@
                    forIndexPath:(NSIndexPath *)indexPath
                      completion:(void (^)(UIImage *image, NSIndexPath *indexPath))completion;
 
++ (void)uploadImage:(NSData *)data;
+
 @end
