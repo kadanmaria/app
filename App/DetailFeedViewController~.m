@@ -63,7 +63,6 @@
 - (void)tapOnPhotoDetected {
     [[self view] endEditing:YES];
     UIAlertController *actionSheet = [UIAlertController alertControllerWithTitle:nil message:nil preferredStyle:UIAlertControllerStyleActionSheet];
-    if (UIImagePickerControllerSourceTypeSavedPhotosAlbum)
     [actionSheet addAction:[UIAlertAction actionWithTitle:@"Take photo" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action){
         NSLog(@"Take photo");
     }]];
