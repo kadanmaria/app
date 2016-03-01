@@ -23,4 +23,6 @@
 - (void)manageObjects:(NSArray *)objects;
 - (void)updateOrAddFeed:(Feed *)feed accordingToChangedTitle:(NSString *)title subtitle:(NSString *)subtitle image:(UIImage *)image;
 - (NSArray *)changedFeedsInContext:(NSManagedObjectContext *)context;
+- (NSArray *)feedsWithLocalImagesInContext:(NSManagedObjectContext *)context;
+
 @end

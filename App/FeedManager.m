@@ -175,10 +175,11 @@
     [feed setValue:[object valueForKey:@"subtitle"] forKey:@"subtitle"];
     [feed setValue:[object valueForKey:@"title"] forKey:@"title"];
     [feed setValue:[object valueForKey:@"imageName"] forKey:@"imageName"];
+    if ([object valueForKey:@"localImage"]) {
+        [feed setValue:[object valueForKey:@"localImage"] forKey:@"localImage"];
+    }
     if ([object valueForKey:@"hasChanged"]) {
         [feed setValue:[object valueForKey:@"hasChanged"] forKey:@"hasChanged"];
-    } else {
-        [feed setValue:[NSNumber numberWithBool:NO] forKey:@"hasChanged"];
     }
 }
 
@@ -279,6 +280,20 @@
     return fetchedFeeds;
 }
 
-
+- (NSArray *)feedsWithLocalImagesInContext:(NSManagedObjectContext *)context {
+    
+    NSEntityDescription *entity = [NSEntityDescription entityForName:@"Feed" inManagedObjectContext:context];
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"localImage != NULL"];
+    fetchRequest.predicate = predicate;
+    [fetchRequest setEntity:entity];
+    
+    NSError *error;
+    NSArray *fetchedFeeds = [context executeFetchRequest:fetchRequest error:&error];
+    if (error) {
+        NSLog(@"Error fetching data %@, %@", error, [error userInfo]);
+    }
+    return fetchedFeeds;
+}
 
 @end

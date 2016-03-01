@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+#import "Feed.h"
 
 @interface ImageManager : NSObject
 
@@ -15,6 +16,6 @@
                    forIndexPath:(NSIndexPath *)indexPath
                      completion:(void (^)(UIImage *image, NSIndexPath *indexPath))completion;
 
-+ (void)uploadImage:(UIImage *)image completion:(void (^)(NSURL *imageURL))completion;
++ (void)uploadImagesWithCompletion:(void (^)(NSError *error))completion;
 
 @end

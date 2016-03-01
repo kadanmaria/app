@@ -90,14 +90,8 @@
 }
 
 - (void)authorizationManager:(AuthorizationManager *)manager validationHasExecutedWithError:(NSError *)error {
-    
-    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Log in problem"
-                                                                             message:@"Ooops! Validation has exequted with error!"
-                                                                      preferredStyle:UIAlertControllerStyleAlert];
-    
-    [alertController addAction:[UIAlertAction actionWithTitle:@"Ok" style:UIAlertActionStyleCancel handler:nil]];
-    [self presentViewController:alertController animated:NO completion:nil];
-    [self.appDelegate stopThinkingInViewController:self];    
+    [self showAlertWithTitle:@"Log in problem" message:@"Ooops! Validation has exequted with error!"];
+    [self.appDelegate stopThinkingInViewController:self];
 }
 
 #pragma mark - IBActions
@@ -110,7 +104,14 @@
     [self enableButtons:NO];
     [self.appDelegate startThinkingInViewController:self];
     
-    [self.contentManager putChangesToServer];
+    [ImageManager uploadImagesWithCompletion:^(NSError *error) {
+        if (!error) {
+             [self.contentManager putChangesToServer];
+        } else {
+            [self showAlertWithTitle:@"Synchronize problem" message:@"Please, try again later."];
+            [self.appDelegate stopThinkingInViewController:self];
+        }
+    }];
 }
 
 
@@ -128,7 +129,8 @@
 }
 
 - (void)contentManager:(ContentManager *)contentManager hasExecutedWithError:(NSError *)error {
-    NSLog(@"contentManager hasExecutedWithError %@", error);
+    [self showAlertWithTitle:@"Synchronize problem" message:@"Please, try again later."];
+    [self.appDelegate stopThinkingInViewController:self];
 }
 
 #pragma mark - <TableViewDataSourse>
@@ -239,6 +241,16 @@
     for (UIBarButtonItem *button in buttons) {
         button.enabled = how;
     }
+}
+
+- (void)showAlertWithTitle:(NSString *)title message:(NSString *)message {
+    
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:title
+                                                                             message:message
+                                                                      preferredStyle:UIAlertControllerStyleAlert];
+    
+    [alertController addAction:[UIAlertAction actionWithTitle:@"Ok" style:UIAlertActionStyleCancel handler:nil]];
+    [self presentViewController:alertController animated:NO completion:nil];
 }
 
 @end

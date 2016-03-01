@@ -166,7 +166,7 @@
     [self.photoImageView setUserInteractionEnabled:NO];
     [self showEditButton];
     
-    [[FeedManager sharedInstance] updateOrAddFeed:self.feed accordingToChangedTitle:self.titlteTextView.text subtitle:self.subtitleTextView.text];
+    [[FeedManager sharedInstance] updateOrAddFeed:self.feed accordingToChangedTitle:self.titlteTextView.text subtitle:self.subtitleTextView.text image:self.customImage];
     [self.navigationController popViewControllerAnimated:YES];
 }
 

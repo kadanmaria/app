@@ -7,6 +7,7 @@
 //
 
 #import "ImageManager.h"
+#import "FeedManager.h"
 
 @interface ImageManagerTasks : NSObject
 
@@ -60,65 +61,119 @@ static NSString * const stringForURLRequest = @"https://api.backendless.com/v1/f
     [self setSharedCacheForImages];
 }
 
-+ (void)uploadImage:(UIImage *)image completion:(void (^)(NSURL *imageURL))completion {
++ (void)uploadImagesWithCompletion:(void (^)(NSError *error))completion {
     
-    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-    [dateFormatter setDateFormat:@"yyyyMMdd_HHmmss"];
-    NSString *date = [dateFormatter stringFromDate:[NSDate date]];
+    NSManagedObjectContext *backgroundContext = [[FeedManager sharedInstance] backgroundContext];
+    NSManagedObjectContext *mainContext = [[FeedManager sharedInstance] mainContext];
     
-    NSData *imageData = UIImageJPEGRepresentation(image, 0.0);
-    NSString *boundary = [NSString stringWithFormat:@"%lu", imageData.length];
+    __block NSError *uploadingError = nil;
+    dispatch_group_t putGroup = dispatch_group_create();
     
-    NSString *name = [NSString stringWithFormat:@"IMG_%@.jpeg",date];
-    NSString *requestString = [NSString stringWithFormat:@"%@%@", stringForURLRequest, name];
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:requestString]];
+    [backgroundContext performBlock:^{
+        NSArray *feeds = [[FeedManager sharedInstance] feedsWithLocalImagesInContext:backgroundContext];
+        for (Feed *feed in feeds) {    
     
-    NSString *contentTypeFull = [NSString stringWithFormat:@"%@; boundary=%@", contentType, boundary];
-    
-    [request addValue:applicatonId forHTTPHeaderField:@"application-id"];
-    [request addValue:restId forHTTPHeaderField:@"secret-key"];
-    [request addValue:applicationType forHTTPHeaderField:@"application-type"];
-    [request addValue:contentTypeFull forHTTPHeaderField:@"Content-Type"];
-    [request addValue:[[NSUserDefaults standardUserDefaults] valueForKey:@"token"] forHTTPHeaderField:@"user-token"];
-    
-    [request setHTTPMethod:@"POST"];
-    
-    NSMutableData *body = [NSMutableData data];
-    [body appendData:[[NSString stringWithFormat:@"--%@\n", boundary] dataUsingEncoding:NSUTF8StringEncoding]];
-    [body appendData:[[NSString stringWithFormat:@"Content-Disposition: form-data; name=%@; filename=imageName.jpg\n", @"imageFormKey"] dataUsingEncoding:NSUTF8StringEncoding]];
-    [body appendData:[@"Content-Type: image/jpeg\n\n" dataUsingEncoding:NSUTF8StringEncoding]];
-    [body appendData:imageData];
-    [body appendData:[[NSString stringWithFormat:@"\n"] dataUsingEncoding:NSUTF8StringEncoding]];
-    [body appendData:[[NSString stringWithFormat:@"--%@--\n", boundary] dataUsingEncoding:NSUTF8StringEncoding]];
-    
-    [request setHTTPBody:body];
-    
-    NSString *postLength = [NSString stringWithFormat:@"%lu", (unsigned long)[body length]];
-    [request addValue:postLength forHTTPHeaderField:@"Content-Length"];
+            // Prepare request.
+            NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+            [dateFormatter setDateFormat:@"yyyyMMdd_HHmmss"];
+            NSString *date = [dateFormatter stringFromDate:[NSDate date]];
+            
+            NSString *boundary = [NSString stringWithFormat:@"%lu", feed.localImage.length];
+            
+            NSString *name = [NSString stringWithFormat:@"IMG_%@.jpeg",date];
+            NSString *requestString = [NSString stringWithFormat:@"%@%@", stringForURLRequest, name];
+            NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:requestString]];
+            
+            NSString *contentTypeFull = [NSString stringWithFormat:@"%@; boundary=%@", contentType, boundary];
+            
+            [request addValue:applicatonId forHTTPHeaderField:@"application-id"];
+            [request addValue:restId forHTTPHeaderField:@"secret-key"];
+            [request addValue:applicationType forHTTPHeaderField:@"application-type"];
+            [request addValue:contentTypeFull forHTTPHeaderField:@"Content-Type"];
+            [request addValue:[[NSUserDefaults standardUserDefaults] valueForKey:@"token"] forHTTPHeaderField:@"user-token"];
+            
+            [request setHTTPMethod:@"POST"];
+            
+            NSMutableData *body = [NSMutableData data];
+            [body appendData:[[NSString stringWithFormat:@"--%@\n", boundary] dataUsingEncoding:NSUTF8StringEncoding]];
+            [body appendData:[[NSString stringWithFormat:@"Content-Disposition: form-data; name=%@; filename=imageName.jpg\n", @"imageFormKey"] dataUsingEncoding:NSUTF8StringEncoding]];
+            [body appendData:[@"Content-Type: image/jpeg\n\n" dataUsingEncoding:NSUTF8StringEncoding]];
+            [body appendData:feed.localImage];
+            [body appendData:[[NSString stringWithFormat:@"\n"] dataUsingEncoding:NSUTF8StringEncoding]];
+            [body appendData:[[NSString stringWithFormat:@"--%@--\n", boundary] dataUsingEncoding:NSUTF8StringEncoding]];
+            
+            [request setHTTPBody:body];
+            
+            NSString *postLength = [NSString stringWithFormat:@"%lu", (unsigned long)[body length]];
+            [request addValue:postLength forHTTPHeaderField:@"Content-Length"];
 
-    NSURLSessionDataTask *uploadTask = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-        
-        dispatch_async(dispatch_get_global_queue(0, 0), ^{
-            NSLog(@"%@", response);
-            if (!error) {
-                NSError *localError;
-                NSDictionary *parsedObject = [NSJSONSerialization JSONObjectWithData:data options:0 error:&localError];
+            // Send request.
+            dispatch_group_enter(putGroup);
+            NSURLSessionDataTask *uploadTask = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
                 
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    if (localError) {
-                        NSLog(@"Error Parsing JSON %@", localError);
+                dispatch_async(dispatch_get_global_queue(0, 0), ^{
+                    NSLog(@"%@", response);
+                    if (!error) {
+                        NSError *localError;
+                        NSDictionary *parsedObject = [NSJSONSerialization JSONObjectWithData:data options:0 error:&localError];
+                        
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            if (localError) {
+                                uploadingError = error;
+                                NSLog(@"Error Parsing JSON %@", localError);
+                            } else {
+                                feed.imageName = [parsedObject valueForKey:@"fileURL"];
+                                dispatch_group_leave(putGroup);
+                            }
+                        });
+                        
                     } else {
-                        completion([parsedObject valueForKey:@"fileURL"]);
-                        NSLog(@"file url %@", [parsedObject valueForKey:@"fileURL"]);
+                        NSLog(@"%@", error);
+                        dispatch_group_leave(putGroup);
                     }
                 });
-                
-            } else {
-                NSLog(@"%@", error);
-            }
-        });
+            }];
+            [uploadTask resume];
+        }
     }];
-    [uploadTask resume];
+    
+    
+    dispatch_group_notify(putGroup, dispatch_get_main_queue(), ^{
+        
+        if (!uploadingError) {
+            [backgroundContext performBlock:^{
+                
+                NSError *savingBackgroundContextError = nil;
+                if ([backgroundContext save:&savingBackgroundContextError]) {
+                    
+                    [mainContext performBlock:^{
+                        NSError *savingMainContextError = nil;
+                        if ([mainContext save:&savingMainContextError]) {
+                            
+                            dispatch_async(dispatch_get_main_queue(), ^{
+                                completion(nil);
+                            });
+                            
+                        } else {
+                            dispatch_async(dispatch_get_main_queue(), ^{
+                                completion(savingMainContextError);
+                            });
+                        }
+                    }];
+                    
+                } else {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        completion(savingBackgroundContextError);
+                    });
+                }
+            }];
+            
+        } else {
+            completion(uploadingError);
+        }
+        
+    });
+
 }
 
 + (void)downloadImageFromString:(NSString *)imageString forIndexPath:(NSIndexPath *)indexPath completion:(void (^)(UIImage *image, NSIndexPath *indexPath))completion {
