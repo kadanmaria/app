@@ -203,7 +203,7 @@
     }
 }
 
-- (void)updateOrAddFeed:(Feed *)feed accordingToChangedTitle:(NSString *)title subtitle:(NSString *)subtitle {
+- (void)updateOrAddFeed:(Feed *)feed accordingToChangedTitle:(NSString *)title subtitle:(NSString *)subtitle image:(UIImage *)image{
     
     NSManagedObjectContext *mainContext = [self mainContext];
     NSManagedObjectContext *backgroundContext = [self backgroundContext];
@@ -233,15 +233,18 @@
                 [feedFromCoreData setValue:subtitle forKey:@"subtitle"];
                 [feedFromCoreData setValue:@YES forKey:@"hasChanged"];
             }
-    //        if (![feedFromCoreData.imageName isEqualToString:imageName]) {
-    //            [feedFromCoreData setValue:imageName forKey:@"imageName"];
-    //        }
+            if (image) {
+                [feedFromCoreData setValue:UIImageJPEGRepresentation(image, 0.0) forKey:@"localImage"];
+                [feedFromCoreData setValue:@YES forKey:@"hasChanged"];
+            }
+            
         } else {
             NSDictionary *object = @{ @"title"     : title,
                                       @"subtitle"  : subtitle,
                                       @"hasChanged": @YES,
                                       @"objectId"  : @"temporaryId",
-                                      @"imageName" : @"http://i2.wp.com/www.wompcav.com/wp-content/uploads/2014/04/default-placeholder.png?fit=1024%2C1024"
+                                      @"imageName" : @"http://i2.wp.com/www.wompcav.com/wp-content/uploads/2014/04/default-placeholder.png?fit=1024%2C1024",
+                                      @"localImage": UIImageJPEGRepresentation(image, 0.0)
                                       };
             [self insertObject:object];
         }

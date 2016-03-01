@@ -19,7 +19,7 @@
 		844AE9571C676361003ED708 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 844AE9551C676361003ED708 /* Main.storyboard */; };
 		846DE9E81C6C9E19005393D6 /* ContentManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 846DE9E71C6C9E19005393D6 /* ContentManager.m */; settings = {ASSET_TAGS = (); }; };
 		84A5374B1C7BCFED00824EB5 /* AuthorizationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A5374A1C7BCFED00824EB5 /* AuthorizationManager.m */; settings = {ASSET_TAGS = (); }; };
-		84E118861C6EA6C20079BF06 /* ImageDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = 84E118851C6EA6C20079BF06 /* ImageDownloader.m */; settings = {ASSET_TAGS = (); }; };
+		84E118861C6EA6C20079BF06 /* ImageManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 84E118851C6EA6C20079BF06 /* ImageManager.m */; settings = {ASSET_TAGS = (); }; };
 		84E46C021C73B92B00120ABE /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84E46C011C73B92B00120ABE /* CoreData.framework */; };
 		84E46C1A1C73EADC00120ABE /* FeedModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 84E46C181C73EADC00120ABE /* FeedModel.xcdatamodeld */; settings = {ASSET_TAGS = (); }; };
 		84E46C201C7537B900120ABE /* FeedManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 84E46C1F1C7537B900120ABE /* FeedManager.m */; settings = {ASSET_TAGS = (); }; };
@@ -49,8 +49,8 @@
 		846DE9E71C6C9E19005393D6 /* ContentManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ContentManager.m; sourceTree = "<group>"; };
 		84A537491C7BCFED00824EB5 /* AuthorizationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AuthorizationManager.h; sourceTree = "<group>"; };
 		84A5374A1C7BCFED00824EB5 /* AuthorizationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AuthorizationManager.m; sourceTree = "<group>"; };
-		84E118841C6EA6C20079BF06 /* ImageDownloader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageDownloader.h; sourceTree = "<group>"; };
-		84E118851C6EA6C20079BF06 /* ImageDownloader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImageDownloader.m; sourceTree = "<group>"; };
+		84E118841C6EA6C20079BF06 /* ImageManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageManager.h; sourceTree = "<group>"; };
+		84E118851C6EA6C20079BF06 /* ImageManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImageManager.m; sourceTree = "<group>"; };
 		84E46C011C73B92B00120ABE /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		84E46C191C73EADC00120ABE /* FeedModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = FeedModel.xcdatamodel; sourceTree = "<group>"; };
 		84E46C1E1C7537B900120ABE /* FeedManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FeedManager.h; sourceTree = "<group>"; };
@@ -130,8 +130,8 @@
 			children = (
 				846DE9E61C6C9E19005393D6 /* ContentManager.h */,
 				846DE9E71C6C9E19005393D6 /* ContentManager.m */,
-				84E118841C6EA6C20079BF06 /* ImageDownloader.h */,
-				84E118851C6EA6C20079BF06 /* ImageDownloader.m */,
+				84E118841C6EA6C20079BF06 /* ImageManager.h */,
+				84E118851C6EA6C20079BF06 /* ImageManager.m */,
 				84A537491C7BCFED00824EB5 /* AuthorizationManager.h */,
 				84A5374A1C7BCFED00824EB5 /* AuthorizationManager.m */,
 			);
@@ -222,7 +222,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				84E118861C6EA6C20079BF06 /* ImageDownloader.m in Sources */,
+				84E118861C6EA6C20079BF06 /* ImageManager.m in Sources */,
 				846DE9E81C6C9E19005393D6 /* ContentManager.m in Sources */,
 				8430299B1C7A7987001C133C /* Feed+CoreDataProperties.m in Sources */,
 				844AE9541C676361003ED708 /* FeedViewController.m in Sources */,

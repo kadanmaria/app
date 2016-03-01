@@ -1,24 +1,23 @@
 //
-//  ImageDownloader.m
+//  ImageManager.m
 //  App
 //
 //  Created by Admin on 13.02.16.
 //  Copyright © 2016 OrgName. All rights reserved.
 //
 
-#import "ImageDownloader.h"
+#import "ImageManager.h"
 
-
-@interface ImageDownloaderTasks : NSObject
+@interface ImageManagerTasks : NSObject
 
 @property (strong, nonatomic) NSMutableDictionary *tasks;
 
 @end
 
-@implementation ImageDownloaderTasks
+@implementation ImageManagerTasks
 
 + (instancetype)sharedInstance {
-    static ImageDownloaderTasks *instance = nil;
+    static ImageManagerTasks *instance = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         instance = [[self alloc] init];
@@ -34,11 +33,11 @@
     return self;
 }
 
-- (NSURLSessionDataTask *)imageDownloaderTaskforKey:(NSString *)key {
+- (NSURLSessionDataTask *)imageManagerTaskforKey:(NSString *)key {
     return [self.tasks objectForKey:key];
 }
 
-- (void)setImageDownloaderTask:(NSURLSessionDataTask *)task forKey:(NSString *)key {
+- (void)setImageManagerTask:(NSURLSessionDataTask *)task forKey:(NSString *)key {
     [self.tasks setValue:task forKey:key];
 }
 
@@ -46,39 +45,58 @@
 
 static NSString * const applicatonId = @"8D2F3524-3D1D-88BC-FF2C-536BF2717200";
 static NSString * const restId = @"A8A7BD7A-0B83-C7DC-FFA0-52D384DA6B00";
-//static NSString * const contentType = @"application/json";
 static NSString * const contentType = @"multipart/form-data";
 static NSString * const applicationType = @"REST";
 static NSString * const stringForURLRequest = @"https://api.backendless.com/v1/files/media/images/";
 
-@interface ImageDownloader ()
+@interface ImageManager ()
 
 @end
 
-@implementation ImageDownloader
+@implementation ImageManager
 
 + (void)load {
     [super load];
     [self setSharedCacheForImages];
 }
 
-+ (void)uploadImage:(NSData *)dataToUpload {
-    NSString *PATH = @"somePath";
-    NSString *requestString = [NSString stringWithFormat:@"%@%@", stringForURLRequest, PATH];
++ (void)uploadImage:(UIImage *)image completion:(void (^)(NSURL *imageURL))completion {
     
-    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setDateFormat:@"yyyyMMdd_HHmmss"];
+    NSString *date = [dateFormatter stringFromDate:[NSDate date]];
+    
+    NSData *imageData = UIImageJPEGRepresentation(image, 0.0);
+    NSString *boundary = [NSString stringWithFormat:@"%lu", imageData.length];
+    
+    NSString *name = [NSString stringWithFormat:@"IMG_%@.jpeg",date];
+    NSString *requestString = [NSString stringWithFormat:@"%@%@", stringForURLRequest, name];
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:requestString]];
+    
+    NSString *contentTypeFull = [NSString stringWithFormat:@"%@; boundary=%@", contentType, boundary];
+    
     [request addValue:applicatonId forHTTPHeaderField:@"application-id"];
     [request addValue:restId forHTTPHeaderField:@"secret-key"];
     [request addValue:applicationType forHTTPHeaderField:@"application-type"];
-    [request addValue:contentType forHTTPHeaderField:@"Content-Type"];
+    [request addValue:contentTypeFull forHTTPHeaderField:@"Content-Type"];
     [request addValue:[[NSUserDefaults standardUserDefaults] valueForKey:@"token"] forHTTPHeaderField:@"user-token"];
     
-    request.URL = [NSURL URLWithString:requestString];
     [request setHTTPMethod:@"POST"];
     
+    NSMutableData *body = [NSMutableData data];
+    [body appendData:[[NSString stringWithFormat:@"--%@\n", boundary] dataUsingEncoding:NSUTF8StringEncoding]];
+    [body appendData:[[NSString stringWithFormat:@"Content-Disposition: form-data; name=%@; filename=imageName.jpg\n", @"imageFormKey"] dataUsingEncoding:NSUTF8StringEncoding]];
+    [body appendData:[@"Content-Type: image/jpeg\n\n" dataUsingEncoding:NSUTF8StringEncoding]];
+    [body appendData:imageData];
+    [body appendData:[[NSString stringWithFormat:@"\n"] dataUsingEncoding:NSUTF8StringEncoding]];
+    [body appendData:[[NSString stringWithFormat:@"--%@--\n", boundary] dataUsingEncoding:NSUTF8StringEncoding]];
     
-    NSURLSession *session = [NSURLSession sharedSession];
-    NSURLSessionUploadTask *uploadTask = [session uploadTaskWithRequest:request fromData:dataToUpload completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+    [request setHTTPBody:body];
+    
+    NSString *postLength = [NSString stringWithFormat:@"%lu", (unsigned long)[body length]];
+    [request addValue:postLength forHTTPHeaderField:@"Content-Length"];
+
+    NSURLSessionDataTask *uploadTask = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         
         dispatch_async(dispatch_get_global_queue(0, 0), ^{
             NSLog(@"%@", response);
@@ -90,6 +108,7 @@ static NSString * const stringForURLRequest = @"https://api.backendless.com/v1/f
                     if (localError) {
                         NSLog(@"Error Parsing JSON %@", localError);
                     } else {
+                        completion([parsedObject valueForKey:@"fileURL"]);
                         NSLog(@"file url %@", [parsedObject valueForKey:@"fileURL"]);
                     }
                 });
@@ -103,8 +122,8 @@ static NSString * const stringForURLRequest = @"https://api.backendless.com/v1/f
 }
 
 + (void)downloadImageFromString:(NSString *)imageString forIndexPath:(NSIndexPath *)indexPath completion:(void (^)(UIImage *image, NSIndexPath *indexPath))completion {
-    if ([[ImageDownloaderTasks sharedInstance] imageDownloaderTaskforKey:imageString]) {
-        [[[ImageDownloaderTasks sharedInstance] imageDownloaderTaskforKey:imageString] cancel];
+    if ([[ImageManagerTasks sharedInstance] imageManagerTaskforKey:imageString]) {
+        [[[ImageManagerTasks sharedInstance] imageManagerTaskforKey:imageString] cancel];
     }
     
     NSURL *imageURL = [NSURL URLWithString:imageString];
@@ -135,7 +154,7 @@ static NSString * const stringForURLRequest = @"https://api.backendless.com/v1/f
                         if (!image) {
                             NSLog(@"Error Setting Image");
                         } else {
-                            [[ImageDownloaderTasks sharedInstance] setImageDownloaderTask:imageDataTask forKey:imageString];
+                            [[ImageManagerTasks sharedInstance] setImageManagerTask:imageDataTask forKey:imageString];
                             completion (image, indexPath);
                         }
                     });

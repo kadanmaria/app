@@ -2,7 +2,7 @@
 //  Feed+CoreDataProperties.h
 //  App
 //
-//  Created by Admin on 25.02.16.
+//  Created by Admin on 01.03.16.
 //  Copyright © 2016 OrgName. All rights reserved.
 //
 //  Choose "Create NSManagedObject Subclass…" from the Core Data editor menu
@@ -15,11 +15,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface Feed (CoreDataProperties)
 
+@property (nullable, nonatomic, retain) NSNumber *hasChanged;
 @property (nullable, nonatomic, retain) NSString *imageName;
 @property (nullable, nonatomic, retain) NSString *objectId;
 @property (nullable, nonatomic, retain) NSString *subtitle;
 @property (nullable, nonatomic, retain) NSString *title;
-@property (nullable, nonatomic, retain) NSNumber *hasChanged;
+@property (nullable, nonatomic, retain) NSData *localImage;
 
 @end
 

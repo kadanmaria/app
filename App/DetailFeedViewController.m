@@ -8,7 +8,7 @@
 
 #import "DetailFeedViewController.h"
 #import "AppDelegate.h"
-#import "ImageDownloader.h"
+#import "ImageManager.h"
 #import "FeedManager.h"
 #import "FeedViewController.h"
 
@@ -26,6 +26,7 @@
 @property (strong, nonatomic) NSMutableArray *navigationBarItems;
 @property (strong, nonatomic) UIImagePickerController *imagePickerController;
 @property (strong, nonatomic) UITextView *activeTextView;
+@property (strong, nonatomic) UIImage *customImage;
 
 @end
 
@@ -50,9 +51,12 @@
     if (self.feed) {
         self.titlteTextView.text = self.feed.title;
         self.subtitleTextView.text = self.feed.subtitle;
-        [ImageDownloader downloadImageFromString:self.feed.imageName forIndexPath:nil completion:^(UIImage *image, NSIndexPath *indexPath) {
+        [ImageManager downloadImageFromString:self.feed.imageName forIndexPath:nil completion:^(UIImage *image, NSIndexPath *indexPath) {
             self.photoImageView.image = image;
         }];
+    } else {
+        [self editFeed:self];
+        
     }
 }
 
@@ -127,10 +131,11 @@
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary<NSString *,id> *)info {
     UIImage *image = [info valueForKey:UIImagePickerControllerOriginalImage];
-    [ImageDownloader uploadImage:UIImageJPEGRepresentation(image, 1.0)];
+//    [ImageManager uploadImage:image];
     
     [self dismissViewControllerAnimated:YES completion:NULL];
     self.photoImageView.image = image;
+    self.customImage = image;
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
@@ -143,26 +148,22 @@
     self.titlteTextView.editable = YES;
     self.subtitleTextView.editable = YES;
     [self.photoImageView setUserInteractionEnabled:YES];
-    
-    self.titlteTextView.textColor = [UIColor blackColor];
-    
-    if (self.feed) {
-        self.subtitleTextView.textColor = [UIColor blackColor];
-        
-        self.titlteTextView.text = self.feed.title;
-        self.subtitleTextView.text = self.feed.subtitle;
-    }
-    
-    [self.titlteTextView becomeFirstResponder];
-//    [self.subtitleTextView becomeFirstResponder];
-    
     [self showSaveButton];
+    
+    self.titlteTextView.layer.borderColor = [[UIColor lightGrayColor] CGColor];
+    self.titlteTextView.layer.borderWidth = 1;
+    self.titlteTextView.layer.cornerRadius = 3;
+    
+    self.subtitleTextView.layer.borderColor = [[UIColor lightGrayColor] CGColor];
+    self.subtitleTextView.layer.borderWidth = 1;
+    self.subtitleTextView.layer.cornerRadius = 3;
+    
 }
 
 - (IBAction)saveFeed:(id)sender {
     self.titlteTextView.editable = NO;
     self.subtitleTextView.editable = NO;
-    
+    [self.photoImageView setUserInteractionEnabled:NO];
     [self showEditButton];
     
     [[FeedManager sharedInstance] updateOrAddFeed:self.feed accordingToChangedTitle:self.titlteTextView.text subtitle:self.subtitleTextView.text];

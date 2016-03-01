@@ -11,7 +11,7 @@
 #import "FeedViewController.h"
 #import "FeedCell.h"
 #import "ContentManager.h"
-#import "ImageDownloader.h"
+#import "ImageManager.h"
 #import "Feed.h"
 #import "AppDelegate.h"
 #import "DetailFeedViewController.h"
@@ -150,16 +150,20 @@
     cell.titleLabel.text = feed.title;
     cell.subTitleLabel.text = feed.subtitle;
     
-    __weak FeedViewController *weakSelf = self;
-    [ImageDownloader downloadImageFromString:feed.imageName forIndexPath:indexPath completion:^(UIImage *image, NSIndexPath *indexPath) {
-        __strong FeedViewController *strongSelf = weakSelf;
-        if (strongSelf) {
-            FeedCell *cell = [strongSelf.tableView cellForRowAtIndexPath:indexPath];
-            if (cell) {
-                cell.photoImageView.image = image;
+    if (!feed.localImage) {
+        __weak FeedViewController *weakSelf = self;
+        [ImageManager downloadImageFromString:feed.imageName forIndexPath:indexPath completion:^(UIImage *image, NSIndexPath *indexPath) {
+            __strong FeedViewController *strongSelf = weakSelf;
+            if (strongSelf) {
+                FeedCell *cell = [strongSelf.tableView cellForRowAtIndexPath:indexPath];
+                if (cell) {
+                    cell.photoImageView.image = image;
+                }
             }
-        }
-    }];
+        }];
+    } else {
+        cell.photoImageView.image = [UIImage imageWithData:feed.localImage];
+    }
 }
 
 #pragma mark - Navigation
