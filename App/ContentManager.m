@@ -132,7 +132,7 @@ static NSString * const stringForPutRequest = @"https://api.backendless.com/v1/d
                             if ([mainContext save:&savingMainContextError]) {
                                 
                                 dispatch_async(dispatch_get_main_queue(), ^{
-                                    [self.delegate contentManagerDidUploadObjectsToServer:self];
+                                    [self.delegate contentManagerDidUploadObjectsToServer];
                                 });
                                 
                             } else {

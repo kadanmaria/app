@@ -14,7 +14,7 @@
 @protocol ContentManagerDelegate
 
 - (void)contentManager:(ContentManager *)contentManager didDownloadContentToArray:(NSArray *)array;
-- (void)contentManagerDidUploadObjectsToServer:(ContentManager *)contentManager;
+- (void)contentManagerDidUploadObjectsToServer;
 - (void)contentManager:(ContentManager *)contentManager hasExecutedWithError:(NSError *)error;
 
 @end

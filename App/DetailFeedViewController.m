@@ -136,6 +136,7 @@
     self.subtitleTextView.layer.borderWidth = 1;
     self.subtitleTextView.layer.cornerRadius = 3;
     
+    [self.titlteTextView becomeFirstResponder];
 }
 
 - (IBAction)saveFeed:(id)sender {

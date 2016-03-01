@@ -124,7 +124,7 @@
     [[FeedManager sharedInstance] manageObjects:array];
 }
 
-- (void)contentManagerDidUploadObjectsToServer:(ContentManager *)contentManager {
+- (void)contentManagerDidUploadObjectsToServer {
     [self.contentManager downloadContent];
 }
 
