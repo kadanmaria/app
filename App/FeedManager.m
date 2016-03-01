@@ -1,4 +1,4 @@
-//
+
 //  FeedController.m
 //  App
 //
@@ -235,7 +235,7 @@
                 [feedFromCoreData setValue:@YES forKey:@"hasChanged"];
             }
             if (image) {
-                [feedFromCoreData setValue:UIImageJPEGRepresentation(image, 0.0) forKey:@"localImage"];
+                [feedFromCoreData setValue:UIImageJPEGRepresentation(image, 1.0) forKey:@"localImage"];
                 [feedFromCoreData setValue:@YES forKey:@"hasChanged"];
             }
             

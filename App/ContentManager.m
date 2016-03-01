@@ -118,43 +118,45 @@ static NSString * const stringForPutRequest = @"https://api.backendless.com/v1/d
             }];
             [putTask resume];
         }
+        
+        dispatch_group_notify(putGroup, dispatch_get_main_queue(), ^{
+            
+            if (!uploadingError) {
+                [backgroundContext performBlock:^{
+                    
+                    NSError *savingBackgroundContextError = nil;
+                    if ([backgroundContext save:&savingBackgroundContextError]) {
+                        
+                        [mainContext performBlock:^{
+                            NSError *savingMainContextError = nil;
+                            if ([mainContext save:&savingMainContextError]) {
+                                
+                                dispatch_async(dispatch_get_main_queue(), ^{
+                                    [self.delegate contentManagerDidUploadObjectsToServer:self];
+                                });
+                                
+                            } else {
+                                dispatch_async(dispatch_get_main_queue(), ^{
+                                    [self.delegate contentManager:self hasExecutedWithError:savingMainContextError];
+                                });
+                            }
+                        }];
+                        
+                    } else {
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            [self.delegate contentManager:self hasExecutedWithError:savingBackgroundContextError];
+                        });
+                    }
+                }];
+                
+            } else {
+                [self.delegate contentManager:self hasExecutedWithError:uploadingError];
+            }
+            
+        });
+
     }];
     
-    dispatch_group_notify(putGroup, dispatch_get_main_queue(), ^{
-        
-        if (!uploadingError) {
-            [backgroundContext performBlock:^{
-                
-                NSError *savingBackgroundContextError = nil;
-                if ([backgroundContext save:&savingBackgroundContextError]) {
-                    
-                    [mainContext performBlock:^{
-                        NSError *savingMainContextError = nil;
-                        if ([mainContext save:&savingMainContextError]) {
-                            
-                            dispatch_async(dispatch_get_main_queue(), ^{
-                                 [self.delegate contentManagerDidUploadObjectsToServer:self];
-                            });
-                           
-                        } else {
-                            dispatch_async(dispatch_get_main_queue(), ^{
-                                [self.delegate contentManager:self hasExecutedWithError:savingMainContextError];
-                            });
-                        }
-                    }];
-                    
-                } else {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [self.delegate contentManager:self hasExecutedWithError:savingBackgroundContextError];
-                    });
-                }
-            }];
-            
-        } else {
-            [self.delegate contentManager:self hasExecutedWithError:uploadingError];
-        }
-        
-    });
 }
 
 @end

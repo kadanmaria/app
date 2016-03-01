@@ -26,7 +26,6 @@
 @property (strong, nonatomic) NSMutableArray *navigationBarItems;
 @property (strong, nonatomic) UIImagePickerController *imagePickerController;
 @property (strong, nonatomic) UITextView *activeTextView;
-@property (strong, nonatomic) UIImage *customImage;
 
 @end
 
@@ -54,11 +53,99 @@
         [ImageManager downloadImageFromString:self.feed.imageName forIndexPath:nil completion:^(UIImage *image, NSIndexPath *indexPath) {
             self.photoImageView.image = image;
         }];
-    } else {
-        [self editFeed:self];
+//        if (!self.feed.localImage) {
+//            [ImageManager downloadImageForFeed:self.feed forIndexPath:nil completion:^(UIImage *image, NSIndexPath *indexPath) {
+//                self.photoImageView.image = image;
+//            }];
+//        } else {
+//            self.photoImageView.image = [UIImage imageWithData:self.feed.localImage];
+//        }
         
+    } else {
+        [self editFeed:self];        
     }
 }
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+}
+
+#pragma mark - Gesture
+
+- (void)tapOnPhotoDetected {
+    [[self view] endEditing:YES];
+    
+    UIAlertController *actionSheet = [UIAlertController alertControllerWithTitle:nil message:nil preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]) {
+        [actionSheet addAction:[UIAlertAction actionWithTitle:@"Take photo" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action){
+            NSLog(@"Take photo");
+            [self showImagePickerForSourceType:UIImagePickerControllerSourceTypeCamera];
+        }]];
+    }
+    if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypePhotoLibrary]) {
+        [actionSheet addAction:[UIAlertAction actionWithTitle:@"Choose from galery" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action){
+            NSLog(@"Choose from galary");
+             [self showImagePickerForSourceType:UIImagePickerControllerSourceTypePhotoLibrary];
+        }]];
+    }
+    [actionSheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+    
+    [self presentViewController:actionSheet animated:NO completion:nil];
+}
+
+#pragma mark - ImagePickerController
+
+- (void)showImagePickerForSourceType:(UIImagePickerControllerSourceType)sourceType {
+    UIImagePickerController *imagePickerController = [[UIImagePickerController alloc] init];
+    imagePickerController.sourceType = sourceType;
+    imagePickerController.delegate = self;
+    
+    self.imagePickerController = imagePickerController;
+    
+    [self presentViewController:self.imagePickerController animated:YES completion:nil];
+}
+
+#pragma mark - <ImagePickerControllerDelegate>
+
+- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary<NSString *,id> *)info {
+    UIImage *image = [info valueForKey:UIImagePickerControllerOriginalImage];
+    self.photoImageView.image = image;
+    
+    [self dismissViewControllerAnimated:YES completion:NULL];
+}
+
+- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
+     [self dismissViewControllerAnimated:YES completion:NULL];
+}
+
+#pragma mark - IBActions
+
+- (IBAction)editFeed:(id)sender {    
+    self.titlteTextView.editable = YES;
+    self.subtitleTextView.editable = YES;
+    [self.photoImageView setUserInteractionEnabled:YES];
+    
+    [self showSaveButton];
+    
+    self.titlteTextView.layer.borderColor = [[UIColor lightGrayColor] CGColor];
+    self.titlteTextView.layer.borderWidth = 1;
+    self.titlteTextView.layer.cornerRadius = 3;
+    
+    self.subtitleTextView.layer.borderColor = [[UIColor lightGrayColor] CGColor];
+    self.subtitleTextView.layer.borderWidth = 1;
+    self.subtitleTextView.layer.cornerRadius = 3;
+    
+}
+
+- (IBAction)saveFeed:(id)sender {
+    [self showEditButton];
+    
+    [[FeedManager sharedInstance] updateOrAddFeed:self.feed accordingToChangedTitle:self.titlteTextView.text subtitle:self.subtitleTextView.text image:self.photoImageView.image];
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+#pragma mark - Keyboard
 
 - (void)registerForKeyboardNotifications {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWasShown:) name:UIKeyboardDidShowNotification object:nil];
@@ -89,90 +176,6 @@
     self.scrollView.scrollIndicatorInsets = contentInsets;
 }
 
-- (void)tapOnPhotoDetected {
-    [[self view] endEditing:YES];
-    
-    UIAlertController *actionSheet = [UIAlertController alertControllerWithTitle:nil message:nil preferredStyle:UIAlertControllerStyleActionSheet];
-    
-    if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]) {
-        [actionSheet addAction:[UIAlertAction actionWithTitle:@"Take photo" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action){
-            NSLog(@"Take photo");
-            [self showImagePickerForSourceType:UIImagePickerControllerSourceTypeCamera];
-        }]];
-    }
-    if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypePhotoLibrary]) {
-        [actionSheet addAction:[UIAlertAction actionWithTitle:@"Choose from galery" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action){
-            NSLog(@"Choose from galary");
-             [self showImagePickerForSourceType:UIImagePickerControllerSourceTypePhotoLibrary];
-        }]];
-    }
-    [actionSheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
-    
-    [self presentViewController:actionSheet animated:NO completion:nil];
-}
-
-- (void)showImagePickerForSourceType:(UIImagePickerControllerSourceType)sourceType {
-    UIImagePickerController *imagePickerController = [[UIImagePickerController alloc] init];
-    imagePickerController.sourceType = sourceType;
-    imagePickerController.delegate = self;
-    
-    self.imagePickerController = imagePickerController;
-    
-    [self presentViewController:self.imagePickerController animated:YES completion:nil];
-}
-
-
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
-}
-
-#pragma mark - <ImagePickerControllerDelegate>
-
-- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary<NSString *,id> *)info {
-    UIImage *image = [info valueForKey:UIImagePickerControllerOriginalImage];
-//    [ImageManager uploadImage:image];
-    
-    [self dismissViewControllerAnimated:YES completion:NULL];
-    self.photoImageView.image = image;
-    self.customImage = image;
-}
-
-- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
-     [self dismissViewControllerAnimated:YES completion:NULL];
-}
-
-#pragma mark - IBActions
-
-- (IBAction)editFeed:(id)sender {    
-    self.titlteTextView.editable = YES;
-    self.subtitleTextView.editable = YES;
-    [self.photoImageView setUserInteractionEnabled:YES];
-    [self showSaveButton];
-    
-    self.titlteTextView.layer.borderColor = [[UIColor lightGrayColor] CGColor];
-    self.titlteTextView.layer.borderWidth = 1;
-    self.titlteTextView.layer.cornerRadius = 3;
-    
-    self.subtitleTextView.layer.borderColor = [[UIColor lightGrayColor] CGColor];
-    self.subtitleTextView.layer.borderWidth = 1;
-    self.subtitleTextView.layer.cornerRadius = 3;
-    
-}
-
-- (IBAction)saveFeed:(id)sender {
-    self.titlteTextView.editable = NO;
-    self.subtitleTextView.editable = NO;
-    [self.photoImageView setUserInteractionEnabled:NO];
-    [self showEditButton];
-    
-    [[FeedManager sharedInstance] updateOrAddFeed:self.feed accordingToChangedTitle:self.titlteTextView.text subtitle:self.subtitleTextView.text image:self.customImage];
-    [self.navigationController popViewControllerAnimated:YES];
-}
-
-- (IBAction)dissmissKeyboardOnTap:(id)sender{
-    [[self view] endEditing:YES];
-}
 
 #pragma mark - <UITextViewDelegate>
 
@@ -191,10 +194,11 @@
 
 - (void)textViewDidEndEditing:(UITextView *)textView {
     if (self.activeTextView == self.titlteTextView) {
-        self.activeTextView = nil;
         self.activeTextView = self.subtitleTextView;
     }
 }
+
+#pragma mark - Buttons
 
 - (void)showSaveButton {
     [self.navigationBarItems removeObject:self.editButton];

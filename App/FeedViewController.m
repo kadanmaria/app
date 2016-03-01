@@ -166,6 +166,21 @@
     } else {
         cell.photoImageView.image = [UIImage imageWithData:feed.localImage];
     }
+//
+//    if (!feed.localImage) {
+//        __weak FeedViewController *weakSelf = self;
+//        [ImageManager downloadImageForFeed:feed forIndexPath:indexPath completion:^(UIImage *image, NSIndexPath *indexPath) {
+//            __strong FeedViewController *strongSelf = weakSelf;
+//            if (strongSelf) {
+//                FeedCell *cell = [strongSelf.tableView cellForRowAtIndexPath:indexPath];
+//                if (cell) {
+//                    cell.photoImageView.image = image;
+//                }
+//            }
+//        }];
+//    } else {
+//        cell.photoImageView.image = [UIImage imageWithData:feed.localImage];
+//    }
 }
 
 #pragma mark - Navigation
@@ -235,6 +250,8 @@
 - (void)controllerDidChangeContent:(NSFetchedResultsController *)controller {
     [self.tableView endUpdates];
 }
+
+#pragma mark - Other
 
 - (void)enableButtons:(BOOL)how {
     NSArray *buttons = self.navigationItem.rightBarButtonItems;

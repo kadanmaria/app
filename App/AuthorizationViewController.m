@@ -43,13 +43,13 @@
 #pragma mark - IBActions
 
 - (IBAction)login:(id)sender {
-    //    [self.authorizationManager loginWithLogin:self.loginTextField.text password:self.passwordTextField.text];
-        [self.authorizationManager loginWithLogin:@"user" password:@"user"];
-        
-        [self.loginTextField resignFirstResponder];
-        [self.passwordTextField resignFirstResponder];
-        
-        [self.appDelegate startThinkingInViewController:self];
+//    [self.authorizationManager loginWithLogin:self.loginTextField.text password:self.passwordTextField.text];
+    [self.authorizationManager loginWithLogin:@"user" password:@"user"];
+    
+    [self.loginTextField resignFirstResponder];
+    [self.passwordTextField resignFirstResponder];
+    
+    [self.appDelegate startThinkingInViewController:self];
     
 }
 
@@ -67,22 +67,12 @@
         
         [self dismissViewControllerAnimated:NO completion:nil];
     } else {
-        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Log in problem"
-                                                                                 message:@"Ooops! Try another login/password!"
-                                                                          preferredStyle:UIAlertControllerStyleAlert];
-        
-        [alertController addAction:[UIAlertAction actionWithTitle:@"Ok" style:UIAlertActionStyleCancel handler:nil]];
-        [self presentViewController:alertController animated:NO completion:nil];
+        [self showAlertWithTitle:@"Log in problem" message:@"Ooops! Try another login/password!"];
     }
 }
 
 - (void)authorizationManager:(AuthorizationManager *)manager loginHasExecutedWithError:(NSError *)error {
-    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Log in problem"
-                                                                             message:@"Ooops! Loging in has executed with error!"
-                                                                      preferredStyle:UIAlertControllerStyleAlert];
-    
-    [alertController addAction:[UIAlertAction actionWithTitle:@"Ok" style:UIAlertActionStyleCancel handler:nil]];
-    [self presentViewController:alertController animated:NO completion:nil];
+    [self showAlertWithTitle:@"Log in problem" message:@"Ooops! Loging in has executed with error!"];
 }
 
 #pragma mark - <UITextFieldDelegate>
@@ -96,6 +86,22 @@
         [self login:nil];
     }
     return YES;
+}
+
+#pragma mark - Other
+
+-(BOOL)shouldAutorotate {
+    return NO;
+}
+
+- (void)showAlertWithTitle:(NSString *)title message:(NSString *)message {
+    
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:title
+                                                                             message:message
+                                                                      preferredStyle:UIAlertControllerStyleAlert];
+    
+    [alertController addAction:[UIAlertAction actionWithTitle:@"Ok" style:UIAlertActionStyleCancel handler:nil]];
+    [self presentViewController:alertController animated:NO completion:nil];
 }
 
 @end

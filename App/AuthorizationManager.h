@@ -25,7 +25,6 @@
 @property (weak, nonatomic) id <AuthorizationManagerDelegate> delegate;
 
 - (void)loginWithLogin:(NSString *)login password:(NSString *)password;
-
 - (void)isSessionValid;
 
 @end

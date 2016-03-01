@@ -80,7 +80,7 @@ static NSString * const stringForURLRequest = @"https://api.backendless.com/v1/f
             
             NSString *boundary = [NSString stringWithFormat:@"%lu", feed.localImage.length];
             
-            NSString *name = [NSString stringWithFormat:@"IMG_%@.jpeg",date];
+            NSString *name = [NSString stringWithFormat:@"IMG_%@_%@.jpeg",date, boundary];
             NSString *requestString = [NSString stringWithFormat:@"%@%@", stringForURLRequest, name];
             NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:requestString]];
             
@@ -109,10 +109,10 @@ static NSString * const stringForURLRequest = @"https://api.backendless.com/v1/f
 
             // Send request.
             dispatch_group_enter(putGroup);
+            NSLog(@"Group entered");
             NSURLSessionDataTask *uploadTask = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
                 
                 dispatch_async(dispatch_get_global_queue(0, 0), ^{
-                    NSLog(@"%@", response);
                     if (!error) {
                         NSError *localError;
                         NSDictionary *parsedObject = [NSJSONSerialization JSONObjectWithData:data options:0 error:&localError];
@@ -123,57 +123,59 @@ static NSString * const stringForURLRequest = @"https://api.backendless.com/v1/f
                                 NSLog(@"Error Parsing JSON %@", localError);
                             } else {
                                 feed.imageName = [parsedObject valueForKey:@"fileURL"];
+                                feed.localImage = NULL;
+                                NSLog(@"Group left");
                                 dispatch_group_leave(putGroup);
                             }
                         });
                         
                     } else {
-                        NSLog(@"%@", error);
+                        NSLog(@"Group left with error");
+                        NSLog(@"uploadImagesWithCompletion: ERROR from request %@", error);
                         dispatch_group_leave(putGroup);
                     }
                 });
             }];
             [uploadTask resume];
         }
-    }];
-    
-    
-    dispatch_group_notify(putGroup, dispatch_get_main_queue(), ^{
         
-        if (!uploadingError) {
-            [backgroundContext performBlock:^{
+        dispatch_group_notify(putGroup, dispatch_get_main_queue(), ^{
+            NSLog(@"entered notify");
+            if (!uploadingError) {
+                [backgroundContext performBlock:^{
+                    
+                    NSError *savingBackgroundContextError = nil;
+                    if ([backgroundContext save:&savingBackgroundContextError]) {
+                        
+                        [mainContext performBlock:^{
+                            NSError *savingMainContextError = nil;
+                            if ([mainContext save:&savingMainContextError]) {
+                                
+                                dispatch_async(dispatch_get_main_queue(), ^{
+                                    completion(nil);
+                                });
+                                
+                            } else {
+                                dispatch_async(dispatch_get_main_queue(), ^{
+                                    completion(savingMainContextError);
+                                });
+                            }
+                        }];
+                        
+                    } else {
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            completion(savingBackgroundContextError);
+                        });
+                    }
+                }];
                 
-                NSError *savingBackgroundContextError = nil;
-                if ([backgroundContext save:&savingBackgroundContextError]) {
-                    
-                    [mainContext performBlock:^{
-                        NSError *savingMainContextError = nil;
-                        if ([mainContext save:&savingMainContextError]) {
-                            
-                            dispatch_async(dispatch_get_main_queue(), ^{
-                                completion(nil);
-                            });
-                            
-                        } else {
-                            dispatch_async(dispatch_get_main_queue(), ^{
-                                completion(savingMainContextError);
-                            });
-                        }
-                    }];
-                    
-                } else {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        completion(savingBackgroundContextError);
-                    });
-                }
-            }];
+            } else {
+                completion(uploadingError);
+            }
             
-        } else {
-            completion(uploadingError);
-        }
-        
-    });
+        });
 
+    }];
 }
 
 + (void)downloadImageFromString:(NSString *)imageString forIndexPath:(NSIndexPath *)indexPath completion:(void (^)(UIImage *image, NSIndexPath *indexPath))completion {
@@ -199,6 +201,7 @@ static NSString * const stringForURLRequest = @"https://api.backendless.com/v1/f
         
     } else {
         
+    
         NSURLSessionDataTask *imageDataTask = [[NSURLSession sharedSession] dataTaskWithRequest:imageReqest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
             
             dispatch_async(dispatch_get_global_queue(0, 0), ^{
@@ -209,13 +212,17 @@ static NSString * const stringForURLRequest = @"https://api.backendless.com/v1/f
                         if (!image) {
                             NSLog(@"Error Setting Image");
                         } else {
-                            [[ImageManagerTasks sharedInstance] setImageManagerTask:imageDataTask forKey:imageString];
+                             NSLog(@"Image is downloaded %ld", (long)indexPath.row);
+                            if (imageDataTask && imageString) {
+                                [[ImageManagerTasks sharedInstance] setImageManagerTask:imageDataTask forKey:imageString];
+                            }
                             completion (image, indexPath);
+                           
                         }
                     });
                     
                 } else {
-                    NSLog(@"Error imageDataTask %@", error);
+                    NSLog(@"downloadImageFromString:(NSString *)imageString forIndexPath: ERROR from request %@", error);
                 }
             });
         }];
@@ -223,10 +230,86 @@ static NSString * const stringForURLRequest = @"https://api.backendless.com/v1/f
     }
 }
 
++ (void)downloadImageForFeed:(Feed *)feed forIndexPath:(NSIndexPath *)indexPath completion:(void (^)(UIImage *image, NSIndexPath *indexPath))completion {
+    
+    if ([[ImageManagerTasks sharedInstance] imageManagerTaskforKey:feed.imageName]) {
+        [[[ImageManagerTasks sharedInstance] imageManagerTaskforKey:feed.imageName] cancel];
+    }
+    
+    NSURL *imageURL = [NSURL URLWithString:feed.imageName];
+    NSURLRequest *imageReqest = [NSURLRequest requestWithURL:imageURL];
+    
+    NSCachedURLResponse *cachedResponse = [[NSURLCache sharedURLCache] cachedResponseForRequest:imageReqest];
+    
+    if (cachedResponse.data) {
+        
+        dispatch_async(dispatch_get_global_queue(0, 0), ^{
+            UIImage *image = [UIImage imageWithData:cachedResponse.data];
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                completion(image, indexPath);
+            });
+            
+        });
+        
+    } else {
+        NSManagedObjectContext *backgroundContext = [[FeedManager sharedInstance] backgroundContext];
+        NSManagedObjectContext *mainContext = [[FeedManager sharedInstance] mainContext];
+        
+        NSURLSessionDataTask *imageDataTask = [[NSURLSession sharedSession] dataTaskWithRequest:imageReqest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+            
+            dispatch_async(dispatch_get_global_queue(0, 0), ^{
+                if(!error) {
+                    UIImage *image = [UIImage imageWithData:data];
+                    
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        if (!image) {
+                            NSLog(@"Error Setting Image");
+                        } else {
+                            NSLog(@"Image is downloaded %ld", (long)indexPath.row);
+                            if (imageDataTask && feed.imageName) {
+                                [[ImageManagerTasks sharedInstance] setImageManagerTask:imageDataTask forKey:feed.imageName];
+                            }
+                            if (!cachedResponse.data) {
+                                feed.localImage = UIImageJPEGRepresentation(image, 0.0);
+                                
+                                [backgroundContext performBlock:^{
+                                    
+                                    NSError *savingBackgroundContextError = nil;
+                                    if ([backgroundContext save:&savingBackgroundContextError]) {
+                                        
+                                        [mainContext performBlock:^{
+                                            NSError *savingMainContextError = nil;
+                                            if (![mainContext save:&savingMainContextError]) {
+                                                NSLog(@"ERROR saving localImage while downloading from server in main context %@", savingMainContextError);
+                                            }
+                                        }];
+                                        
+                                    } else {
+                                        NSLog(@"ERROR saving localImage while downloading from server in background context %@", savingBackgroundContextError);
+                                    }
+                                }];
+                            }
+                            
+                            completion (image, indexPath);
+                        }
+                    });
+                    
+                } else {
+                    NSLog(@"downloadImageFromString:(NSString *)imageString forIndexPath: ERROR from request %@", error);
+                }
+            });
+        }];
+        [imageDataTask resume];
+    }
+
+    
+}
+
 + (void)setSharedCacheForImages {
     NSUInteger cacheSize = 500 * 1024 * 1024;
     NSUInteger cacheDiskSize = 500 * 1024 * 1024;
-    NSURLCache *imageCache = [[NSURLCache alloc] initWithMemoryCapacity:cacheSize diskCapacity:cacheDiskSize diskPath:@"AppImagesCache"];
+    NSURLCache *imageCache = [[NSURLCache alloc] initWithMemoryCapacity:cacheSize diskCapacity:cacheDiskSize diskPath:@"AppCacheImages"];
     [NSURLCache setSharedURLCache:imageCache];
 }
 
