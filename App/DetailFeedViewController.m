@@ -69,11 +69,12 @@
     self.scrollView.contentInset = contentInsets;
     self.scrollView.scrollIndicatorInsets = contentInsets;
     
-    #pragma TODO:active field to be scrolled up
-    CGRect rect = self.view.frame;
+    CGRect rect = self.scrollView.frame;
     rect.size.height -= keyboardSize.height;
-    id frame = [self.activeTextView valueForKey:@"frame"];
-    if (!CGRectContainsPoint(rect, self.activeTextView.frame.origin)) {
+    
+    CGPoint point = CGPointMake(self.activeTextView.frame.origin.x, self.activeTextView.frame.origin.y + self.activeTextView.frame.size.height);
+    
+    if (!CGRectContainsPoint(rect, point)) {
         [self.scrollView scrollRectToVisible:self.activeTextView.frame animated:YES];
     }
 }
@@ -153,6 +154,7 @@
     }
     
     [self.titlteTextView becomeFirstResponder];
+//    [self.subtitleTextView becomeFirstResponder];
     
     [self showSaveButton];
 }
@@ -184,11 +186,13 @@
 
 - (void)textViewDidBeginEditing:(UITextView *)textView {
     self.activeTextView = textView;
-  
 }
 
 - (void)textViewDidEndEditing:(UITextView *)textView {
-    self.activeTextView = nil;
+    if (self.activeTextView == self.titlteTextView) {
+        self.activeTextView = nil;
+        self.activeTextView = self.subtitleTextView;
+    }
 }
 
 - (void)showSaveButton {
