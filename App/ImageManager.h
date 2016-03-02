@@ -18,7 +18,4 @@
 
 + (void)uploadImagesWithCompletion:(void (^)(NSError *error))completion;
 
-+ (void)downloadImageForFeed:(Feed *)feed
-                forIndexPath:(NSIndexPath *)indexPath
-                  completion:(void (^)(UIImage *image, NSIndexPath *indexPath))completion;
 @end

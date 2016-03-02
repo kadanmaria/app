@@ -57,6 +57,7 @@ static NSString * const stringForValidatationRequest = @"https://api.backendless
                         if ([parsedObject valueForKey:@"user-token"]) {
                             NSUserDefaults *user = [NSUserDefaults standardUserDefaults];
                             [user setObject:[NSDate date] forKey:@"date"];
+                            [user synchronize];
                             [self.delegate authorizationManager:self hasRecievedUserToken:[parsedObject valueForKey:@"user-token"] forLogin:login];
                         } else {
                             [self.delegate authorizationManager:self hasRecievedUserToken:nil forLogin:login];
@@ -75,9 +76,9 @@ static NSString * const stringForValidatationRequest = @"https://api.backendless
 }
 
 - (void)isSessionValid {
-    
     NSUserDefaults *user = [NSUserDefaults standardUserDefaults];
     NSDate *lastLoginDate = [user valueForKey:@"date"];
+    
     if (lastLoginDate) {
         NSDate *datePlusHour = [lastLoginDate dateByAddingTimeInterval:60*60];
         
@@ -91,6 +92,7 @@ static NSString * const stringForValidatationRequest = @"https://api.backendless
         } else {
             [self.delegate authorizationManagerSessionIsValid];
         }
+        
     } else {
         [self.delegate authorizationManagerSessionIsNotValid];
     }
@@ -98,9 +100,7 @@ static NSString * const stringForValidatationRequest = @"https://api.backendless
 
 
 - (void)isSessionValidWithUserToken:(NSString *)token {
-    
     NSString *validationString = [NSString stringWithFormat:@"%@%@", stringForValidatationRequest, token];
-    
     NSURL *validationURL = [NSURL URLWithString:validationString];
     
     NSMutableURLRequest *validationRequest = [self request];
@@ -125,11 +125,10 @@ static NSString * const stringForValidatationRequest = @"https://api.backendless
                     } else {
                         [self.delegate authorizationManagerSessionIsNotValid];
                     }
-            });
+                });
             } else {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self.delegate authorizationManager:self validationHasExecutedWithError:error];
-                    NSLog(@"Error %@", error);
                 });
             }
             

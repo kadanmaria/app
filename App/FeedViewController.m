@@ -61,7 +61,7 @@
     
     NSError *error;
     if (![self.fetchedResultsController performFetch:&error]) {
-        NSLog(@"Error %@, %@", error, [error userInfo]);
+        [self showAlertWithTitle:@"Data problem" message:@"Ooops! Data fetching problem!"];
     }
 }
 
@@ -166,21 +166,6 @@
     } else {
         cell.photoImageView.image = [UIImage imageWithData:feed.localImage];
     }
-
-//    if (!feed.localImage) {
-//        __weak FeedViewController *weakSelf = self;
-//        [ImageManager downloadImageForFeed:feed forIndexPath:indexPath completion:^(UIImage *image, NSIndexPath *indexPath) {
-//            __strong FeedViewController *strongSelf = weakSelf;
-//            if (strongSelf) {
-//                FeedCell *cell = [strongSelf.tableView cellForRowAtIndexPath:indexPath];
-//                if (cell) {
-//                    cell.photoImageView.image = image;
-//                }
-//            }
-//        }];
-//    } else {
-//        cell.photoImageView.image = [UIImage imageWithData:feed.localImage];
-//    }
 }
 
 #pragma mark - Navigation

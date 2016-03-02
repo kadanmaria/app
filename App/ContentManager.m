@@ -27,6 +27,7 @@ static NSString * const stringForPutRequest = @"https://api.backendless.com/v1/d
 }
 
 - (void)downloadContent {
+    // Prepare request.
     NSString *restCall = stringForURLRequest;
     NSURL *restURL = [NSURL URLWithString:restCall];
     
@@ -34,8 +35,8 @@ static NSString * const stringForPutRequest = @"https://api.backendless.com/v1/d
     restRequest.URL = restURL;
     [restRequest setHTTPMethod:@"GET"];
 
-    NSURLSession *session = [NSURLSession sharedSession];
-    NSURLSessionDataTask *jsonData = [session dataTaskWithRequest:restRequest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+    // Send request.
+    NSURLSessionDataTask *jsonData = [[NSURLSession sharedSession] dataTaskWithRequest:restRequest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         
         dispatch_async(dispatch_get_global_queue(0, 0), ^{
             if (!error) {
@@ -45,7 +46,6 @@ static NSString * const stringForPutRequest = @"https://api.backendless.com/v1/d
                 dispatch_async(dispatch_get_main_queue(), ^{
                     if (localError) {
                         [self.delegate contentManager:self hasExecutedWithError:localError];
-                        NSLog(@"Error Parsing JSON %@", localError);
                     } else {
                         [self.delegate contentManager:self didDownloadContentToArray:[parsedObject valueForKey:@"data"]];
                     }
@@ -61,8 +61,7 @@ static NSString * const stringForPutRequest = @"https://api.backendless.com/v1/d
     [jsonData resume];
 }
 
-- (void)putChangesToServer {
-    
+- (void)putChangesToServer {    
     NSManagedObjectContext *backgroundContext = [[FeedManager sharedInstance] backgroundContext];
     NSManagedObjectContext *mainContext = [[FeedManager sharedInstance] mainContext];
 
@@ -74,8 +73,7 @@ static NSString * const stringForPutRequest = @"https://api.backendless.com/v1/d
         for (Feed *feed in feeds) {
             
             // Prepare request.
-            NSString *putString = [[NSString alloc] init];
-            
+            NSString *putString = @"";
             if ([[feed valueForKey:@"objectId"] isEqualToString:@"temporaryId"]) {
                 putString = stringForPutRequest;
             } else {
@@ -156,7 +154,6 @@ static NSString * const stringForPutRequest = @"https://api.backendless.com/v1/d
         });
 
     }];
-    
 }
 
 @end

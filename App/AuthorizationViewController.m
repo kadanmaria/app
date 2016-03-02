@@ -43,27 +43,25 @@
 #pragma mark - IBActions
 
 - (IBAction)login:(id)sender {
-//    [self.authorizationManager loginWithLogin:self.loginTextField.text password:self.passwordTextField.text];
-    [self.authorizationManager loginWithLogin:@"user" password:@"user"];
+    [self.authorizationManager loginWithLogin:self.loginTextField.text password:self.passwordTextField.text];
+//    [self.authorizationManager loginWithLogin:@"user" password:@"user"];
     
     [self.loginTextField resignFirstResponder];
     [self.passwordTextField resignFirstResponder];
     
     [self.appDelegate startThinkingInViewController:self];
-    
 }
 
 #pragma mark - <AuthorizationManagerDelegate>
 
 - (void)authorizationManager:(AuthorizationManager *)manager hasRecievedUserToken:(NSString *)token forLogin:(NSString *)login {
-
     [self.appDelegate stopThinkingInViewController:self];
     
     if (token) {
          NSUserDefaults *user = [NSUserDefaults standardUserDefaults];
-        
         [user setObject:token forKey:@"token"];
         [user setObject:login forKey:@"login"];
+        [user synchronize];
         
         [self dismissViewControllerAnimated:NO completion:nil];
     } else {
@@ -90,8 +88,12 @@
 
 #pragma mark - Other
 
--(BOOL)shouldAutorotate {
+- (BOOL)shouldAutorotate {
     return NO;
+}
+
+- (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation {
+    return UIInterfaceOrientationPortrait;
 }
 
 - (void)showAlertWithTitle:(NSString *)title message:(NSString *)message {

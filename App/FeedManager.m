@@ -124,7 +124,6 @@
                 }
             }
         }
-        
         NSMutableSet *objectsToBeInserted = [NSMutableSet setWithSet:setOfObjects];
         [objectsToBeInserted minusSet:setOfCoreDataObjects];
         
@@ -234,7 +233,6 @@
                 [feedFromCoreData setValue:subtitle forKey:@"subtitle"];
                 [feedFromCoreData setValue:@YES forKey:@"hasChanged"];
             }
-         //   if (image && !feed.noCache) {
             if (image) {
                 [feedFromCoreData setValue:UIImageJPEGRepresentation(image, 1.0) forKey:@"localImage"];
                 [feedFromCoreData setValue:@YES forKey:@"hasChanged"];
@@ -246,8 +244,7 @@
                                       @"hasChanged": @YES,
                                       @"objectId"  : @"temporaryId",
                                       @"imageName" : @"http://i2.wp.com/www.wompcav.com/wp-content/uploads/2014/04/default-placeholder.png?fit=1024%2C1024",
-                                      @"localImage": UIImageJPEGRepresentation(image, 0.0),
-                                      @"noCache"   : @NO,
+                                      @"localImage": UIImageJPEGRepresentation(image, 0.0)
                                       };
             [self insertObject:object];
         }
@@ -287,8 +284,6 @@
     NSEntityDescription *entity = [NSEntityDescription entityForName:@"Feed" inManagedObjectContext:context];
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"localImage != NULL"];
-//    NSPredicate *predicate2 = [NSPredicate predicateWithFormat:@"noCache == NO"];
-//    NSPredicate *myPredicate = [NSCompoundPredicate andPredicateWithSubpredicates:@[predicate, predicate2]];
     fetchRequest.predicate = predicate;
     [fetchRequest setEntity:entity];
     

@@ -21,7 +21,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, retain) NSString *objectId;
 @property (nullable, nonatomic, retain) NSString *subtitle;
 @property (nullable, nonatomic, retain) NSString *title;
-@property (nullable, nonatomic, retain) NSNumber *noCache;
 
 @end
 

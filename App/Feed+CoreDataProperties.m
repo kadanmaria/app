@@ -19,6 +19,5 @@
 @dynamic objectId;
 @dynamic subtitle;
 @dynamic title;
-@dynamic noCache;
 
 @end
