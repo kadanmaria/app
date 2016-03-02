@@ -8,11 +8,10 @@
 
 #import <UIKit/UIKit.h>
 
-@interface Cell : UITableViewCell
+@interface FeedCell : UITableViewCell
 
 @property (weak, nonatomic) IBOutlet UILabel *titleLabel;
 @property (weak, nonatomic) IBOutlet UILabel *subTitleLabel;
 @property (weak, nonatomic) IBOutlet UIImageView *photoImageView;
-@property (assign, nonatomic) NSInteger *cellIndex;
 
 @end

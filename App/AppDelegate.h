@@ -7,10 +7,15 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "FeedManager.h"
+#import "AuthorizationManager.h"
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
+
+- (void)startThinkingInViewController:(UIViewController *)viewController;
+- (void)stopThinkingInViewController:(UIViewController *)viewController;
 
 @end
 
