@@ -1,5 +1,5 @@
 //
-//  ImageDownloader.h
+//  ImageManager.h
 //  App
 //
 //  Created by Admin on 13.02.16.
@@ -8,11 +8,14 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+#import "Feed.h"
 
-@interface ImageDownloader : NSObject
+@interface ImageManager : NSObject
 
 + (void)downloadImageFromString:(NSString *)imageString
                    forIndexPath:(NSIndexPath *)indexPath
                      completion:(void (^)(UIImage *image, NSIndexPath *indexPath))completion;
+
++ (void)uploadImagesWithCompletion:(void (^)(NSError *error))completion;
 
 @end

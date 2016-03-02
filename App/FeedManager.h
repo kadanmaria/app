@@ -8,13 +8,21 @@
 
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
+#import <UIKit/UIKit.h>
+#import "Feed.h"
 
 @interface FeedManager : NSObject
 
-@property (strong, nonatomic) NSManagedObjectContext *managedObjectContext;
 @property (strong, nonatomic) NSFetchedResultsController *fetchedResultsController;
+@property (strong, nonatomic) NSManagedObjectContext *backgroundContext;
+@property (strong, nonatomic) NSManagedObjectContext *mainContext;
 
++ (instancetype)sharedInstance;
 - (void)initializeCoreData;
+
 - (void)manageObjects:(NSArray *)objects;
+- (void)updateOrAddFeed:(Feed *)feed accordingToChangedTitle:(NSString *)title subtitle:(NSString *)subtitle image:(UIImage *)image;
+- (NSArray *)changedFeedsInContext:(NSManagedObjectContext *)context;
+- (NSArray *)feedsWithLocalImagesInContext:(NSManagedObjectContext *)context;
 
 @end

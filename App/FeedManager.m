@@ -1,4 +1,4 @@
-//
+
 //  FeedController.m
 //  App
 //
@@ -11,18 +11,23 @@
 
 @interface FeedManager ()
 
-@property (strong, nonatomic) NSManagedObjectContext *backgroundContext;
-
 @end
 
 @implementation FeedManager
 
-- (id)init {
-    self = [super init];
-    if (!self) {
-        return nil;
++ (instancetype)sharedInstance {
+    static FeedManager *instance = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        instance = [[self alloc] init];
+    });
+    return instance;
+}
+
+- (instancetype)init {
+    if (self = [super init]) {
+        [self initializeCoreData];
     }
-    [self initializeCoreData];
     return self;
 }
 
@@ -40,7 +45,7 @@
     [fetchRequest setFetchBatchSize:10];
     
     NSFetchedResultsController *fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest
-                                                                                               managedObjectContext:self.managedObjectContext
+                                                                                               managedObjectContext:self.mainContext
                                                                                                  sectionNameKeyPath:nil cacheName:@"Cache"];
     self.fetchedResultsController = fetchedResultsController;
     
@@ -53,25 +58,24 @@
     if (!managedObjectModel) {
         NSLog(@"Error initializing Model");
     }
-    
     NSPersistentStoreCoordinator *persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:managedObjectModel];
     if (!persistentStoreCoordinator) {
         NSLog(@"Error initializing Coordinator");
     }
     
-    NSManagedObjectContext *managedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
-    if (!managedObjectContext) {
+    NSManagedObjectContext *mainContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
+    if (!mainContext) {
         NSLog(@"Error initializing MainContext");
     }
     NSManagedObjectContext *backgroundContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-    backgroundContext.parentContext = managedObjectContext;
+    backgroundContext.parentContext = mainContext;
     if (!backgroundContext) {
         NSLog(@"Error initializing BackgroundContext");
     }
     self.backgroundContext = backgroundContext;
     
-    [managedObjectContext setPersistentStoreCoordinator:persistentStoreCoordinator];
-    [self setManagedObjectContext:managedObjectContext];
+    [mainContext setPersistentStoreCoordinator:persistentStoreCoordinator];
+    [self setMainContext:mainContext];
     
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSURL *documentsURL = [[fileManager URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
@@ -85,7 +89,7 @@
 
 - (void)manageObjects:(NSArray *)objects {
 
-    NSManagedObjectContext *mainContext = [self managedObjectContext];
+    NSManagedObjectContext *mainContext = [self mainContext];
     NSManagedObjectContext *backgroundContext = [self backgroundContext];
     
     [backgroundContext performBlock:^{
@@ -114,27 +118,22 @@
         [objectsTobeDeleted minusSet:setOfObjects];
         
         if (objectsTobeDeleted.count > 0) {
-            NSMutableArray *arrayOfObjectsToBeDeleted = [[NSMutableArray alloc] init];
             for (Feed *object in objectsFromCoreData) {
                 if ( [objectsTobeDeleted containsObject:object.objectId]) {
-                        [arrayOfObjectsToBeDeleted addObject:object];
-                    }
+                    [self deleteObject:object];
+                }
             }
-            [self deleteObjects:arrayOfObjectsToBeDeleted];
         }
-        
         NSMutableSet *objectsToBeInserted = [NSMutableSet setWithSet:setOfObjects];
         [objectsToBeInserted minusSet:setOfCoreDataObjects];
         
         if (objectsToBeInserted.count > 0) {
-            NSMutableArray *arrayOfObjectsToBeInserted = [[NSMutableArray alloc] init];
             for (NSDictionary *object in objects) {
                 if ( [objectsToBeInserted containsObject:[object valueForKey:@"objectId"]]) {
-                    [arrayOfObjectsToBeInserted addObject:object];
+                    [self insertObject:object];
                 }
             }
-            [self insertObjects:arrayOfObjectsToBeInserted];
-      }
+        }
         
         NSMutableSet *objectsToBeUpdated = setOfCoreDataObjects;
         [objectsToBeUpdated minusSet:objectsTobeDeleted];
@@ -150,35 +149,36 @@
         }
         
         NSError *savingBackgroundContextError = nil;
-        if (![backgroundContext save:&savingBackgroundContextError]) {
+        if ([backgroundContext save:&savingBackgroundContextError]) {
+            [mainContext performBlock:^{
+                NSError *savingMainContextError = nil;
+                if (![mainContext save:&savingMainContextError]) {
+                    NSLog(@"Unresolved error %@, %@", savingMainContextError, [savingMainContextError userInfo]);
+                }
+            }];
+        } else {
             NSLog(@"Unresolved error %@, %@", savingBackgroundContextError, [savingBackgroundContextError userInfo]);
         }
-        
-        [mainContext performBlock:^{
-            NSError *savingMainContextError = nil;
-            if (![mainContext save:&savingMainContextError]) {
-                NSLog(@"Unresolved error %@, %@", savingMainContextError, [savingMainContextError userInfo]);
-            }
-        }];
-        
     }];
+    
 }
 
-- (void)deleteObjects:(NSMutableArray *)objects {
-    for (NSManagedObject *object in objects) {
+- (void)deleteObject:(NSManagedObject *)object {
         [[self backgroundContext] deleteObject:object];
-    }
 }
 
-- (void)insertObjects:(NSMutableArray *)objects {
-    for (NSDictionary *object in objects) {
-        Feed *feed = [NSEntityDescription insertNewObjectForEntityForName:@"Feed" inManagedObjectContext:[self backgroundContext]];
+- (void)insertObject:(NSDictionary *)object {
+    Feed *feed = [NSEntityDescription insertNewObjectForEntityForName:@"Feed" inManagedObjectContext:[self backgroundContext]];
 
-        [feed setValue:[object valueForKey:@"objectId"] forKey:@"objectId"];
-        [feed setValue:[object valueForKey:@"subtitle"] forKey:@"subtitle"];
-        [feed setValue:[object valueForKey:@"title"] forKey:@"title"];
-        [feed setValue:[object valueForKey:@"imageName"] forKey:@"imageName"];
-        
+    [feed setValue:[object valueForKey:@"objectId"] forKey:@"objectId"];
+    [feed setValue:[object valueForKey:@"subtitle"] forKey:@"subtitle"];
+    [feed setValue:[object valueForKey:@"title"] forKey:@"title"];
+    [feed setValue:[object valueForKey:@"imageName"] forKey:@"imageName"];
+    if ([object valueForKey:@"localImage"]) {
+        [feed setValue:[object valueForKey:@"localImage"] forKey:@"localImage"];
+    }
+    if ([object valueForKey:@"hasChanged"]) {
+        [feed setValue:[object valueForKey:@"hasChanged"] forKey:@"hasChanged"];
     }
 }
 
@@ -201,6 +201,98 @@
             }
         }
     }
+}
+
+- (void)updateOrAddFeed:(Feed *)feed accordingToChangedTitle:(NSString *)title subtitle:(NSString *)subtitle image:(UIImage *)image{
+    
+    NSManagedObjectContext *mainContext = [self mainContext];
+    NSManagedObjectContext *backgroundContext = [self backgroundContext];
+    
+    [backgroundContext performBlock:^{
+        
+        if (feed) {
+            NSEntityDescription *entity = [NSEntityDescription entityForName:@"Feed" inManagedObjectContext:backgroundContext];
+            NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+            NSPredicate *predicate = [NSPredicate predicateWithFormat:@"objectId like %@", feed.objectId];
+            fetchRequest.predicate = predicate;
+            [fetchRequest setEntity:entity];
+            
+            NSError *error;
+            NSArray *feedsFromCoreData = [backgroundContext executeFetchRequest:fetchRequest error:&error];
+            if (error) {
+                NSLog(@"Error fetching data %@, %@", error, [error userInfo]);
+            }
+            Feed *feedFromCoreData = [feedsFromCoreData firstObject];
+            
+            if (![feedFromCoreData.title isEqualToString:title]) {
+                [feedFromCoreData setValue:title forKey:@"title"];
+                NSLog(@"TITLE %@ CHANGED To %@", feedFromCoreData.title, title);
+                [feedFromCoreData setValue:@YES forKey:@"hasChanged"];
+            }
+            if (![feedFromCoreData.subtitle isEqualToString:subtitle]) {
+                [feedFromCoreData setValue:subtitle forKey:@"subtitle"];
+                [feedFromCoreData setValue:@YES forKey:@"hasChanged"];
+            }
+            if (image) {
+                [feedFromCoreData setValue:UIImageJPEGRepresentation(image, 1.0) forKey:@"localImage"];
+                [feedFromCoreData setValue:@YES forKey:@"hasChanged"];
+            }
+            
+        } else {
+            NSDictionary *object = @{ @"title"     : title,
+                                      @"subtitle"  : subtitle,
+                                      @"hasChanged": @YES,
+                                      @"objectId"  : @"temporaryId",
+                                      @"imageName" : @"http://i2.wp.com/www.wompcav.com/wp-content/uploads/2014/04/default-placeholder.png?fit=1024%2C1024",
+                                      @"localImage": UIImageJPEGRepresentation(image, 0.0)
+                                      };
+            [self insertObject:object];
+        }
+        
+        NSError *savingBackgroundContextError = nil;
+        if ([backgroundContext save:&savingBackgroundContextError]) {
+            [mainContext performBlock:^{
+                NSError *savingMainContextError = nil;
+                if (![mainContext save:&savingMainContextError]) {
+                    NSLog(@"Unresolved error %@, %@", savingMainContextError, [savingMainContextError userInfo]);
+                }
+            }];
+        } else {
+            NSLog(@"Unresolved error %@, %@", savingBackgroundContextError, [savingBackgroundContextError userInfo]);
+        }
+    }];
+}
+
+- (NSArray *)changedFeedsInContext:(NSManagedObjectContext *)context {
+    
+    NSEntityDescription *entity = [NSEntityDescription entityForName:@"Feed" inManagedObjectContext:context];
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"hasChanged == YES"];
+    fetchRequest.predicate = predicate;
+    [fetchRequest setEntity:entity];
+        
+    NSError *error;
+    NSArray *fetchedFeeds = [context executeFetchRequest:fetchRequest error:&error];
+    if (error) {
+        NSLog(@"Error fetching data %@, %@", error, [error userInfo]);
+    }    
+    return fetchedFeeds;
+}
+
+- (NSArray *)feedsWithLocalImagesInContext:(NSManagedObjectContext *)context {
+    
+    NSEntityDescription *entity = [NSEntityDescription entityForName:@"Feed" inManagedObjectContext:context];
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"localImage != NULL"];
+    fetchRequest.predicate = predicate;
+    [fetchRequest setEntity:entity];
+    
+    NSError *error;
+    NSArray *fetchedFeeds = [context executeFetchRequest:fetchRequest error:&error];
+    if (error) {
+        NSLog(@"Error fetching data %@, %@", error, [error userInfo]);
+    }
+    return fetchedFeeds;
 }
 
 @end

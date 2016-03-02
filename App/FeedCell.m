@@ -6,9 +6,9 @@
 //  Copyright © 2016 OrgName. All rights reserved.
 //
 
-#import "Cell.h"
+#import "FeedCell.h"
 
-@implementation Cell
+@implementation FeedCell
 
 - (void)prepareForReuse {
     [super prepareForReuse];
