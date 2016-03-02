@@ -26,6 +26,7 @@
 @property (strong, nonatomic) NSMutableArray *navigationBarItems;
 @property (strong, nonatomic) UIImagePickerController *imagePickerController;
 @property (strong, nonatomic) UITextView *activeTextView;
+@property (strong, nonatomic) UIImage *addedImage;
 
 @end
 
@@ -111,7 +112,7 @@
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary<NSString *,id> *)info {
     UIImage *image = [info valueForKey:UIImagePickerControllerOriginalImage];
     self.photoImageView.image = image;
-    
+    self.addedImage = image;
     [self dismissViewControllerAnimated:YES completion:NULL];
 }
 
@@ -142,7 +143,7 @@
 - (IBAction)saveFeed:(id)sender {
     [self showEditButton];
     
-    [[FeedManager sharedInstance] updateOrAddFeed:self.feed accordingToChangedTitle:self.titlteTextView.text subtitle:self.subtitleTextView.text image:self.photoImageView.image];
+    [[FeedManager sharedInstance] updateOrAddFeed:self.feed accordingToChangedTitle:self.titlteTextView.text subtitle:self.subtitleTextView.text image:self.addedImage];
     [self.navigationController popViewControllerAnimated:YES];
 }
 

@@ -166,7 +166,7 @@
     } else {
         cell.photoImageView.image = [UIImage imageWithData:feed.localImage];
     }
-//
+
 //    if (!feed.localImage) {
 //        __weak FeedViewController *weakSelf = self;
 //        [ImageManager downloadImageForFeed:feed forIndexPath:indexPath completion:^(UIImage *image, NSIndexPath *indexPath) {

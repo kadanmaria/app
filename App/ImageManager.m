@@ -267,31 +267,14 @@ static NSString * const stringForURLRequest = @"https://api.backendless.com/v1/f
                             NSLog(@"Error Setting Image");
                         } else {
                             NSLog(@"Image is downloaded %ld", (long)indexPath.row);
-                            if (imageDataTask && feed.imageName) {
-                                [[ImageManagerTasks sharedInstance] setImageManagerTask:imageDataTask forKey:feed.imageName];
-                            }
-                            if (!cachedResponse.data) {
-                                feed.localImage = UIImageJPEGRepresentation(image, 0.0);
-                                
-                                [backgroundContext performBlock:^{
-                                    
-                                    NSError *savingBackgroundContextError = nil;
-                                    if ([backgroundContext save:&savingBackgroundContextError]) {
-                                        
-                                        [mainContext performBlock:^{
-                                            NSError *savingMainContextError = nil;
-                                            if (![mainContext save:&savingMainContextError]) {
-                                                NSLog(@"ERROR saving localImage while downloading from server in main context %@", savingMainContextError);
-                                            }
-                                        }];
-                                        
-                                    } else {
-                                        NSLog(@"ERROR saving localImage while downloading from server in background context %@", savingBackgroundContextError);
-                                    }
-                                }];
-                            }
-                            
-                            completion (image, indexPath);
+                            [[ImageManagerTasks sharedInstance] setImageManagerTask:imageDataTask forKey:feed.imageName];
+                             completion (image, indexPath);
+                            [backgroundContext performBlock:^{
+                                if (!cachedResponse.data) {
+                                    feed.localImage = UIImageJPEGRepresentation(image, 0.0);
+                                    feed.noCache = @YES;
+                                }
+                            }];
                         }
                     });
                     
@@ -299,11 +282,28 @@ static NSString * const stringForURLRequest = @"https://api.backendless.com/v1/f
                     NSLog(@"downloadImageFromString:(NSString *)imageString forIndexPath: ERROR from request %@", error);
                 }
             });
+            
+            
         }];
         [imageDataTask resume];
+        
+        [backgroundContext performBlock:^{
+            
+            NSError *savingBackgroundContextError = nil;
+            if ([backgroundContext save:&savingBackgroundContextError]) {
+                
+                [mainContext performBlock:^{
+                    NSError *savingMainContextError = nil;
+                    if (![mainContext save:&savingMainContextError]) {
+                        NSLog(@"ERROR saving localImage while downloading from server in main context %@", savingMainContextError);
+                    }
+                }];
+                
+            } else {
+                NSLog(@"ERROR saving localImage while downloading from server in background context %@", savingBackgroundContextError);
+            }
+        }];
     }
-
-    
 }
 
 + (void)setSharedCacheForImages {
